@@ -1,4 +1,4 @@
-struct FiniteAutomaton {
+pub struct FiniteAutomaton {
 	// automata are defined as a 5 tuple of states, alphabet, transition function,
 	// final, and start state
 
