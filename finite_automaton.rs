@@ -1,5 +1,6 @@
 use std::collections::*;
 
+#[derive(Debug)]
 pub struct FiniteAutomaton {
 	// automata are defined as a 5 tuple of states, alphabet, transition function,
 	// final, and start state
@@ -16,7 +17,7 @@ pub struct FiniteAutomaton {
 }
 
 impl FiniteAutomaton {
-	fn new(a_alphabet : HashSet<char>,
+	pub fn new(a_alphabet : HashSet<char>,
 		   a_start_state : String, a_new_states : HashMap<String, bool>,
 		   a_transitions : HashMap<(String, Option<char>), String>)
 		   -> FiniteAutomaton {
@@ -24,15 +25,15 @@ impl FiniteAutomaton {
 						  states : a_new_states, transition_function : a_transitions,
 						  determinism : true }
 	}
-
-	fn insert_state(&mut self, state_name : &String, is_final : bool, 
+	
+	/*pub fn insert_new_state(&mut self, state_name : &String, is_final : bool, 
 					transitions : HashSet<(Option<char>, String)>) {
-		if self.states.get(state_name.to_string()) == None {
+		if self.states.get(&state_name.to_string()) == None {
 			println!("Inserting {:?}: ",
 					 self.states.insert(state_name.to_string(), is_final));
 		}
 		else {
-			println!("State already exists, delete before replacing");
+			println!("State already exists, call delete() before replacing");
 		}
 		
 		for i in transitions.iter() {
@@ -44,7 +45,10 @@ impl FiniteAutomaton {
 			// lose determinism
 
 			// the first bool shows if the new state should be inserted, the
-			// second if it is deterministic. 
+			// second if it is deterministic.
+
+			// should also check to see that the end of the transition string exists
+			// as well
 			let should_insert : (bool, bool) = match &i.0 {
 				Some(symbol) => (! self.alphabet.contains(&symbol), true),
 				None => (true, false)
@@ -62,7 +66,9 @@ impl FiniteAutomaton {
 		}
 	}
 
-	fn delete_state(&mut self, state_name : String) -> () {
+	pub fn delete_state(&mut self, state_name : String) -> () {
+		// start by checking to see that the state exists
+		
 		// delete state from the states HashSet
 		
 		// find and delete all transitions to and from the state in the
@@ -94,6 +100,6 @@ impl FiniteAutomaton {
 
 	fn trace_string() -> () { }
 
-	fn generate_tests() -> () { }
+	fn generate_tests() -> () { }*/
 	
 }
