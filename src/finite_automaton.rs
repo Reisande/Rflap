@@ -30,10 +30,29 @@ impl FiniteAutomaton {
 		self.alphabet.insert(new_char);
 	}
 	
-	pub fn insert_empty_state(&mut self, state_name : String, is_final : bool) -> bool {
+	fn change_start(&mut self, new_start : &String) -> bool {
+		let should_change = match self.states.get(&new_start.to_string()) {
+			None => false,
+			Some(_) => true
+		};
+
+		if should_change {
+			self.start_state = new_start.to_string();
+			true
+		}
+		else {
+			false
+		}
+	}
+	
+	pub fn insert_empty_state(&mut self, state_name : &String, is_final : bool,
+							  is_start : bool) -> bool {
 		if self.states.get(&state_name.to_string()) == None {
 			println!("Inserting New State: {:?}: ",
-					 self.states.insert(state_name, is_final));
+					 self.states.insert(state_name.to_string(), is_final));
+			if is_start {
+				self.change_start(state_name);
+			}
 			true
 		}
 		else {
@@ -74,8 +93,9 @@ impl FiniteAutomaton {
 	}
 	
 	pub fn insert_new_state(&mut self, state_name : &String, is_final : bool, 
-							transitions : HashSet<(Option<char>, String)>) {
-		if self.insert_empty_state(state_name.to_string(), is_final) {
+							transitions : HashSet<(Option<char>, String)>,
+							is_start : bool) {
+		if self.insert_empty_state(&state_name.to_string(), is_final, is_start) {
 			for i in transitions.iter() {
 				self.insert_transition(state_name, i);
 			}
@@ -86,7 +106,7 @@ impl FiniteAutomaton {
 		// start by checking to see that the state exists
 		let state_exists = match self.states.get(&state_name.to_string()) {
 			None => false,
-			Some(symbol) => true	
+			Some(_) => true	
         };
 
 		if state_exists {
@@ -108,10 +128,6 @@ impl FiniteAutomaton {
 			println!("Tried to delete nonexistant state: {:?}", state_name);
 			false
 		}
-	}
-
-	fn change_start(&mut self) -> () {
-
 	}
 
 	/*
