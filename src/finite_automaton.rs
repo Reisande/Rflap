@@ -42,7 +42,7 @@ impl FiniteAutomaton {
 		}
 	}
 
-	fn insert_transition(&mut self, state_name : &String, new_transition : &(Option<char>, String)) {
+	pub fn insert_transition(&mut self, state_name : &String, new_transition : &(Option<char>, String)) {
 		// checks to see if the read symbol is either an epsilon or inside
 		// of the alphabet if not in the alphabet rejects that specific
 		// insertion
@@ -57,7 +57,8 @@ impl FiniteAutomaton {
 		// as well
 		let should_insert : (bool, bool) = match &new_transition.0 {
 			Some(symbol) => (! (self.alphabet.contains(&symbol) ||
-								self.states.contains_key(&(new_transition.1).to_string())), true),
+								self.states.contains_key(&(new_transition.1).to_string())),
+							 true),
 			None => (true, false)
 		};
 
@@ -81,34 +82,53 @@ impl FiniteAutomaton {
 		}
 	}
 
-	/*pub fn delete_state(&mut self, state_name : String) -> () {
+	pub fn delete_state(&mut self, state_name : &String) -> bool {
 		// start by checking to see that the state exists
-		
-		// delete state from the states HashSet
-		
-		// find and delete all transitions to and from the state in the
-		// transitions HashMap
-		
+		let state_exists = match self.states.get(&state_name.to_string()) {
+			None => false,
+			Some(symbol) => true	
+        };
+
+		if state_exists {
+			// delete state from the states HashSet
+			self.states.remove(state_name);
+			// find and delete all transitions to and from the state in the
+			// transitions HashMap
+
+			// transition_function : HashMap<(String, Option<char>), String>,
+	
+			for i in self.transition_function.iter() {
+				// check if i's value is equal to the node to be deleted. If so,
+				// delete the node, otherwise leave it alone
+			}
+			
+			true
+		}
+		else {
+			println!("Tried to delete nonexistant state: {:?}", state_name);
+			false
+		}
 	}
 
 	fn change_start(&mut self) -> () {
 
 	}
-	
-	fn serialize_xml() -> () { }
 
-	fn deserialize_xml() -> () { }
-
-	fn serialize_json() -> () { }
-
-	fn deserialize_json() -> () { }
-	
+	/*
 	fn check_determinism() -> () { }
 
 	fn validate_string() -> () { }
 
 	fn trace_string() -> () { }
 
+	fn serialize_json() -> () { }
+
+	fn deserialize_json() -> () { }	
+	
+	fn serialize_xml() -> () { }
+
+	fn deserialize_xml() -> () { }
+	
 	fn generate_tests() -> () { }*/
 	
 }
