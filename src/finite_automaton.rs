@@ -49,6 +49,7 @@ impl FiniteAutomaton {
 	}
 	
 	fn change_start(&mut self, new_start : &String) -> bool {
+		// checking to see that the new start is an existing state
 		let should_change = match self.states.get(&new_start.to_owned()) {
 			None => false,
 			Some(_) => true
@@ -80,7 +81,8 @@ impl FiniteAutomaton {
 	}
 
 	pub fn insert_transition(&mut self, state_name : &String,
-							 new_transition : &(Option<char>, String)) {
+							 new_transition : &(Option<char>, String),
+							 deterministic_insert : bool) {
 		// checks to see if the read symbol is either an epsilon or inside
 		// of the alphabet if not in the alphabet rejects that specific
 		// insertion
@@ -91,11 +93,16 @@ impl FiniteAutomaton {
 		// the first bool shows if the new state should be inserted, the
 		// second if it is deterministic.
 
-		// should also check to see that the end of the transition string exists
-		// as well
+		// insertion occurs if the following checks are made:
+		// the transition character is in the alphabet, both states exist,
+		// and the insert is either intended to be non-deterministic or the insert is unique
 		let should_insert : (bool, bool) = match &new_transition.0 {
-			Some(symbol) => (! (self.alphabet.contains(&symbol) ||
-								self.states.contains_key(&(new_transition.1).to_owned())),
+			Some(symbol) => (self.alphabet.contains(&symbol) &&
+							 self.states.contains_key(&(new_transition.1).to_owned()) &&
+							 self.states.contains_key(state_name) &&
+							 (!deterministic_insert ||
+							  self.transition_function
+							  .get(&(state_name.to_owned(), new_transition.0)) == None),
 							 true),
 			None => (true, false)
 		};
@@ -106,18 +113,30 @@ impl FiniteAutomaton {
 											(&new_transition.1).to_owned());
 		}
 		else {
-			println!("Tried to incorrectly insert {:?}", state_name);
-			println!("{:?} is either a copy of an existing value, or previous delete failed",
-					 state_name);
+			println!("Tried to incorrectly insert {:?}, {:?}", state_name, new_transition);
+			println!("{:?}, {:?} is either a copy of an existing value, or previous delete failed",
+					 state_name, new_transition);
 		}		
+	}
+
+	pub fn delete_transition(&mut self, transition : &(String, Option<char>))
+							 -> bool {
+		let return_val : bool = match self.transition_function.remove(transition) {
+			Some(_) => true,
+			None => false
+		};
+
+		self.check_determinism();
+
+		return_val
 	}
 	
 	pub fn insert_new_state(&mut self, state_name : &String, is_final : bool, 
 							transitions : HashSet<(Option<char>, String)>,
-							is_start : bool) {
+							is_start : bool, deterministic_insert : bool) {
 		if self.insert_empty_state(&state_name.to_owned(), is_final, is_start) {
 			for i in transitions.iter() {
-				self.insert_transition(state_name, i);
+				self.insert_transition(state_name, i, deterministic_insert);
 			}
 		}
 	}
@@ -153,7 +172,7 @@ impl FiniteAutomaton {
 
 	// this function assumes that the validation that the string is valid for the
 	// alphabet occurs on the client side
-	fn validate_string(&mut self, validate_string : String) -> Option<Vec<(char, String)>> {
+	pub fn validate_string(&mut self, validate_string : String) -> Option<Vec<(char, String)>> {
 		self.check_determinism();
 
 		if self.determinism {
@@ -174,7 +193,7 @@ impl FiniteAutomaton {
 						Some(new_state) => new_state.to_owned(),
 						None => "".to_owned()
 					};
-													   
+				
 				return_vec.push((symbol, next_state));
 			}
 
@@ -224,42 +243,48 @@ impl FiniteAutomaton {
 	}
 
 	pub fn generate_tests(self, min_length : u8, max_length : u8, include_empty : bool,
-						  size : u8) -> Vec<String> {
+						  size : u8, random : bool)
+						  -> Vec<String> {
 		assert!(min_length <= max_length);
 		
-		let mut return_vec : Vec<String> = ["".to_string()].to_vec();
+		let mut return_vec : Vec<String> = [].to_vec();
 
-		if ! include_empty {
-			return_vec.pop();
+		if include_empty {
+			return_vec.push("".to_string());
 		}
 		
 		let alphabet_vec : Vec<char> = self.alphabet.iter().cloned().collect();
-		
-		while(return_vec.len() < size.try_into().unwrap()) {
-			let mut rng = rand::thread_rng();
 
-			let string_length : u8 = rng.gen_range(min_length, max_length);
+		if random {
+			while return_vec.len() < size.try_into().unwrap() {
+				let mut rng = rand::thread_rng();
 
-			let new_test_string : String = (0..string_length)
-				.map(|_| {
-					let idx : usize = rng.gen_range(0, alphabet_vec.len()).try_into().unwrap();
-					alphabet_vec[idx] as char
-				})
-				.collect();
+				let string_length : u8 = rng.gen_range(min_length, max_length);
 
-			return_vec.push(new_test_string);
+				let new_test_string : String = (0..string_length)
+					.map(|_| {
+						let idx : usize =
+							rng.gen_range(0, alphabet_vec.len()).try_into().unwrap();
+						alphabet_vec[idx] as char
+					})
+					.collect();
+
+				return_vec.push(new_test_string);
+			}
+		}
+		else {
+			// implement trie and flattening
 		}
 
 		return_vec
 	}
 	
-	/*
-	fn serialize_json() -> () { }
+	/*fn serialize_json() -> () { }
 
 	fn deserialize_json() -> () { }	
-	
-	fn serialize_xml() -> () { }
+    
+    fn serialize_xml() -> () { }
 
-	fn deserialize_xml() -> () { }
-	*/	
+    fn deserialize_xml() -> () { }
+     */	
 }
