@@ -21,6 +21,8 @@ impl FiniteAutomaton {
 			   a_start_state : String, a_new_states : HashMap<String, bool>,
 			   a_transitions : HashMap<(String, Option<char>), String>)
 			   -> FiniteAutomaton {
+
+		// should probably add a check for validation of automaton
 		FiniteAutomaton { alphabet : a_alphabet, start_state : a_start_state,
 						  states : a_new_states, transition_function : a_transitions,
 						  determinism : true }
@@ -171,7 +173,7 @@ impl FiniteAutomaton {
 			// check to see that the last state pushed is an accepting state
 			let accepted_string : bool = match return_vec.last() {
 				Some((_, state)) => match self.states.get(state) {
-					Some(return_bool) => true,
+					Some(return_bool) => *return_bool,
 					None => false
 				},
 				None => false
@@ -191,8 +193,18 @@ impl FiniteAutomaton {
 	
 	fn check_determinism(self) -> bool {
 		if self.determinism {
-			for i in self.transition_function.iter() {
-				
+			let mut return_val : bool = true;
+			for (state, _) in self.states {
+				for transition in &self.alphabet {
+					return_val =
+						return_val &&
+						self.transition_function.contains_key(
+							&(state.to_string(), Some(*transition)));
+					
+					if ! return_val {
+						return false;
+					}								   
+				}
 			}
 
 			true
@@ -203,8 +215,6 @@ impl FiniteAutomaton {
 	}
 	
 	/*
-	fn trace_string() -> () { }
-
 	fn serialize_json() -> () { }
 
 	fn deserialize_json() -> () { }	
