@@ -169,8 +169,20 @@ impl FiniteAutomaton {
 			}
 
 			// check to see that the last state pushed is an accepting state
-			
-			Some(return_vec)
+			let accepted_string : bool = match return_vec.last() {
+				Some((_, state)) => match self.states.get(state) {
+					Some(return_bool) => true,
+					None => false
+				},
+				None => false
+			};
+
+			if accepted_string {
+				Some(return_vec)
+			}
+			else {
+				None
+			}
 		}
 		else {
 			None
