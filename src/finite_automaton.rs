@@ -108,9 +108,9 @@ impl FiniteAutomaton {
 		};
 
 		if should_insert.0 {
-			self.determinism = self.determinism && should_insert.1;
 			self.transition_function.insert(((&state_name).to_string(), new_transition.0),
 											(&new_transition.1).to_owned());
+			self.check_determinism();
 		}
 		else {
 			println!("Tried to incorrectly insert {:?}, {:?}", state_name, new_transition);
@@ -219,25 +219,22 @@ impl FiniteAutomaton {
 	}
 	
 	fn check_determinism(&mut self) -> bool {
-		if self.determinism {
-			for (state, _) in &self.states {
-				for transition in &self.alphabet {
-					let return_val : bool =
-						self.transition_function.contains_key(
-							&(state.to_owned(), Some(*transition)));
+		for (state, _) in &self.states {
+			for transition in &self.alphabet {
+				let return_val : bool =
+					self.transition_function.contains_key(
+						&(state.to_owned(), Some(*transition)));
+				
+				if ! return_val {
+					println!("{} {} ", state, transition);
 					
-					if ! return_val {
-						self.determinism = false;
-						return false;
-					}								   
-				}
+					self.determinism = false;
+					return false;
+				}								   
 			}
+		}
 
-			self.determinism = true;
-		}
-		else {
-			self.determinism = false;
-		}
+		self.determinism = true;
 
 		self.determinism
 	}
@@ -279,11 +276,12 @@ impl FiniteAutomaton {
 		return_vec
 	}
 	
-	/*fn serialize_json() -> () { }
+	fn serialize_json() -> () { }
 
 	fn deserialize_json() -> () { }	
     
-    fn serialize_xml() -> () { }
+    /*
+	fn serialize_xml() -> () { }
 
     fn deserialize_xml() -> () { }
      */	
