@@ -33,4 +33,5 @@ fn main() {
 		finite_automaton::FiniteAutomaton::new(a_alphabet, a_start_state, a_new_states, a_transitions);
 	
     println!("\n{:#?}", test_dfa);
+	println!("{:?}", test_dfa.generate_tests(1, 8, true, 8));
 }

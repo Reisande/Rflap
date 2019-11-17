@@ -153,9 +153,11 @@ impl FiniteAutomaton {
 
 	// this function assumes that the validation that the string is valid for the
 	// alphabet occurs on the client side
-	fn validate_string(self, validate_string : String) -> Option<Vec<(char, String)>> {
+	fn validate_string(&mut self, validate_string : String) -> Option<Vec<(char, String)>> {
+		self.check_determinism();
+
 		if self.determinism {
-			let mut return_vec : Vec<(char, String)> = [('_', self.start_state)].to_vec();
+			let mut return_vec : Vec<(char, String)> = [('_', (&self.start_state).to_owned())].to_vec();
 
 			// iterate through the given string, moving from state to state, until
 			// the string is empty and the end state is reached or not reached
@@ -197,43 +199,50 @@ impl FiniteAutomaton {
 		}
 	}
 	
-	fn check_determinism(self) -> bool {
+	fn check_determinism(&mut self) -> bool {
 		if self.determinism {
-			for (state, _) in self.states {
+			for (state, _) in &self.states {
 				for transition in &self.alphabet {
 					let return_val : bool =
 						self.transition_function.contains_key(
 							&(state.to_owned(), Some(*transition)));
 					
 					if ! return_val {
+						self.determinism = false;
 						return false;
 					}								   
 				}
 			}
 
-			true
+			self.determinism = true;
 		}
 		else {
-			false
+			self.determinism = false;
 		}
+
+		self.determinism
 	}
 
-	fn generate_tests(self, min_length : u8, max_length : u8, include_empty : bool,
-					  size : u8) -> Vec<String> {
+	pub fn generate_tests(self, min_length : u8, max_length : u8, include_empty : bool,
+						  size : u8) -> Vec<String> {
 		assert!(min_length <= max_length);
 		
 		let mut return_vec : Vec<String> = ["".to_string()].to_vec();
+
+		if ! include_empty {
+			return_vec.pop();
+		}
 		
 		let alphabet_vec : Vec<char> = self.alphabet.iter().cloned().collect();
 		
-		for _i in 0..size {
+		while(return_vec.len() < size.try_into().unwrap()) {
 			let mut rng = rand::thread_rng();
 
 			let string_length : u8 = rng.gen_range(min_length, max_length);
 
 			let new_test_string : String = (0..string_length)
 				.map(|_| {
-					let idx : usize = rng.gen_range(min_length, max_length).try_into().unwrap();
+					let idx : usize = rng.gen_range(0, alphabet_vec.len()).try_into().unwrap();
 					alphabet_vec[idx] as char
 				})
 				.collect();
