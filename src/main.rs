@@ -32,5 +32,5 @@ fn main() {
 	let test_dfa : finite_automaton::FiniteAutomaton =
 		finite_automaton::FiniteAutomaton::new(a_alphabet, a_start_state, a_new_states, a_transitions);
 	
-    println!("\n{:?}", test_dfa);
+    println!("\n{:#?}", test_dfa);
 }

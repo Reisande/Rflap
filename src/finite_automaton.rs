@@ -26,6 +26,10 @@ impl FiniteAutomaton {
 						  determinism : true }
 	}
 
+	pub fn set_new_alphabet(&mut self, new_alphabet : HashSet<char>) {
+		self.alphabet = new_alphabet;
+	}
+	
 	pub fn insert_char_in_alphabet(&mut self, new_char : char) {
 		self.alphabet.insert(new_char);
 	}
@@ -61,7 +65,8 @@ impl FiniteAutomaton {
 		}
 	}
 
-	pub fn insert_transition(&mut self, state_name : &String, new_transition : &(Option<char>, String)) {
+	pub fn insert_transition(&mut self, state_name : &String,
+							 new_transition : &(Option<char>, String)) {
 		// checks to see if the read symbol is either an epsilon or inside
 		// of the alphabet if not in the alphabet rejects that specific
 		// insertion
@@ -88,7 +93,8 @@ impl FiniteAutomaton {
 		}
 		else {
 			println!("Tried to incorrectly insert {:?}", state_name);
-			println!("{:?} is either a copy of an existing value, or delete failed", state_name);
+			println!("{:?} is either a copy of an existing value, or delete failed",
+					 state_name);
 		}		
 	}
 	
@@ -101,7 +107,7 @@ impl FiniteAutomaton {
 			}
 		}
 	}
-
+	
 	pub fn delete_state(&mut self, state_name : &String) -> bool {
 		// start by checking to see that the state exists
 		let state_exists = match self.states.get(&state_name.to_string()) {
@@ -112,15 +118,11 @@ impl FiniteAutomaton {
 		if state_exists {
 			// delete state from the states HashSet
 			self.states.remove(state_name);
+
 			// find and delete all transitions to and from the state in the
 			// transitions HashMap
-
-			// transition_function : HashMap<(String, Option<char>), String>,
-	
-			for i in self.transition_function.iter() {
-				// check if i's value is equal to the node to be deleted. If so,
-				// delete the node, otherwise leave it alone
-			}
+			self.transition_function.retain
+				(|k, v| k.0 != state_name.to_string() && v != state_name);
 			
 			true
 		}
@@ -130,9 +132,20 @@ impl FiniteAutomaton {
 		}
 	}
 
-	/*
-	fn check_determinism() -> () { }
+	fn check_determinism(self) -> bool {
+		if self.determinism {
+			for i in self.transition_function.iter() {
+				
+			}
 
+			true
+		}
+		else {
+			false
+		}
+	}
+	
+	/*
 	fn validate_string() -> () { }
 
 	fn trace_string() -> () { }
