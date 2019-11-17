@@ -1,9 +1,15 @@
 #nav-header{
     font-weight: bold !important;
-    
+    color:#FFD700 !important;
+    border-bottom-style: solid;
+    border-width: 5px;
+
 }
 .nav-dropdown-text{
+    color:#FFD700;
 
     /* font-weight: bold;
     text-emphasis: bold; */
 }
+
+ 

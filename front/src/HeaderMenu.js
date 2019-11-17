@@ -6,6 +6,9 @@ import {Navbar, Nav, NavDropdown,Col} from 'react-bootstrap';
 import {AutomataContext} from './AutomataContext.js'
 function HeaderMenu(props){
     const master_context = useContext(AutomataContext)
+
+
+
     const DFA = useRef();
     const NFA = useRef();
     const TM = useRef();
@@ -16,7 +19,7 @@ function HeaderMenu(props){
 
     const [machine_select,set_machine_title] = useState("Deterministic Finite-Automata");
 
-    console.log("master context "  + master_context['test_value']);
+    // console.log("master context "  + master_context['test_value']);
 
 
     function propagateEvent(event,language){
@@ -25,13 +28,14 @@ function HeaderMenu(props){
         console.log(name);
         set_machine_title(name);
         master_context['mode'] = name;
+        master_context['test_value']= "nu metal sucks";
         console.log("In propogateEvent");
         
 
     }
 
 return(
-<Navbar collapseOnSelect bg="primary"  expand="md" variant="dark" id = "nav-header">
+<Navbar  bg="primary"  className="bg-dark" id = "nav-header">
     {/* Space RFLAP title a bit to the right */}
    <Col md={0}>
        <Col>
@@ -39,12 +43,11 @@ return(
        </Col>
     </Col>     
     
-    <Navbar.Brand href="#home"> <b>RFLAP</b></Navbar.Brand>
+    <Navbar.Brand ><b> <font color="#835C3B">R </font>    <font color="#FFD700">FLAP</font></b></Navbar.Brand>
     {/* add xs field for release */}
     <Col></Col>
-    <Col md = {9}>
+    <Col md = {7}>
     {machine_select}
-        <Col md = {6}></Col>
     </Col>
   <Navbar.Toggle aria-controls="responsive-navbar-nav" />
     
@@ -64,7 +67,7 @@ return(
       </NavDropdown>
       <Col></Col>
       <Nav>
-  <Nav.Link href="#home" class="text-primary">Run</Nav.Link>
+  <Nav.Link href="" class="text-primary" id = 'runbutton'>Run</Nav.Link>
 
   </Nav>
     </Nav>
