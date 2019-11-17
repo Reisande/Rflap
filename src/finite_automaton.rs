@@ -1,5 +1,13 @@
 use std::collections::*;
 
+extern crate rand;
+
+use json;
+use rand::{thread_rng, Rng};
+use rand::distributions::Alphanumeric;
+
+use std::convert::TryInto;
+
 #[derive(Debug)]
 pub struct FiniteAutomaton {
 	// automata are defined as a 5 tuple of states, alphabet, transition function,
@@ -21,8 +29,8 @@ impl FiniteAutomaton {
 			   a_start_state : String, a_new_states : HashMap<String, bool>,
 			   a_transitions : HashMap<(String, Option<char>), String>)
 			   -> FiniteAutomaton {
-
-		// should probably add a check for validation of automaton
+		// should probably add a check for validation of automaton, or maybe it
+		// should be done client side
 		FiniteAutomaton { alphabet : a_alphabet, start_state : a_start_state,
 						  states : a_new_states, transition_function : a_transitions,
 						  determinism : true }
@@ -41,13 +49,13 @@ impl FiniteAutomaton {
 	}
 	
 	fn change_start(&mut self, new_start : &String) -> bool {
-		let should_change = match self.states.get(&new_start.to_string()) {
+		let should_change = match self.states.get(&new_start.to_owned()) {
 			None => false,
 			Some(_) => true
 		};
 
 		if should_change {
-			self.start_state = new_start.to_string();
+			self.start_state = new_start.to_owned();
 			true
 		}
 		else {
@@ -57,9 +65,9 @@ impl FiniteAutomaton {
 	
 	pub fn insert_empty_state(&mut self, state_name : &String, is_final : bool,
 							  is_start : bool) -> bool {
-		if self.states.get(&state_name.to_string()) == None {
+		if self.states.get(&state_name.to_owned()) == None {
 			println!("Inserting New State: {:?}: ",
-					 self.states.insert(state_name.to_string(), is_final));
+					 self.states.insert(state_name.to_owned(), is_final));
 			if is_start {
 				self.change_start(state_name);
 			}
@@ -87,7 +95,7 @@ impl FiniteAutomaton {
 		// as well
 		let should_insert : (bool, bool) = match &new_transition.0 {
 			Some(symbol) => (! (self.alphabet.contains(&symbol) ||
-								self.states.contains_key(&(new_transition.1).to_string())),
+								self.states.contains_key(&(new_transition.1).to_owned())),
 							 true),
 			None => (true, false)
 		};
@@ -95,7 +103,7 @@ impl FiniteAutomaton {
 		if should_insert.0 {
 			self.determinism = self.determinism && should_insert.1;
 			self.transition_function.insert(((&state_name).to_string(), new_transition.0),
-											(&new_transition.1).to_string());
+											(&new_transition.1).to_owned());
 		}
 		else {
 			println!("Tried to incorrectly insert {:?}", state_name);
@@ -107,7 +115,7 @@ impl FiniteAutomaton {
 	pub fn insert_new_state(&mut self, state_name : &String, is_final : bool, 
 							transitions : HashSet<(Option<char>, String)>,
 							is_start : bool) {
-		if self.insert_empty_state(&state_name.to_string(), is_final, is_start) {
+		if self.insert_empty_state(&state_name.to_owned(), is_final, is_start) {
 			for i in transitions.iter() {
 				self.insert_transition(state_name, i);
 			}
@@ -116,7 +124,7 @@ impl FiniteAutomaton {
 	
 	pub fn delete_state(&mut self, state_name : &String) -> bool {
 		// start by checking to see that the state exists
-		let state_exists = match self.states.get(&state_name.to_string()) {
+		let state_exists = match self.states.get(&state_name.to_owned()) {
 			None => false,
 			Some(_) => true	
         };
@@ -128,7 +136,7 @@ impl FiniteAutomaton {
 			// find and delete all transitions to and from the state in the
 			// transitions HashMap
 			self.transition_function.retain
-				(|k, v| k.0 != state_name.to_string() && v != state_name);
+				(|k, v| k.0 != state_name.to_owned() && v != state_name);
 			
 			true
 		}
@@ -154,17 +162,15 @@ impl FiniteAutomaton {
 			for symbol in validate_string.chars() {
 				// the current state is the one at the end of the return vec
 
-				// 	transition_function : HashMap<(String, Option<char>), String>,
-
 				let current_state : String = match return_vec.last() {
-					Some((_, state)) => state.to_string(),
-					None => "".to_string()
+					Some((_, state)) => state.to_owned(),
+					None => "".to_owned()
 				};
 
 				let next_state : String =
 					match self.transition_function.get(&(current_state, Some(symbol))) {
-						Some(new_state) => new_state.to_string(),
-						None => "".to_string()
+						Some(new_state) => new_state.to_owned(),
+						None => "".to_owned()
 					};
 													   
 				return_vec.push((symbol, next_state));
@@ -193,13 +199,11 @@ impl FiniteAutomaton {
 	
 	fn check_determinism(self) -> bool {
 		if self.determinism {
-			let mut return_val : bool = true;
 			for (state, _) in self.states {
 				for transition in &self.alphabet {
-					return_val =
-						return_val &&
+					let return_val : bool =
 						self.transition_function.contains_key(
-							&(state.to_string(), Some(*transition)));
+							&(state.to_owned(), Some(*transition)));
 					
 					if ! return_val {
 						return false;
@@ -213,6 +217,32 @@ impl FiniteAutomaton {
 			false
 		}
 	}
+
+	fn generate_tests(self, min_length : u8, max_length : u8, include_empty : bool,
+					  size : u8) -> Vec<String> {
+		assert!(min_length <= max_length);
+		
+		let mut return_vec : Vec<String> = ["".to_string()].to_vec();
+		
+		let alphabet_vec : Vec<char> = self.alphabet.iter().cloned().collect();
+		
+		for _i in 0..size {
+			let mut rng = rand::thread_rng();
+
+			let string_length : u8 = rng.gen_range(min_length, max_length);
+
+			let new_test_string : String = (0..string_length)
+				.map(|_| {
+					let idx : usize = rng.gen_range(min_length, max_length).try_into().unwrap();
+					alphabet_vec[idx] as char
+				})
+				.collect();
+
+			return_vec.push(new_test_string);
+		}
+
+		return_vec
+	}
 	
 	/*
 	fn serialize_json() -> () { }
@@ -222,7 +252,5 @@ impl FiniteAutomaton {
 	fn serialize_xml() -> () { }
 
 	fn deserialize_xml() -> () { }
-	
-	fn generate_tests() -> () { }*/
-	
+	*/	
 }
