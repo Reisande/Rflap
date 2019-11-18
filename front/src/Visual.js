@@ -21,6 +21,8 @@ const data = {
     link: {
         highlightColor: "lightblue",
     },
+    height:window.innerHeight -65,
+    width:window.innerWidth,
   };
   
   // graph event callbacks
@@ -40,12 +42,13 @@ const data = {
     window.alert(`Right clicked node ${nodeId}`);
   };
   
-  const onMouseOverNode = function(nodeId) {
-    window.alert(`Mouse over node ${nodeId}`);
+  const onMouseOverNode = (nodeId)=> {
+    // window.alert(`Mouse over node ${nodeId}`);
   };
   
   const onMouseOutNode = function(nodeId) {
-    window.alert(`Mouse out node ${nodeId}`);
+
+    // window.alert(`Mouse out node ${nodeId}`);
   };
   
   const onClickLink = function(source, target) {
@@ -57,11 +60,11 @@ const data = {
   };
   
   const onMouseOverLink = function(source, target) {
-    window.alert(`Mouse over in link between ${source} and ${target}`);
+    // window.alert(`Mouse over in link between ${source} and ${target}`);
   };
   
   const onMouseOutLink = function(source, target) {
-    window.alert(`Mouse out link between ${source} and ${target}`);
+    // window.alert(`Mouse out link between ${source} and ${target}`);
   };
   
   const onNodePositionChange = function(nodeId, x, y) {
@@ -70,6 +73,7 @@ const data = {
   
   function Visual(props){
   return(
+      <div>
     <Graph
   id="graph-id" // id is mandatory, if no id is defined rd3g will throw an error
   data={data}
@@ -85,7 +89,7 @@ const data = {
   onMouseOutLink={onMouseOutLink}
   onNodePositionChange={onNodePositionChange}
     />
-
+</div>
 
 
 

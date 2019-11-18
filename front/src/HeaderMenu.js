@@ -2,7 +2,7 @@ import React, { useState} from 'react';
 import {useRef,useContext} from 'react';
 import './HeaderMenu.css'
 import 'bootstrap/dist/css/bootstrap.min.css';
-import {Navbar, Nav, NavDropdown,Col} from 'react-bootstrap';
+import {Navbar, Nav, NavDropdown,Col,Button} from 'react-bootstrap';
 import {AutomataContext} from './AutomataContext.js'
 function HeaderMenu(props){
     const master_context = useContext(AutomataContext)
@@ -28,7 +28,7 @@ function HeaderMenu(props){
         console.log(name);
         set_machine_title(name);
         master_context['mode'] = name;
-        master_context['test_value']= "nu metal sucks";
+        master_context['test_value']= "Change made to test_value in HeaderMenu.js";
         console.log("In propogateEvent");
         
 
@@ -42,15 +42,17 @@ return(
        <br></br>
        </Col>
     </Col>     
-    
-    <Navbar.Brand ><b> <font color="#835C3B">R </font>    <font color="#FFD700">FLAP</font></b></Navbar.Brand>
+    <Navbar.Brand ><b> <font color="#835C3B">R </font>  <font color="#FFD700">FLAP</font></b></Navbar.Brand>
     {/* add xs field for release */}
-    <Col></Col>
-    <Col md = {7}>
+    <Col md = {3}></Col>
+    <Col md = {3}>
+    <Col>
     {machine_select}
     </Col>
+    </Col>
   <Navbar.Toggle aria-controls="responsive-navbar-nav" />
-    
+  <Col md= {2}>
+  </Col>
   <Navbar.Collapse id="responsive-navbar-nav">
     
     <Nav className="mr-auto">
@@ -68,7 +70,8 @@ return(
       <Col></Col>
       <Nav>
   <Nav.Link href="" class="text-primary" id = 'runbutton'>Run</Nav.Link>
-
+  <Col></Col>
+ 
   </Nav>
     </Nav>
     

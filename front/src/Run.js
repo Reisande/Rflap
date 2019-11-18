@@ -14,9 +14,12 @@ function Run(props){
     const master_context = useContext(AutomataContext)
 
     let input_val = "default";
+
+
+    
    function onClickPingToApi(event){
        console.log("String from user: " +input_val);
-       console.log("State info:" + master_context['test_value']  )
+       console.log("State info:" + master_context['mode']  )
 
    }
    function setInputVal(value){
