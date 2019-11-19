@@ -1,21 +1,46 @@
-use std::collections::*;
-
 extern crate rand;
 
-use json;
-use rand::{thread_rng, Rng};
-use rand::distributions::Alphanumeric;
+use rand::Rng;
+use serde_json::json;
+use serde::{Deserialize, Serialize};
+use serde_json::Result;
 
 use std::convert::TryInto;
+use std::collections::*;
 
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
+pub struct FiniteAutomatonJson {
+	alphabet : HashSet<char>,
+	start_state : String,
+    states : HashMap<String, bool>,
+	transition_function : Vec<(String, Option<char>, String)>,
+	determinism : bool
+}
+
+impl FiniteAutomatonJson {
+	pub fn new(origin : &FiniteAutomaton) -> FiniteAutomatonJson {
+		let new_transition_function : Vec<(String, Option<char>, String)> =
+			origin.transition_function
+			.iter()
+			.map(|((a, b), c)| (a.to_owned(), b.to_owned(), c.to_owned()))
+			.collect();
+
+		FiniteAutomatonJson {
+			alphabet : origin.alphabet.to_owned(), start_state : origin.start_state.to_owned(),
+			states : origin.states.to_owned(), transition_function : new_transition_function,
+			determinism : origin.determinism.to_owned()
+		}
+	}
+}
+
+#[derive(Debug, Serialize, Deserialize)]
 pub struct FiniteAutomaton {
 	// automata are defined as a 5 tuple of states, alphabet, transition function,
 	// final, and start state
 	alphabet : HashSet<char>,
 	start_state : String,
 	// states are defined as a map from strings to bools, which determine if
-	// they are accepting states
+	// they are accepting states 
     states : HashMap<String, bool>,
 	// transition function is a hashMap from the current state, to a hashmap
 	// representing all of the transitions for the current state
@@ -31,9 +56,11 @@ impl FiniteAutomaton {
 			   -> FiniteAutomaton {
 		// should probably add a check for validation of automaton, or maybe it
 		// should be done client side
-		FiniteAutomaton { alphabet : a_alphabet, start_state : a_start_state,
-						  states : a_new_states, transition_function : a_transitions,
-						  determinism : true }
+		FiniteAutomaton {
+			alphabet : a_alphabet, start_state : a_start_state,
+			states : a_new_states, transition_function : a_transitions,
+			determinism : true
+		}
 	}
 
 	pub fn set_new_alphabet(&mut self, new_alphabet : HashSet<char>) {
@@ -172,7 +199,8 @@ impl FiniteAutomaton {
 
 	// this function assumes that the validation that the string is valid for the
 	// alphabet occurs on the client side
-	pub fn validate_string(&mut self, validate_string : String) -> Option<Vec<(char, String)>> {
+	pub fn validate_string(&mut self, validate_string : String)
+						   -> Option<Vec<(char, String)>> {
 		self.check_determinism();
 
 		if self.determinism {
@@ -275,14 +303,16 @@ impl FiniteAutomaton {
 
 		return_vec
 	}
+		
+	pub fn serialize_json(&self) -> Result<String> {
+		serde_json::to_string_pretty(&FiniteAutomatonJson::new(self))
+	} 
+
+	/*
+	fn deserialize_json() -> () { }
+
+    fn serialize_xml() -> () { }
 	
-	fn serialize_json() -> () { }
-
-	fn deserialize_json() -> () { }	
-    
-    /*
-	fn serialize_xml() -> () { }
-
     fn deserialize_xml() -> () { }
-     */	
+	*/
 }

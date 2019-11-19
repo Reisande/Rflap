@@ -52,9 +52,29 @@ fn main() {
 	println!("\n{:#?}", test_dfa);
 
 	// lets check some hand written sample strings
-	println!("a: {:?} \naa: {:?} \nab: {:?}",
+	println!("a: {:?} \naa: {:?} \nab: {:?} \naba: {:?}",
 			 test_dfa.validate_string("a".to_string()),
 			 test_dfa.validate_string("aa".to_string()),
-			 test_dfa.validate_string("ab".to_string()));
+			 test_dfa.validate_string("ab".to_string()),
+			 test_dfa.validate_string("aba".to_string()));
+
+	println!("{:?}", test_dfa.serialize_json());
 	
+	/*let json_serialization = match test_dfa.serialize_json() {
+		Ok(v) => v,
+		_ => "".to_string()
+	};
+
+	println!("{:#?}", json_serialization);*/
+	
+	/*println!("alphabet: {:?}\nstart_state: {:?}\nstates: {:?}\ntranstion_function: {:?}\ndeterminism{:?}",
+			 json_serialization["alphabet"].to_owned(),
+			 json_serialization["start_state"].to_owned(),
+			 json_serialization["states"].to_owned(),
+			 json_serialization["transition_function"].to_owned(),
+			 json_serialization["determinism"].to_owned(),
+);*/
+
+	/*println!("{{\n  \"alphabet\": [\n    \"a\",\n    \"b\"\n  ],\n  \"start_state\": \"q_0\",\n  \"states\": {{\n    \"q_1\": false,\n    \"q_0\": true\n  }},\n  \"transition_function\": [\n    [\n      \"q_0\",\n      \"a\",\n      \"q_0\"\n    ],\n    [\n      \"q_1\",\n      \"a\",\n      \"q_0\"\n    ],\n    [\n      \"q_1\",\n      \"b\",\n      \"q_1\"\n    ],\n    [\n      \"q_0\",\n      \"b\",\n      \"q_1\"\n    ]\n  ],\n  \"determinism\": true\n}}");*/
+
 }
