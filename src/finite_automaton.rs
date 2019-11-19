@@ -50,11 +50,12 @@ pub struct FiniteAutomaton {
 }
 
 impl FiniteAutomaton {
-	pub fn new(a_alphabet : HashSet<char>,
-			   a_start_state : String, a_new_states : HashMap<String, bool>,
+	pub fn new(a_alphabet : HashSet<char>, a_start_state : String,
+			   a_new_states : HashMap<String, bool>,
 			   a_transitions : HashMap<(String, Option<char>), String>)
 			   -> FiniteAutomaton {
-		// should probably add a check for validation of automaton, or maybe it
+		
+		// should probably add a check for validity of automaton, or maybe it
 		// should be done client side
 		FiniteAutomaton {
 			alphabet : a_alphabet, start_state : a_start_state,
@@ -303,14 +304,17 @@ impl FiniteAutomaton {
 
 		return_vec
 	}
-		
+
+	// should probably write a separate api for verifying strings
 	pub fn serialize_json(&self) -> Result<String> {
 		serde_json::to_string_pretty(&FiniteAutomatonJson::new(self))
 	} 
-
+	
+	/*fn deserialize_json(serde_json::Value) -> FiniteAutomatonJson {
+	
+	}*/
+	
 	/*
-	fn deserialize_json() -> () { }
-
     fn serialize_xml() -> () { }
 	
     fn deserialize_xml() -> () { }
