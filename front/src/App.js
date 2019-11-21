@@ -7,9 +7,9 @@ import HeaderMenu from './HeaderMenu.js';
 import {AutomataContext} from './AutomataContext.js';
 import Run from './Run.js';
 import Sidebar from "react-sidebar";
-import {Button,Table} from 'react-bootstrap';
+import {Button,Table,InputGroup,FormControl} from 'react-bootstrap';
 import { ContextMenu, MenuItem, ContextMenuTrigger } from "react-contextmenu";
-
+import Popup from 'reactjs-popup';
 let master_context = {
   mode: "Determinstic Finite Automata",
   states : [],
@@ -21,11 +21,10 @@ function App() {
 
 
 
-
-
   let toggle_menu = useRef();
   const [sidebar_display,set_sidebar_display] = useState(false);
-  
+  const [modal_state,set_modal_state] = useState(false);
+  let node_name;
   // Catch run click and load sidebar:
 
 
@@ -51,6 +50,19 @@ function App() {
   
   }
   )
+  //Constrols modal, called by contex_menu first one.
+  function openModal(e,data){
+    set_modal_state(true)
+
+  }
+  function add_node(e,data){
+
+    console.log(e,data);
+
+  }
+  function change_node_name(e){
+    console.log("E"+ e.target.value);
+  }
 
   function handleClick(e,data){
     console.log('------HANDLECLICK-------');
@@ -77,27 +89,43 @@ function App() {
       </ContextMenuTrigger>
 
       <ContextMenu  id="right-click-trigger">
-      <Table striped bordered hover variant="dark">
+
+      <Table striped  borderless hover variant="dark">
         <tbody>
         <tr>
-        <MenuItem data={{foo: 'bar'}} onClick={handleClick}>
+        <MenuItem data={{menu_item: 'add'}} onClick={() =>{set_modal_state(true)}}>
          
           
-          <th>Add node</th>
+        <td>  <b><color value = "yellow">Add Node</color></b></td> 
           
         </MenuItem>
         </tr>
       <tr>
-        <MenuItem data={{foo: 'bar'}} onClick={handleClick}>
-          <th>
-          Close
-          </th>
+        <MenuItem data={{menu_item: 'close'}} onClick={handleClick}>
+          <td>  <b><color value = "yellow">Close</color></b></td> 
+          
         </MenuItem>
         </tr>
         </tbody>
         </Table>
       </ContextMenu>
-
+      <Popup
+          open={modal_state}
+          closeOnDocumentClick
+          onClose={()=>{set_modal_state(false)} }
+        >
+  
+  <InputGroup className="mb-2">
+    <FormControl onChange={(value)=> {change_node_name(value)}}
+      placeholder="ex: q_01"
+      aria-label="node_name"
+      // aria-describedby="basic-addon2"
+    />
+    <InputGroup.Append>
+      <Button variant="primary" onClick={add_node}>Add</Button>
+    </InputGroup.Append>
+  </InputGroup>       
+   </Popup>
  
       </AutomataContext.Provider>
 
