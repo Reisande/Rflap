@@ -33,7 +33,7 @@ fn main() {
 	
     println!("\n{:#?}", test_dfa);
 	//println!("\n{:?}", test_dfa.generate_tests(1, 8, true, 8, true));
-
+	
 	// lets check some hand written sample strings
 	println!("'' : {:?} \na: {:?} \naa: {:?} \nab: {:?}",
 			 test_dfa.validate_string("".to_string()),
@@ -57,6 +57,7 @@ fn main() {
 			 test_dfa.validate_string("aa".to_string()),
 			 test_dfa.validate_string("ab".to_string()),
 			 test_dfa.validate_string("aba".to_string()));
+	
 
 	//println!("{:?}", test_dfa.serialize_json());
 	

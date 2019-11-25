@@ -33,7 +33,7 @@ impl FiniteAutomatonJson {
 	}
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug)]
 pub struct FiniteAutomaton {
 	// automata are defined as a 5 tuple of states, alphabet, transition function,
 	// final, and start state
@@ -53,8 +53,7 @@ impl FiniteAutomaton {
 	pub fn new(a_alphabet : HashSet<char>, a_start_state : String,
 			   a_new_states : HashMap<String, bool>,
 			   a_transitions : HashMap<(String, Option<char>), String>)
-			   -> FiniteAutomaton {
-		
+			   -> FiniteAutomaton {		
 		// should probably add a check for validity of automaton, or maybe it
 		// should be done client side
 		FiniteAutomaton {
@@ -64,6 +63,25 @@ impl FiniteAutomaton {
 		}
 	}
 
+	fn new_from_json(self, json_struct : &FiniteAutomatonJson) -> FiniteAutomaton {
+		let mut new_transition_function : HashMap<(String, Option<char>), String> =
+			HashMap::new();
+
+		for element in json_struct.transition_function.iter() {
+			new_transition_function
+				.insert(((element.0).to_owned(), (element.1).to_owned()),
+						(element.2).to_owned());
+		}
+
+		FiniteAutomaton {
+			alphabet : json_struct.alphabet.to_owned(),
+			start_state : json_struct.start_state.to_owned(),
+			states : json_struct.states.to_owned(),
+			transition_function : new_transition_function,
+			determinism : json_struct.determinism.to_owned()
+		}
+	}
+	
 	pub fn set_new_alphabet(&mut self, new_alphabet : HashSet<char>) {
 		self.alphabet = new_alphabet;
 	}
@@ -201,7 +219,7 @@ impl FiniteAutomaton {
 	// this function assumes that the validation that the string is valid for the
 	// alphabet occurs on the client side
 	pub fn validate_string(&mut self, validate_string : String)
-						   -> Option<Vec<(char, String)>> {
+						   -> (bool, Option<Vec<(char, String)>>) {
 		self.check_determinism();
 
 		if self.determinism {
@@ -235,16 +253,15 @@ impl FiniteAutomaton {
 				None => false
 			};
 
-			if accepted_string {
-				Some(return_vec)
-			}
-			else {
-				None
-			}
+			(accepted_string, Some(return_vec))
 		}
 		else {
-			None
+			(false, None)
 		}
+	}
+
+	pub fn validate_string_json(&mut self, validate_string : String) -> Result<String> {
+		serde_json::to_string_pretty(&self.validate_string(validate_string))
 	}
 	
 	fn check_determinism(&mut self) -> bool {
@@ -310,9 +327,16 @@ impl FiniteAutomaton {
 		serde_json::to_string_pretty(&FiniteAutomatonJson::new(self))
 	} 
 	
-	/*fn deserialize_json(serde_json::Value) -> FiniteAutomatonJson {
-	
-	}*/
+	fn deserialize_json(self, input_json : serde_json::Value) -> Option<FiniteAutomaton> {
+		let json_struct_string : String =
+			serde_json::to_string(&input_json).unwrap();
+		let json_struct : Result<FiniteAutomatonJson> =
+			serde_json::from_str(&json_struct_string);
+		match json_struct {
+			Ok(val) => Some(self.new_from_json(&val)),
+			Err(_) => None
+		}
+	}
 	
 	/*
     fn serialize_xml() -> () { }
