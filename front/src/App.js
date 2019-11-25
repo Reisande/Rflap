@@ -11,10 +11,7 @@ import {Button,Table,InputGroup,FormControl} from 'react-bootstrap';
 import { ContextMenu, MenuItem, ContextMenuTrigger } from "react-contextmenu";
 import Popup from 'reactjs-popup';
 let master_context = {
-  mode: "Determinstic Finite Automata",
-  states : [],
-  transitions:[],
-  test_value: "TEST_VALUE",
+    graphobj: null,
 };
 
 function App() {

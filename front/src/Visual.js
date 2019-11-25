@@ -1,14 +1,14 @@
-import React,{useEffect,useRef,useState} from 'react';
+import React,{useEffect,useRef,useState,useContext} from 'react';
 import vis from 'vis-network';
 import {Button} from 'react-bootstrap'
 import logo from './logo.svg';
 import './App.css';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
-
+import {AutomataContext} from './AutomataContext.js'
 
 /*hieght and width make dimensions of graph fill screen*/
-let height = window.innerHeight -98;
+let height = window.innerHeight -80;
 let width = window.innerWidth;
 
 /*Beggining node and edge informaiton*/
@@ -103,6 +103,8 @@ let graph = {nodes: nodesDS,
 
 };
 function Visual() {
+  const  master_context = useContext(AutomataContext);
+  master_context.graphobj = graph;
   let in_add_node_mode = false;
   let in_accepting_mode_ = false,in_initial_mode = false;
   let display_popup = false;
@@ -138,7 +140,8 @@ function Visual() {
 let network;
 
 useEffect( ()=>{
-   network = new vis.Network(wrapper.current,graph,options);
+
+  network = new vis.Network(wrapper.current,graph,options);
   console.log(network);
   //context-click for graph
   network.on("showPopup", (params)=>{

@@ -19,7 +19,8 @@ function Run(props){
     
    function onClickPingToApi(event){
        console.log("String from user: " +input_val);
-       console.log("State info:" + master_context['mode']  )
+       console.log("State info:" );
+       console.log(master_context);
 
    }
    function setInputVal(value){
