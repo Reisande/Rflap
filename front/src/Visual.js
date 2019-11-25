@@ -8,7 +8,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 
 
 /*hieght and width make dimensions of graph fill screen*/
-let height = window.innerHeight -23;
+let height = window.innerHeight -98;
 let width = window.innerWidth;
 
 /*Beggining node and edge informaiton*/
@@ -36,7 +36,8 @@ let graph = {nodes: nodesDS,
     height: height.toString(),
     width: window.innerWidth.toString(),
     locale: 'en',
-  
+    
+    
     physics:{
       enabled: true,
       repulsion:{
@@ -45,8 +46,10 @@ let graph = {nodes: nodesDS,
       },
     },
     nodes:{
+      label: undefined,
+    title: undefined,
       shape: "circle",
-      borderWidth: 1,
+      borderWidth: 3,
 
       scaling:{
         label:{
@@ -100,6 +103,7 @@ let graph = {nodes: nodesDS,
 
 };
 function Visual() {
+  let in_add_node_mode = false;
   let in_accepting_mode_ = false,in_initial_mode = false;
   let display_popup = false;
   let node_id_clicked,state_field, string_field;
@@ -142,6 +146,30 @@ useEffect( ()=>{
   });
 
   //graph event listeners here:
+  network.on("hoverNode", (params)=>{
+    console.log("hoverNode: ");
+    let node_id_clicked = params.node;
+    let found_node;
+    if(in_add_node_mode){
+      console.log("add_node_mode");
+    graph.nodes.get().forEach(  (node)=>{
+      if(node.id == node_id_clicked){
+        
+        found_node = node;
+      }
+      
+    }
+    );
+    console.log(found_node);
+    nodesDS.update([{id:found_node.id, label: " Q "+ (graph.nodes.get().length + 1) + " "}]);
+
+    console.log(params.node)
+    in_add_node_mode = false;
+    console.log("end add_Node_mode\n--------------")
+  }
+  in_add_node_mode = false;
+
+  })
   network.on("controlNodeDragEnd",(params)=>{
     console.log("disabled edit mode")
     network.disableEditMode();
@@ -152,7 +180,13 @@ useEffect( ()=>{
   });
 
   network.on("select", (params)=>{
-    if( (params != null ) && in_initial_mode && params.nodes > 0){
+    console.log(params);
+    console.log("In intial_mode " + in_initial_mode);
+    console.log("accepting " + in_accepting_mode_);
+    console.log(params.nodes);
+    console.log(params.nodes[0] != null);
+    if( (params != null ) && in_initial_mode && (params.nodes > 0 || params.nodes[0] !=null)){
+
       console.log("SELECT-initial");
       console.log(in_initial_mode);
       console.log(params.nodes[0]);
@@ -183,7 +217,7 @@ useEffect( ()=>{
 
     }
 
-    if((params != null )  && (params.nodes != null) && in_accepting_mode_ && params.nodes >  0 ){
+    if((params != null )  && (params.nodes != null) && in_accepting_mode_ &&  ( params.nodes >  0 || params.nodes[0] != null )){
       console.log("SELECT-accepting");
       console.log(in_accepting_mode_)
       console.log(params.nodes);
@@ -267,10 +301,11 @@ function toEditEdgeMode(props){
 };
 function toAddNodeMode(props){
   console.log("AddNodeMode")
+
   network.enableEditMode();
   network.addNodeMode();
-  console.log("end");
-
+  in_add_node_mode = true;
+  
 }
 
 function setInitial(props){
@@ -280,6 +315,7 @@ function setInitial(props){
 function setAccepting(props){
   in_accepting_mode_ = true;
 }
+
 
 function deleteNodeOrEdge(props){
 

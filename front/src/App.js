@@ -27,7 +27,7 @@ function App() {
   let node_name;
   // Catch run click and load sidebar:
 
-
+console.log("<>")
   useEffect( ()=>{
     window.addEventListener('click', (e)=>{
       // Check if event is not null, else breaks everything
@@ -37,19 +37,18 @@ function App() {
       }
       e.preventDefault();
       let target_check = e.target.lastChild.data;
+
       
       if(target_check === "Run" && sidebar_display == false){
         set_sidebar_display(true);
         console.log("Value of sidebar_display: " + sidebar_display);
       }
-      if(sidebar_display == true&& target_check === "Run"){
+      if(sidebar_display == true && target_check === "Run"){
         set_sidebar_display(false);
         console.log("Closing sidebar");
       }
     })
-  
-  }
-  )
+  })
   //Constrols modal, called by contex_menu first one.
   function openModal(e,data){
     set_modal_state(true)
@@ -80,53 +79,12 @@ function App() {
         open = {false}
         shadow = {true}
         docked = {true}
-        styles={{ sidebar: { background: "white", zIndex:2 } , overlay: {zIndex: -100}, content: {visibility: "hidden", zIndex: -112}, dragHandle: {zIndex: -500}}   }
+        styles={{ sidebar: { background: "white", zIndex:2 } , overlay: {zIndex: 2}, content: {visibility: "hidden", zIndex: -112}, dragHandle: {zIndex: -500}}   }
         ></Sidebar>: null }
       <HeaderMenu/>
-      <ContextMenuTrigger  id="right-click-trigger">
         
       <Visual/>
-      </ContextMenuTrigger>
-
-      <ContextMenu  id="right-click-trigger">
-
-      <Table striped  borderless hover variant="dark">
-        <tbody>
-        <tr>
-        <MenuItem data={{menu_item: 'add'}} onClick={() =>{set_modal_state(true)}}>
-         
-          
-        <td>  <b><color value = "yellow">Add Node</color></b></td> 
-          
-        </MenuItem>
-        </tr>
-      <tr>
-        <MenuItem data={{menu_item: 'close'}} onClick={handleClick}>
-          <td>  <b><color value = "yellow">Close</color></b></td> 
-          
-        </MenuItem>
-        </tr>
-        </tbody>
-        </Table>
-      </ContextMenu>
-      <Popup
-          open={modal_state}
-          closeOnDocumentClick
-          onClose={()=>{set_modal_state(false)} }
-        >
-  
-  <InputGroup className="mb-2">
-    <FormControl onChange={(value)=> {change_node_name(value)}}
-      placeholder="ex: q_01"
-      aria-label="node_name"
-      // aria-describedby="basic-addon2"
-    />
-    <InputGroup.Append>
-      <Button variant="primary" onClick={add_node}>Add</Button>
-    </InputGroup.Append>
-  </InputGroup>       
-   </Popup>
- 
+     
       </AutomataContext.Provider>
 
     </div>
