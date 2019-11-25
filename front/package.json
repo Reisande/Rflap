@@ -12,7 +12,8 @@
     "react-dom": "^16.12.0",
     "react-scripts": "3.2.0",
     "react-sidebar": "^3.0.2",
-    "reactjs-popup": "^1.5.0"
+    "reactjs-popup": "^1.5.0",
+    "vis-network": "^6.4.4"
   },
   "scripts": {
     "start": "react-scripts start",
