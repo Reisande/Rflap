@@ -31,7 +31,7 @@ fn api(input_automaton : Json<finite_automaton::FiniteAutomatonJson>)
 
 #[get("/")]
 pub fn index() -> io::Result<NamedFile> {
-    NamedFile::open("client/build/index.html") // 2.
+    NamedFile::open("client/build/index.html")
 }
 
 #[get("/<file..>")]
