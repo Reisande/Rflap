@@ -1,0 +1,25 @@
+
+/* DOESNT WORK, FIX! */
+
+#button-hold{
+    height: 100px;
+    min-height: 20px;
+}
+
+#graph-display{
+    
+    outline:none;
+    border:black !important;
+}
+#graph-display > {border:blue;outline:none};
+
+
+canvas{
+    outline:black;
+    border:black;
+}
+.vis-network{
+
+    outline:black;
+    border: black,
+}
