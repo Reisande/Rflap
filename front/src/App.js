@@ -7,9 +7,12 @@ import HeaderMenu from './HeaderMenu.js';
 import {AutomataContext} from './AutomataContext.js';
 import Run from './Run.js';
 import Sidebar from "react-sidebar";
-import {Button,Table,InputGroup,FormControl} from 'react-bootstrap';
+import {Button,Table,InputGroup,FormControl,Row,Col} from 'react-bootstrap';
 import { ContextMenu, MenuItem, ContextMenuTrigger } from "react-contextmenu";
 import Popup from 'reactjs-popup';
+import 'bootstrap/dist/css/bootstrap.min.css';
+
+
 let master_context = {
     graphobj: null,
 };
