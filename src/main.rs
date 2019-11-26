@@ -87,6 +87,6 @@ fn index(input_automaton : Json<finite_automaton::FiniteAutomatonJson>)
 fn main() {
 	// start out with a test DFA, which recognizes the language of only a* out
 	// of the alphabet a,b,c
-	//rocket::ignite().mount("/", routes![index]).launch();
+	rocket::ignite().mount("/", routes![index]).launch();
 	
 }
