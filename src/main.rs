@@ -1,11 +1,25 @@
+#![feature(proc_macro_hygiene, decl_macro)]
+
+#[macro_use] extern crate rocket;
+
+use std::collections::HashSet;
+use std::collections::HashMap;
+
 mod finite_automaton;
 //mod reg_exp;
 //mod cfg;
 //mod pda;
 //mod tm;
 
-use std::collections::HashSet;
-use std::collections::HashMap;
+#[get("/")]
+fn index() -> &'static str {
+	"hello world"
+}
+
+#[post("/")]
+fn validate() -> &'static str {
+	"works"
+}
 
 fn main() {
 	// start out with a test DFA, which recognizes the language of only a* out
@@ -67,5 +81,5 @@ fn main() {
 	};
 
 	println!("{}", json_serialization);
-
+	
 }

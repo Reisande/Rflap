@@ -1,12 +1,17 @@
+#[macro_use] extern crate rocket;
 extern crate rand;
 
 use rand::Rng;
+
 use serde_json::json;
 use serde::{Deserialize, Serialize};
 use serde_json::Result;
 
+use rocket_contrib::json::Json;
+
 use std::convert::TryInto;
 use std::collections::*;
+
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct FiniteAutomatonJson {
@@ -332,6 +337,7 @@ impl FiniteAutomaton {
 			serde_json::to_string(&input_json).unwrap();
 		let json_struct : Result<FiniteAutomatonJson> =
 			serde_json::from_str(&json_struct_string);
+
 		match json_struct {
 			Ok(val) => Some(self.new_from_json(&val)),
 			Err(_) => None
