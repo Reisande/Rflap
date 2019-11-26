@@ -22,10 +22,10 @@ cargo run
 ## Docker
 ### Build Docker Container
 ```
-docker build -t Reisande/RFLAP .
+docker build -t reisande/rflap .
 ```
 
 ### Run Docker Container
 ```
-docker run -it --rm -p 8000:8000 Reisande/RFLAP
+docker run -it --rm -p 8000:8000 reisande/rflap
 ```
