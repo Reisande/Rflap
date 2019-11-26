@@ -117,7 +117,7 @@ function Run(props){
 
         // accepting: #FF8632
         // intial: #00bfff
-        let sState = false;
+        let sState = "";
         nodeObj.forEach((node)=>{
         
             //Accumulates all states

@@ -216,7 +216,13 @@ useEffect( ()=>{
       }
       console.log("SET THE INITIAL COLOR: ");
       console.log(final_color);
+      if(found_node.init == true){
+        console.log("INITIAL TAG REMOVED");
+        nodesDS.update([{id:found_node.id,color:"grey" , init:false }]);
+      }
+      else{
       nodesDS.update([{id:found_node.id, color: final_color, init:true}]);
+      }
       in_initial_mode = false;
       console.log("END-initial")
       
@@ -319,7 +325,21 @@ function setAccepting(props){
   in_accepting_mode_ = true;
 }
 function deleteNodeOrEdge(props){
+  console.log("deletion:")
+  let node_deleted,edge_deleted;
+  console.log(network.getIds([network.getSelec]))
+  let deleted_node = network.getSelectedEdges
+  graph.nodes.forEach( (node)=>{
+  //   if(node.id == )
+  // } );
+  console.log(network.getSelectedEdges());
+  console.log(network.getSelectedNodes());
+
+
+  console.log('deletion--end');
+
   network.deleteSelected();
+});
 }
 
   return (
