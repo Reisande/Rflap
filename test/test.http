@@ -1,0 +1,10 @@
+POST http://localhost:8000/api HTTP/1.1
+content-type: application/json
+
+{
+    "name": "sample"
+}
+
+###
+
+GET http://localhost:8000/ HTTP/1.1
