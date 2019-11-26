@@ -1,9 +1,12 @@
 #![feature(proc_macro_hygiene, decl_macro)]
 
 #[macro_use] extern crate rocket;
+#[macro_use] extern crate rocket_contrib;
 
 use std::collections::HashSet;
 use std::collections::HashMap;
+
+use rocket_contrib::json::{Json, JsonValue};
 
 mod finite_automaton;
 //mod reg_exp;
@@ -11,20 +14,18 @@ mod finite_automaton;
 //mod pda;
 //mod tm;
 
-#[get("/")]
-fn index() -> &'static str {
-	"hello world"
-}
+#[post("/", format = "json", data = "<input_automaton>")]
+fn index(input_automaton : Json<finite_automaton::FiniteAutomatonJson>) 
+		 -> JsonValue {
+	let (mut test_dfa, input_string) =
+		finite_automaton::FiniteAutomaton::new_from_json(&input_automaton);
 
-#[post("/")]
-fn validate() -> &'static str {
-	"works"
-}
-
-fn main() {
-	// start out with a test DFA, which recognizes the language of only a* out
-	// of the alphabet a,b,c
+	let return_path = test_dfa.validate_string(input_string);
 	
+	json!(return_path)
+}
+
+/*fn run_tests() {
 	let mut a_alphabet : HashSet<char> = HashSet::new();
 	a_alphabet.insert('a');
 	a_alphabet.insert('b');
@@ -81,5 +82,11 @@ fn main() {
 	};
 
 	println!("{}", json_serialization);
+}*/
+
+fn main() {
+	// start out with a test DFA, which recognizes the language of only a* out
+	// of the alphabet a,b,c
+	//rocket::ignite().mount("/", routes![index]).launch();
 	
 }

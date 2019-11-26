@@ -1,17 +1,19 @@
-#[macro_use] extern crate rocket;
+extern crate rocket;
+extern crate rocket_contrib;
 extern crate rand;
 
 use rand::Rng;
 
 use serde_json::json;
-use serde::{Deserialize, Serialize};
+use serde::{Deserialize, Serialize, Serializer};
 use serde_json::Result;
-
-use rocket_contrib::json::Json;
 
 use std::convert::TryInto;
 use std::collections::*;
 
+use rocket_contrib::json::Json;
+use rocket::request::{self, Request, FromRequest};
+use rocket::data::{self, FromDataSimple};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct FiniteAutomatonJson {
@@ -19,11 +21,12 @@ pub struct FiniteAutomatonJson {
 	start_state : String,
     states : HashMap<String, bool>,
 	transition_function : Vec<(String, Option<char>, String)>,
-	determinism : bool
+	determinism : bool,
+	input_string : String
 }
 
 impl FiniteAutomatonJson {
-	pub fn new(origin : &FiniteAutomaton) -> FiniteAutomatonJson {
+	pub fn new(origin : &FiniteAutomaton, input_string_arg : &String) -> FiniteAutomatonJson {
 		let new_transition_function : Vec<(String, Option<char>, String)> =
 			origin.transition_function
 			.iter()
@@ -33,7 +36,7 @@ impl FiniteAutomatonJson {
 		FiniteAutomatonJson {
 			alphabet : origin.alphabet.to_owned(), start_state : origin.start_state.to_owned(),
 			states : origin.states.to_owned(), transition_function : new_transition_function,
-			determinism : origin.determinism.to_owned()
+			determinism : origin.determinism.to_owned(), input_string : input_string_arg.to_owned()
 		}
 	}
 }
@@ -68,7 +71,7 @@ impl FiniteAutomaton {
 		}
 	}
 
-	fn new_from_json(self, json_struct : &FiniteAutomatonJson) -> FiniteAutomaton {
+	pub fn new_from_json(json_struct : &FiniteAutomatonJson) -> (FiniteAutomaton, String) {
 		let mut new_transition_function : HashMap<(String, Option<char>), String> =
 			HashMap::new();
 
@@ -78,13 +81,14 @@ impl FiniteAutomaton {
 						(element.2).to_owned());
 		}
 
-		FiniteAutomaton {
+		(FiniteAutomaton {
 			alphabet : json_struct.alphabet.to_owned(),
 			start_state : json_struct.start_state.to_owned(),
 			states : json_struct.states.to_owned(),
 			transition_function : new_transition_function,
 			determinism : json_struct.determinism.to_owned()
-		}
+		},
+		 json_struct.input_string.to_owned())
 	}
 	
 	pub fn set_new_alphabet(&mut self, new_alphabet : HashSet<char>) {
@@ -329,7 +333,7 @@ impl FiniteAutomaton {
 
 	// should probably write a separate api for verifying strings
 	pub fn serialize_json(&self) -> Result<String> {
-		serde_json::to_string_pretty(&FiniteAutomatonJson::new(self))
+		serde_json::to_string_pretty(&FiniteAutomatonJson::new(self, &"".to_string()))
 	} 
 	
 	fn deserialize_json(self, input_json : serde_json::Value) -> Option<FiniteAutomaton> {
@@ -339,7 +343,7 @@ impl FiniteAutomaton {
 			serde_json::from_str(&json_struct_string);
 
 		match json_struct {
-			Ok(val) => Some(self.new_from_json(&val)),
+			Ok(val) => Some(FiniteAutomaton::new_from_json(&val).0),
 			Err(_) => None
 		}
 	}
