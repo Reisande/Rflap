@@ -4,6 +4,12 @@ version = "0.1.0"
 authors = ["Misha Ryabko (Reisande) <mryabk2@uic.edu>"]
 edition = "2018"
 
+[profile.dev]
+opt-level = 0
+
+[profile.release]
+opt-level = 3
+
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
@@ -16,4 +22,4 @@ rocket = "0.4.2"
 [dependencies.rocket_contrib]
 version = "0.4.2"
 default-features = false
-features = ["json", "serve"]
+features = ["json"]
