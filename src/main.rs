@@ -5,9 +5,12 @@
 
 use std::collections::HashSet;
 use std::collections::HashMap;
+use std::io;
 
 use rocket_contrib::json::{Json, JsonValue};
-use rocket_contrib::serve::StaticFiles;
+
+use std::path::{Path, PathBuf};
+use rocket::response::NamedFile;
 
 mod finite_automaton;
 //mod reg_exp;
@@ -15,7 +18,7 @@ mod finite_automaton;
 //mod pda;
 //mod tm;
 
-#[post("/", format = "json", data = "<input_automaton>")]
+#[post("/api", format = "json", data = "<input_automaton>")]
 fn api(input_automaton : Json<finite_automaton::FiniteAutomatonJson>) 
 		 -> JsonValue {
 	let (mut test_dfa, input_string) =
@@ -26,9 +29,18 @@ fn api(input_automaton : Json<finite_automaton::FiniteAutomatonJson>)
 	json!(return_path)
 }
 
+#[get("/")]
+pub fn index() -> io::Result<NamedFile> {
+    NamedFile::open("client/build/index.html") // 2.
+}
+
+#[get("/<file..>")]
+pub fn file(file: PathBuf) -> Option<NamedFile> {
+    NamedFile::open(Path::new("client/build/").join(file)).ok()
+}
+
 fn main() {
 	rocket::ignite()
-	.mount("/api", routes![api])
-	.mount("/", StaticFiles::from("client/build"))
-	.launch();
+		.mount("/", routes![api, index, file])
+		.launch();
 }
