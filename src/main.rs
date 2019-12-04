@@ -12,17 +12,17 @@ use rocket_contrib::json::{Json, JsonValue};
 use std::path::{Path, PathBuf};
 use rocket::response::NamedFile;
 
-mod finite_automaton;
+mod deterministic_finite_automaton;
 //mod reg_exp;
 //mod cfg;
 //mod pda;
 //mod tm;
 
 #[post("/api", format = "json", data = "<input_automaton>")]
-fn api(input_automaton : Json<finite_automaton::FiniteAutomatonJson>) 
+fn api(input_automaton : Json<deterministic_finite_automaton::DeterministicFiniteAutomatonJson>) 
 		 -> JsonValue {
 	let (mut test_dfa, input_string) =
-		finite_automaton::FiniteAutomaton::new_from_json(&input_automaton);
+		deterministic_finite_automaton::DeterministicFiniteAutomaton::new_from_json(&input_automaton);
 
 	let return_path = test_dfa.validate_string(input_string);
 	

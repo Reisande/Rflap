@@ -264,7 +264,7 @@ impl FiniteAutomaton {
 
 			(accepted_string, Some(return_vec))
 		}
-		else {
+		else {			
 			(false, None)
 		}
 	}
