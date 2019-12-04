@@ -1,9 +1,6 @@
-name: Docker Image CI-CD
+name: Docker Image CI
 
-on:
-  push:
-    branches:    
-      - master
+on: push
 
 jobs:
 
@@ -14,7 +11,4 @@ jobs:
     steps:
     - uses: actions/checkout@v1
     - name: Build the Docker image
-      run: |
-        docker build -t ${{ secrets.REGISTRY_HOST }}/rflap .
-        docker login -u ${{ secrets.REGISTRY_USERNAME }} -p ${{ secrets.REGISTRY_PASSWORD }} ${{ secrets.REGISTRY_HOST }}
-        docker push ${{ secrets.REGISTRY_HOST }}/rflap
+      run: docker build .
