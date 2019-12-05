@@ -2,7 +2,7 @@ name: Docker Image CI-CD
 
 on:
   push:
-    branches:    
+    branches:
       - master
 
 jobs:
@@ -13,7 +13,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v1
-    - name: Build the Docker image
+    - name: Build and push the Docker image
       run: |
         docker build -t ${{ secrets.REGISTRY_HOST }}/reisande/rflap .
         docker login -u ${{ secrets.REGISTRY_USERNAME }} -p ${{ secrets.REGISTRY_PASSWORD }} ${{ secrets.REGISTRY_HOST }}
