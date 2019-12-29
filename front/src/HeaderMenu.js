@@ -21,7 +21,7 @@ function HeaderMenu(props){
     const REG = useRef();
 
 
-    const [machine_select,set_machine_title] = useState("Deterministic Finite-Automata");
+    const [machine_select,set_machine_title] = useState(" Finite-Automata");
 
     // console.log("master context "  + master_context['test_value']);
 
@@ -70,7 +70,7 @@ return(
       
         
         <NavDropdown.Item onClick={(event) => propagateEvent(event,DFA)} ref= {DFA}  href="">Determinstic Finite Automata</NavDropdown.Item>
-        <NavDropdown.Item onClick={(event) => propagateEvent(event,NFA)} ref= {NFA} href="">Non-deterministic Finite Automata</NavDropdown.Item>
+        <NavDropdown.Item onClick={(event) => propagateEvent(event,NFA)} ref= {NFA} href="">Non- Finite Automata</NavDropdown.Item>
         <NavDropdown.Item onClick={(event) => propagateEvent(event,TM)} ref= {TM}href="">Turing Machine</NavDropdown.Item>
         <NavDropdown.Item onClick={(event) => propagateEvent(event,PDA)} ref= {PDA}href="">Push-down Automata</NavDropdown.Item>
         <NavDropdown.Item onClick={(event) => propagateEvent(event,CFG)} ref= {CFG}href="">Context-free Grammar</NavDropdown.Item>

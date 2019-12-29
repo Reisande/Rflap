@@ -137,7 +137,7 @@ impl FiniteAutomaton {
 
 	pub fn insert_transition(&mut self, state_name : &String,
 							 new_transition : &(Option<char>, String),
-							 deterministic_insert : bool) {
+							 _insert : bool) {
 		// checks to see if the read symbol is either an epsilon or inside
 		// of the alphabet if not in the alphabet rejects that specific
 		// insertion
@@ -146,16 +146,16 @@ impl FiniteAutomaton {
 		// lose determinism
 
 		// the first bool shows if the new state should be inserted, the
-		// second if it is deterministic.
+		// second if it is .
 
 		// insertion occurs if the following checks are made:
 		// the transition character is in the alphabet, both states exist,
-		// and the insert is either intended to be non-deterministic or the insert is unique
+		// and the insert is either intended to be non- or the insert is unique
 		let should_insert : (bool, bool) = match &new_transition.0 {
 			Some(symbol) => (self.alphabet.contains(&symbol) &&
 							 self.states.contains_key(&(new_transition.1).to_owned()) &&
 							 self.states.contains_key(state_name) &&
-							 (!deterministic_insert ||
+							 (!_insert ||
 							  self.transition_function
 							  .get(&(state_name.to_owned(), new_transition.0)) == None),
 							 true),
@@ -188,10 +188,10 @@ impl FiniteAutomaton {
 	
 	pub fn insert_new_state(&mut self, state_name : &String, is_final : bool, 
 							transitions : HashSet<(Option<char>, String)>,
-							is_start : bool, deterministic_insert : bool) {
+							is_start : bool, _insert : bool) {
 		if self.insert_empty_state(&state_name.to_owned(), is_final, is_start) {
 			for i in transitions.iter() {
-				self.insert_transition(state_name, i, deterministic_insert);
+				self.insert_transition(state_name, i, _insert);
 			}
 		}
 	}
