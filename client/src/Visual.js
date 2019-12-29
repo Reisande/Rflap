@@ -1,12 +1,12 @@
 import React,{useEffect,useRef,useState,useContext} from 'react';
 import vis from 'vis-network';
-import {Button, ButtonGroup,Col,Row} from 'react-bootstrap'
+import {Button} from 'react-bootstrap'
 import logo from './logo.svg';
 import './App.css';
-import './Visual.css'
+
 import 'bootstrap/dist/css/bootstrap.min.css';
 import {AutomataContext} from './AutomataContext.js'
-//Yo
+
 /*hieght and width make dimensions of graph fill screen*/
 let height = window.innerHeight -80;
 let width = window.innerWidth;
@@ -14,17 +14,17 @@ let width = window.innerWidth;
 /*Beggining node and edge informaiton*/
 let nodesDS = new vis.DataSet([
   {id: 1, label: ' Q 1 '},
-  {id: 2, label: ' Q 2 ' },
-  {id: 3, label: ' Q 3 '},
-  // {id: 4, label: ' Q 4 '},
-  // {id: 5, label: ' Q 5 '},
+  {id: 2, label: 'Node 2'},
+  {id: 3, label: 'Node 3'},
+  {id: 4, label: 'Node 4'},
+  {id: 5, label: 'Node 5', color:'brown'}
 ]);
 let edgesDS = new vis.DataSet( [
-  { from: 1, to: 2, label: "a", id: "a",arrows:"to" },
-  { from: 2, to: 3, label: "b", id: "b",arrows:"to"},
-  { from: 3, to: 1, label:"c" ,id:"c",arrows:"to"},
-  // { from: 2, to: 2, label:"2>2",id: "2->2" ,arrows:"to"},
-  // { from: 4, to: 2, label:"2>2",id: "4->2" ,arrows:"to"}
+  { from: 1, to: 2, label: "1>2", id: "1->2",arrows:"to" },
+  { from: 1, to: 3, label: "1>3", id: "1->3",arrows:"to"},
+  { from: 2, to: 4, label:"2>4",id:"2->4",arrows:"to"},
+  { from: 2, to: 2, label:"2>2",id: "2->2" ,arrows:"to"},
+  { from: 4, to: 2, label:"2>2",id: "4->2" ,arrows:"to"}
 
 ]);
 
@@ -164,7 +164,7 @@ useEffect( ()=>{
     }
     );
     console.log(found_node);
-    nodesDS.update([{id:found_node.id, label: " Q "+ (graph.nodes.get().length) + " "}]);
+    nodesDS.update([{id:found_node.id, label: " Q "+ (graph.nodes.get().length + 1) + " "}]);
 
     console.log(params.node)
     in_add_node_mode = false;
@@ -174,7 +174,7 @@ useEffect( ()=>{
 
   })
   network.on("controlNodeDragEnd",(params)=>{
-    console.log("disabled edit mode");
+    console.log("disabled edit mode")
     network.disableEditMode();
     let edge_identifier = findEdgeByNodes(params.controlEdge.from,params.controlEdge.to);
     console.log(edge_identifier);
@@ -205,7 +205,7 @@ useEffect( ()=>{
       }
       );
       console.log(found_node);
-      // nodesDS.update([{id:node_id_clicked,color: "#00bfff"}]);
+      nodesDS.update([{id:node_id_clicked,color: "#00bfff"}]);
       in_initial_mode = false;
       let final_color;
       if(found_node.color == "#00bfff"){
@@ -214,18 +214,9 @@ useEffect( ()=>{
       else{
         final_color = "#00bfff";
       }
-      console.log("SET THE INITIAL COLOR: ");
-      console.log(final_color);
-      if(found_node.init == true){
-        console.log("INITIAL TAG REMOVED");
-        nodesDS.update([{id:found_node.id,color:"grey" , init:false }]);
-      }
-      else{
-      nodesDS.update([{id:found_node.id, color: final_color, init:true}]);
-      }
+      nodesDS.update([{id:node_id_clicked, color: final_color}]);
       in_initial_mode = false;
       console.log("END-initial")
-      
 
     }
 
@@ -303,6 +294,7 @@ const findEdgeByNodes = (from,to) =>{
     return return_id; 
 
 }
+
 function toEditEdgeMode(props){
   console.log("EditEdgeMode");
     network.enableEditMode();
@@ -318,48 +310,31 @@ function toAddNodeMode(props){
   in_add_node_mode = true;
   
 }
+
 function setInitial(props){
   in_initial_mode = true;
 }
+
 function setAccepting(props){
   in_accepting_mode_ = true;
 }
+
+
 function deleteNodeOrEdge(props){
-  console.log("deletion:")
-  let node_deleted,edge_deleted;
-<<<<<<< HEAD
- // console.log(network.getIds([network.getSelec]))
-=======
-  //console.log(network.getIds([network.getSelec]))
->>>>>>> 0da82d55f4615419f53c6d031e5ffcc88e53786e
-  let deleted_node = network.getSelectedEdges
-  graph.nodes.forEach( (node)=>{
-  //   if(node.id == )
-  // } );
-  console.log(network.getSelectedEdges());
-  console.log(network.getSelectedNodes());
-
-
-  console.log('deletion--end');
 
   network.deleteSelected();
-});
 }
 
   return (
     <div>
-        {/* <div id="button-hold"><Col></Col></div> */}
       <div>
-        
-        <ButtonGroup className="justify-content-between" >
-      <Button variant="secondary" onClick={toEditEdgeMode}>Add Transitions!</Button>
-      <Button variant="secondary" onClick={toAddNodeMode}> Add Node </Button>
-      <Button variant="secondary" onClick={setInitial}> Mark Initial</Button>
-      <Button variant="secondary" onClick={setAccepting}>Mark Accepting</Button>
-      <Button variant="secondary"  onClick={deleteNodeOrEdge}>Delete</Button>
-      </ButtonGroup>  
-      </div>
+      <Button onClick={toEditEdgeMode}>Add Transitions!</Button>
+      <Button onClick={toAddNodeMode}> Add Node </Button>
+      <Button onClick={setInitial}> Mark Initial</Button>
+      <Button onClick={setAccepting}>Mark Accepting</Button>
+      <Button onClick={deleteNodeOrEdge}>Delete</Button>
       
+      </div>
     <div style={{'height':`${height}px`}} id="graph-display"  className="Visual" ref={wrapper}>
     </div>
     </div>

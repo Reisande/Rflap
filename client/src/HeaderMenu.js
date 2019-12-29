@@ -3,11 +3,7 @@ import {useRef,useContext} from 'react';
 import './HeaderMenu.css'
 import 'bootstrap/dist/css/bootstrap.min.css';
 import {Navbar, Nav, NavDropdown,Col,Button} from 'react-bootstrap';
-import {AutomataContext} from './AutomataContext.js';
-import not_ferris  from "./rFlapLogo.png";
-
-
-
+import {AutomataContext} from './AutomataContext.js'
 function HeaderMenu(props){
     const master_context = useContext(AutomataContext)
 
@@ -46,12 +42,7 @@ return(
        <br></br>
        </Col>
     </Col>     
-    {/* <Navbar.Brand ><b> <font color="#835C3B">R </font>  <font color="#FFD700">FLAP</font></b></Navbar.Brand> */}
-    <Navbar.Brand> <img
-      src={not_ferris}
-      height = "75px"
-      width= "100px"
-    /></Navbar.Brand>
+    <Navbar.Brand ><b> <font color="#835C3B">R </font>  <font color="#FFD700">FLAP</font></b></Navbar.Brand>
     {/* add xs field for release */}
     <Col md = {3}></Col>
     <Col md = {3}>

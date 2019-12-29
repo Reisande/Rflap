@@ -1,36 +1,46 @@
+#![feature(proc_macro_hygiene, decl_macro)]
+
+#[macro_use] extern crate rocket;
+#[macro_use] extern crate rocket_contrib;
+
+use std::collections::HashSet;
+use std::collections::HashMap;
+use std::io;
+
+use rocket_contrib::json::{Json, JsonValue};
+
+use std::path::{Path, PathBuf};
+use rocket::response::NamedFile;
+
 mod finite_automaton;
 //mod reg_exp;
 //mod cfg;
 //mod pda;
 //mod tm;
 
-use std::collections::HashSet;
-use std::collections::HashMap;
+#[post("/api", format = "json", data = "<input_automaton>")]
+fn api(input_automaton : Json<finite_automaton::FiniteAutomatonJson>) 
+		 -> JsonValue {
+	let (mut test_dfa, input_string) =
+		finite_automaton::FiniteAutomaton::new_from_json(&input_automaton);
+
+	let return_path = test_dfa.validate_string(input_string);
+	
+	json!(return_path)
+}
+
+#[get("/")]
+pub fn index() -> io::Result<NamedFile> {
+    NamedFile::open("client/build/index.html")
+}
+
+#[get("/<file..>")]
+pub fn file(file: PathBuf) -> Option<NamedFile> {
+    NamedFile::open(Path::new("client/build/").join(file)).ok()
+}
 
 fn main() {
-	// start out with a test DFA, which recognizes the language of only a's(including empty string)
-	// out of the alphabet a,b,c
-	
-	let mut a_alphabet : HashSet<char> = HashSet::new();
-	a_alphabet.insert('a');
-	a_alphabet.insert('b');
-	a_alphabet.insert('c');
-	
-	let a_start_state : String = "q_0".to_string();
-
-	let mut a_new_states : HashMap<String, bool> = HashMap::new();
-	a_new_states.insert("q_0".to_string(), true);
-	a_new_states.insert("q_1".to_string(), false);
-	a_new_states.insert("q_accept".to_string(), false);
-	
-	let mut a_transitions : HashMap<(String, Option<char>), String> = HashMap::new();
-
-	a_transitions.insert(("q_0".to_string(), Some('a')), "q_accept".to_string());
-	a_transitions.insert(("q_0".to_string(), Some('b')), "q_1".to_string());
-	a_transitions.insert(("q_0".to_string(), Some('c')), "q_1".to_string());
-
-	let test_dfa : finite_automaton::FiniteAutomaton =
-		finite_automaton::FiniteAutomaton::new(a_alphabet, a_start_state, a_new_states, a_transitions);
-	
-    println!("\n{:?}", test_dfa);
+	rocket::ignite()
+		.mount("/", routes![api, index, file])
+		.launch();
 }
