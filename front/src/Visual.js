@@ -327,7 +327,11 @@ function setAccepting(props){
 function deleteNodeOrEdge(props){
   console.log("deletion:")
   let node_deleted,edge_deleted;
+<<<<<<< HEAD
+ // console.log(network.getIds([network.getSelec]))
+=======
   //console.log(network.getIds([network.getSelec]))
+>>>>>>> 0da82d55f4615419f53c6d031e5ffcc88e53786e
   let deleted_node = network.getSelectedEdges
   graph.nodes.forEach( (node)=>{
   //   if(node.id == )
