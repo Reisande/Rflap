@@ -24,7 +24,7 @@ fn api(input_automaton : Json<finite_automaton::FiniteAutomatonJson>)
 	let (mut test_dfa, input_string) =
 		finite_automaton::FiniteAutomaton::new_from_json(&input_automaton);
 
-	let return_path = test_dfa.validate_string(input_string);
+	let return_path = test_dfa.validate_string(input_string, true);
 	
 	json!(return_path)
 }
