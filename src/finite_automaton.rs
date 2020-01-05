@@ -86,7 +86,46 @@ impl FiniteAutomaton {
 	    
 	(return_finite_automaton, json_struct.input_string.to_owned())
     }
-        
+
+    // convert the original string by using string.chars().collect()
+    pub fn validate_string_nfa(&self, validate_string : &Vec<char>, position : usize,
+			       mut current_path : Vec<(char, String)>, current_state : String)
+			       -> Option<Vec<(char, String)>> {
+	if position == validate_string.len() {
+	    let is_final : bool = match self.states.get(&current_state) {
+		Some(b) => *b,
+		None => false
+	    }; 
+	    if is_final {
+		Some(current_path.to_vec())
+	    }
+	    else {
+		None
+	    }
+	}
+	else {
+	    for (target_state, _) in &self.states {
+		let find_transition = (current_state.to_owned(),
+				       Some(validate_string[position]),
+				       target_state.to_string());
+		if self.transition_function.contains(&find_transition).to_owned() {
+		    current_path.push((validate_string[position], target_state.to_owned()));
+		    let return_vec =
+			self.validate_string_nfa
+			(validate_string, position + 1, current_path.to_owned(),
+			 target_state.to_owned());
+		    
+		    match return_vec {
+			Some(_) => return return_vec,
+			None => continue,// do nothing
+		    }
+		}
+	    }
+	    
+	    None
+	}
+    }
+
     // returns a path of transitions and states, beginning with the start state
     // and ending with a final state if the automaton accepts the string. If
     // the automaton rejects the string returns None. Maybe this should
@@ -134,8 +173,11 @@ impl FiniteAutomaton {
 	    }
 	}
 	else {
-	    // non deterministic checking function. I guess I should this recursively?
-	    (false, None) // placeholder for now
+	    let validate_vec : Vec<char> = validate_string.chars().collect();
+	    let return_vec =
+		self.validate_string_nfa(&validate_vec, 0, return_vec, self.start_state.to_owned());
+
+	    (false, return_vec)
 	}
     }
 
