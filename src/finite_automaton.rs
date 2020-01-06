@@ -1,6 +1,7 @@
 extern crate rocket;
 extern crate rocket_contrib;
 extern crate rand;
+extern crate multimap;
 
 use rand::Rng;
 
@@ -10,6 +11,8 @@ use serde_json::Result;
 use std::convert::TryInto;
 use std::collections::*;
 
+use multimap::MultiMap;
+
 #[derive(Debug, Serialize, Deserialize)]
 pub struct FiniteAutomatonJson {
     alphabet : HashSet<char>,
@@ -18,22 +21,6 @@ pub struct FiniteAutomatonJson {
     transition_function : Vec<(String, Option<char>, String)>,
     determinism : bool,
     input_string : String
-}
-
-impl FiniteAutomatonJson {
-    pub fn new(origin : &FiniteAutomaton, input_string_arg : &String) -> FiniteAutomatonJson {
-	let new_transition_function : Vec<(String, Option<char>, String)> =
-	    origin.transition_function
-	    .iter()
-	    .map(|x| x.to_owned())
-	    .collect();
-
-	FiniteAutomatonJson {
-	    alphabet : origin.alphabet.to_owned(), start_state : origin.start_state.to_owned(),
-	    states : origin.states.to_owned(), transition_function : new_transition_function,
-	    determinism : origin.determinism.to_owned(), input_string : input_string_arg.to_owned()
-	}
-    }
 }
 
 #[derive(Debug)]
@@ -48,14 +35,14 @@ pub struct FiniteAutomaton {
     // transition function is a hashMap from the current state, to a hashmap
     // representing all of the transitions for the current state
     // the transition of a current state is a letter and a next state
-    transition_function : HashSet<(String, Option<char>, String)>,
+    transition_function : MultiMap<(String, Option<char>), String>,
     determinism : bool
 }
 
 impl FiniteAutomaton {
     pub fn new(a_alphabet : HashSet<char>, a_start_state : String,
 	       a_new_states : HashMap<String, bool>,
-	       a_transitions : HashSet<(String, Option<char>, String)>)
+	       a_transitions : MultiMap<(String, Option<char>), String>)
 	       -> FiniteAutomaton {		
 	// should probably add a check for validity of automaton, or maybe it
 	// should be done client side
@@ -67,11 +54,13 @@ impl FiniteAutomaton {
     }
 
     pub fn new_from_json(json_struct : &FiniteAutomatonJson) -> (FiniteAutomaton, String) {
-	let mut new_transition_function : HashSet<(String, Option<char>, String)> =
-	    HashSet::new();
+	let mut new_transition_function : MultiMap<(String, Option<char>), String> =
+	    MultiMap::new();
 
 	for element in json_struct.transition_function.iter() {
-	    new_transition_function.insert(element.to_owned());
+	    new_transition_function
+		.insert((element.0.to_owned(), element.1.to_owned()),
+			element.2.to_owned());
 	}
 
 	let mut return_finite_automaton = FiniteAutomaton {
@@ -100,27 +89,63 @@ impl FiniteAutomaton {
 		Some(current_path.to_vec())
 	    }
 	    else {
+		// after the current symbol has been checked should check for epsilon transitions
+		let target_vec_epsilon_transitions =
+		    match self.transition_function.get_vec(&(current_state.to_owned(), None)) {
+			Some(v) => v.to_owned(),
+			None => Vec::new(),
+		    };
+
+		// check for epsilon transitions here
+		current_path.push(('Ɛ'.to_owned(), current_state.to_owned()));
+		for target_state in target_vec_epsilon_transitions {
+		    match self.validate_string_nfa(validate_string, position, current_path.to_owned(), target_state) {
+			Some(r) => return Some(r),
+			None => continue,
+		    };
+		}
+		
+		
 		None
 	    }
 	}
 	else {
-	    for (target_state, _) in &self.states {
-		let find_transition = (current_state.to_owned(),
-				       Some(validate_string[position]),
-				       target_state.to_string());
-		if self.transition_function.contains(&find_transition).to_owned() {
-		    current_path.push((validate_string[position], target_state.to_owned()));
-		    let return_vec =
-			self.validate_string_nfa
-			(validate_string, position + 1, current_path.to_owned(),
-			 target_state.to_owned());
-		    
-		    match return_vec {
-			Some(_) => return return_vec,
-			None => continue,// do nothing
-		    }
-		}
+	    let search_tuple = (current_state.to_owned(), Some(validate_string[position]));
+	    let target_states_vec =
+		match self.transition_function.get_vec(&search_tuple.to_owned()) {
+		    Some(v) => v.to_owned(),
+		    None => Vec::new(),
+		};
+
+	    for target_state in target_states_vec {
+		current_path.to_owned()
+		    .push((validate_string[position], current_state.to_owned()));
+		match
+		    self.validate_string_nfa(
+			validate_string, position + 1, current_path.to_owned(),
+			(*target_state).to_owned()) {
+			Some(r) => return Some(r),
+			None => current_path.pop(),
+		    };
 	    }
+	    	    
+	    // after the current symbol has been checked should check for epsilon transitions
+	    let target_vec_epsilon_transitions =
+		match self.transition_function.get_vec(&(current_state.to_owned(), None)) {
+		    Some(v) => v.to_owned(),
+		    None => Vec::new(),
+		};
+
+	    current_path.push(('Ɛ'.to_owned(), current_state));
+	    for target_state in target_vec_epsilon_transitions {
+		match self.
+		    validate_string_nfa(validate_string, position, current_path.to_owned(), target_state) {
+			Some(r) => return Some(r),
+			None => continue,
+		    };
+	    }
+	    current_path.pop();
+	    
 	    
 	    None
 	}
@@ -151,21 +176,18 @@ impl FiniteAutomaton {
 			None => "".to_owned()
 		    };
 
-		    for (state, _) in &self.states {
-			let check_triple =
-			    (current_state.to_owned(), Some(symbol.to_owned()),
-			     state.to_owned()); 
+		    let next_state =
+			match self.transition_function.get(&(current_state, Some(symbol))) {
+			    Some(s) => s.to_owned(),
+			    None => "".to_owned()
+			};
 
-			if self.transition_function.contains(&check_triple) {
-			    return_vec.push((symbol, state.to_owned()));
-			    break;
-			}    
-		    }
-		    
-		    self.check_determinism();
+		    if next_state != "".to_owned() {
+			return_vec.push((symbol, next_state.to_owned()));
+		    }		    
 		}
 		
-		(self.determinism, Some(return_vec))
+		(self.determinism, Some(return_vec))		    
 	    }
 	    else {
 		// should probably change return type to Result<> rather than just a tuple
@@ -187,34 +209,33 @@ impl FiniteAutomaton {
     }
     
     fn check_determinism(&mut self) {
+	let mut determinism_check : bool = true;
 	for (source_state, _) in &self.states {
-	    let mut matching_transitions_count : u32 = 0;
+	    //checks to make sure that there are no epsilon transitions
+	    determinism_check &=
+		self.transition_function.get(&(source_state.to_owned(), None)) == None;
 
+	    // checks to make sure that there is exactly one target state for each
+	    // transition character
 	    for transition in &self.alphabet {
-		for target_state in &self.states {
-		    if self.transition_function.contains(&(
-			source_state.to_owned(), Some(*transition),
-			target_state.0.to_owned())) {
-			matching_transitions_count += 1;
-		    }
-		    
-		    if matching_transitions_count != 1 || matching_transitions_count != 0 {
-			println!("{} {} ", source_state, transition);
-			
-			self.determinism = false;
-			return;
-		    }								   
-		}
-		if matching_transitions_count != 1 {
-		    println!("{} {} ", source_state, transition);
-		    
-		    self.determinism = false;
+		let check_vec =
+		    self.transition_function.get_vec(
+			&(source_state.to_owned(), Some(transition.to_owned()))).to_owned();
+		determinism_check &= match check_vec {
+		    Some(v) => (v.len() == 1),
+		    None => false,
+		};
+
+		// makes this check to break out early from the loop in order to not
+		// waste time
+		if ! determinism_check {
+		    self.determinism = determinism_check;
 		    return;
 		}
 	    }
 	}
 
-	self.determinism = true;
+	self.determinism = determinism_check;
     }
 
     pub fn generate_tests(self, min_length : u8, max_length : u8, include_empty : bool,
@@ -255,9 +276,9 @@ impl FiniteAutomaton {
     }
 
     // should probably write a separate api for verifying strings
-    pub fn serialize_json(&self) -> Result<String> {
+    /* pub fn serialize_json(&self) -> Result<String> {
 	serde_json::to_string_pretty(&FiniteAutomatonJson::new(self, &"".to_string()))
-    } 
+    } */
     
     fn deserialize_json(self, input_json : serde_json::Value) -> Option<FiniteAutomaton> {
 	let json_struct_string : String =

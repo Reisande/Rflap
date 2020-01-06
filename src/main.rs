@@ -20,13 +20,13 @@ mod finite_automaton;
 
 #[post("/api", format = "json", data = "<input_automaton>")]
 fn api(input_automaton : Json<finite_automaton::FiniteAutomatonJson>) 
-		 -> JsonValue {
-	let (mut test_dfa, input_string) =
-		finite_automaton::FiniteAutomaton::new_from_json(&input_automaton);
+       -> JsonValue {
+    let (mut test_dfa, input_string) =
+	finite_automaton::FiniteAutomaton::new_from_json(&input_automaton);
 
-	let return_path = test_dfa.validate_string(input_string, true);
-	
-	json!(return_path)
+    let return_path = test_dfa.validate_string(input_string, true);
+    
+    json!(return_path)
 }
 
 #[get("/")]
