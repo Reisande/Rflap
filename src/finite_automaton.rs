@@ -21,7 +21,7 @@ pub struct FiniteAutomatonJson {
     transition_function : Vec<(String, Option<char>, String)>,
     determinism : bool,
     input_string : String
-
+}
 
 #[derive(Debug)]
 pub struct FiniteAutomaton {
