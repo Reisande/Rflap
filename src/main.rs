@@ -3,8 +3,6 @@
 #[macro_use] extern crate rocket;
 #[macro_use] extern crate rocket_contrib;
 
-use std::collections::HashSet;
-use std::collections::HashMap;
 use std::io;
 
 use rocket_contrib::json::{Json, JsonValue};
