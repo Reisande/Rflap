@@ -42,14 +42,15 @@ pub struct FiniteAutomaton {
 impl FiniteAutomaton {
     pub fn new(a_alphabet : HashSet<char>, a_start_state : String,
 	       a_new_states : HashMap<String, bool>,
-	       a_transitions : MultiMap<(String, Option<char>), String>)
+	       a_transitions : MultiMap<(String, Option<char>), String>,
+	       a_determinism : bool)
 	       -> FiniteAutomaton {		
 	// should probably add a check for validity of automaton, or maybe it
 	// should be done client side
 	FiniteAutomaton {
 	    alphabet : a_alphabet, start_state : a_start_state,
 	    states : a_new_states, transition_function : a_transitions,
-	    determinism : true
+	    determinism : a_determinism,
 	}
     }
 
@@ -78,8 +79,11 @@ impl FiniteAutomaton {
 
     // convert the original string by using string.chars().collect()
     pub fn validate_string_nfa(&self, validate_string : &Vec<char>, position : usize,
-			       mut current_path : Vec<(char, String)>, current_state : String)
+			       mut current_path : Vec<(char, String)>, current_state : String,
+			       transition_char : char)
 			       -> Option<Vec<(char, String)>> {
+	current_path.push((transition_char, current_state.to_owned()));
+	
 	if position == validate_string.len() {
 	    let is_final : bool = match self.states.get(&current_state) {
 		Some(b) => *b,
@@ -97,14 +101,12 @@ impl FiniteAutomaton {
 		    };
 
 		// check for epsilon transitions here
-		current_path.push(('Ɛ'.to_owned(), current_state.to_owned()));
 		for target_state in target_vec_epsilon_transitions {
-		    match self.validate_string_nfa(validate_string, position, current_path.to_owned(), target_state) {
+		    match self.validate_string_nfa(validate_string, position, current_path.to_owned(), target_state, 'Ɛ'.to_owned()) {
 			Some(r) => return Some(r),
 			None => continue,
 		    };
-		}
-		
+		}		
 		
 		None
 	    }
@@ -116,16 +118,14 @@ impl FiniteAutomaton {
 		    Some(v) => v.to_owned(),
 		    None => Vec::new(),
 		};
-
+	    
 	    for target_state in target_states_vec {
-		current_path.to_owned()
-		    .push((validate_string[position], current_state.to_owned()));
 		match
 		    self.validate_string_nfa(
 			validate_string, position + 1, current_path.to_owned(),
-			(*target_state).to_owned()) {
+			(*target_state).to_owned(), validate_string[position]) {
 			Some(r) => return Some(r),
-			None => current_path.pop(),
+			None => continue,
 		    };
 	    }
 	    	    
@@ -136,17 +136,14 @@ impl FiniteAutomaton {
 		    None => Vec::new(),
 		};
 
-	    current_path.push(('Ɛ'.to_owned(), current_state));
 	    for target_state in target_vec_epsilon_transitions {
 		match self.
-		    validate_string_nfa(validate_string, position, current_path.to_owned(), target_state) {
+		    validate_string_nfa(validate_string, position, current_path.to_owned(), target_state, 'Ɛ'.to_owned()) {
 			Some(r) => return Some(r),
 			None => continue,
 		    };
 	    }
-	    current_path.pop();
-	    
-	    
+	    	    
 	    None
 	}
     }
@@ -160,9 +157,10 @@ impl FiniteAutomaton {
     // alphabet occurs on the client side
     pub fn validate_string(&mut self, validate_string : String, should_be_deterministic : bool)
 			   -> (bool, Option<Vec<(char, String)>>) {
-	let mut return_vec : Vec<(char, String)> = [('_', (&self.start_state).to_owned())].to_vec();
 	
 	if should_be_deterministic {
+	    let mut return_vec : Vec<(char, String)> = [('_', (&self.start_state).to_owned())].to_vec();
+
 	    self.check_determinism();
 
 	    if self.determinism {
@@ -195,9 +193,11 @@ impl FiniteAutomaton {
 	    }
 	}
 	else {
+	    let mut return_vec : Vec<(char, String)> = Vec::new();
+	    
 	    let validate_vec : Vec<char> = validate_string.chars().collect();
 	    let return_vec =
-		self.validate_string_nfa(&validate_vec, 0, return_vec, self.start_state.to_owned());
+		self.validate_string_nfa(&validate_vec, 0, return_vec, self.start_state.to_owned(), '_');
 
 	    (false, return_vec)
 	}
