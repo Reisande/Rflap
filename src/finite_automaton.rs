@@ -1,6 +1,7 @@
 extern crate rocket;
 extern crate rocket_contrib;
 extern crate rand;
+extern crate multimap;
 
 use rand::Rng;
 
@@ -10,6 +11,8 @@ use serde_json::Result;
 use std::convert::TryInto;
 use std::collections::*;
 
+use multimap::MultiMap;
+
 #[derive(Debug, Serialize, Deserialize)]
 pub struct FiniteAutomatonJson {
     alphabet : HashSet<char>,
@@ -18,23 +21,7 @@ pub struct FiniteAutomatonJson {
     transition_function : Vec<(String, Option<char>, String)>,
     determinism : bool,
     input_string : String
-}
 
-impl FiniteAutomatonJson {
-    pub fn new(origin : &FiniteAutomaton, input_string_arg : &String) -> FiniteAutomatonJson {
-	let new_transition_function : Vec<(String, Option<char>, String)> =
-	    origin.transition_function
-	    .iter()
-	    .map(|((a, b), c)| (a.to_owned(), b.to_owned(), c.to_owned()))
-	    .collect();
-
-	FiniteAutomatonJson {
-	    alphabet : origin.alphabet.to_owned(), start_state : origin.start_state.to_owned(),
-	    states : origin.states.to_owned(), transition_function : new_transition_function,
-	    determinism : origin.determinism.to_owned(), input_string : input_string_arg.to_owned()
-	}
-    }
-}
 
 #[derive(Debug)]
 pub struct FiniteAutomaton {
@@ -48,172 +35,120 @@ pub struct FiniteAutomaton {
     // transition function is a hashMap from the current state, to a hashmap
     // representing all of the transitions for the current state
     // the transition of a current state is a letter and a next state
-    transition_function : HashMap<(String, Option<char>), String>,
+    transition_function : MultiMap<(String, Option<char>), String>,
+
     determinism : bool
 }
 
 impl FiniteAutomaton {
     pub fn new(a_alphabet : HashSet<char>, a_start_state : String,
 	       a_new_states : HashMap<String, bool>,
-	       a_transitions : HashMap<(String, Option<char>), String>)
+	       a_transitions : MultiMap<(String, Option<char>), String>)
 	       -> FiniteAutomaton {		
-	// should probably add a check for validity of automaton, or maybe it
-	// should be done client side
-	FiniteAutomaton {
-	    alphabet : a_alphabet, start_state : a_start_state,
-	    states : a_new_states, transition_function : a_transitions,
-	    determinism : true
-	}
+	  // should probably add a check for validity of automaton, or maybe it
+	  // should be done client side
+	  FiniteAutomaton {
+	      alphabet : a_alphabet, start_state : a_start_state,
+	      states : a_new_states, transition_function : a_transitions,
+	      determinism : true
+	    }
     }
 
     pub fn new_from_json(json_struct : &FiniteAutomatonJson) -> (FiniteAutomaton, String) {
-	// ezpz we can just change this hashmap to a hashset of a three tuple and then lookup is
-	// still O(1)
-	let mut new_transition_function : HashMap<(String, Option<char>), String> =
-	    HashMap::new();
+	let mut new_transition_function : MultiMap<(String, Option<char>), String> =
+	    MultiMap::new();
 
 	for element in json_struct.transition_function.iter() {
 	    new_transition_function
-		.insert(((element.0).to_owned(), (element.1).to_owned()),
-			(element.2).to_owned());
+		.insert((element.0.to_owned(), element.1.to_owned()),
+			element.2.to_owned());
 	}
 
-	(FiniteAutomaton {
+	let mut return_finite_automaton = FiniteAutomaton {
 	    alphabet : json_struct.alphabet.to_owned(),
 	    start_state : json_struct.start_state.to_owned(),
 	    states : json_struct.states.to_owned(),
 	    transition_function : new_transition_function,
 	    determinism : json_struct.determinism.to_owned()
-	},
-	 json_struct.input_string.to_owned())
-    }
-    
-    pub fn set_new_alphabet(&mut self, new_alphabet : HashSet<char>) {
-	self.alphabet = new_alphabet;
-    }
-    
-    pub fn insert_char_in_alphabet(&mut self, new_char : char) {
-	self.alphabet.insert(new_char);
-    }
-
-    pub fn delete_char_in_alphabet(&mut self, new_char : char) {
-	self.alphabet.remove(&new_char);
-    }
-    
-    fn change_start(&mut self, new_start : &String) -> bool {
-	// checking to see that the new start is an existing state
-	let should_change = match self.states.get(&new_start.to_owned()) {
-	    None => false,
-	    Some(_) => true
 	};
 
-	if should_change {
-	    self.start_state = new_start.to_owned();
-	    true
-	}
-	else {
-	    false
-	}
-    }
-    
-    pub fn insert_empty_state(&mut self, state_name : &String, is_final : bool,
-			      is_start : bool) -> bool {
-	if self.states.get(&state_name.to_owned()) == None {
-	    println!("Inserting New State: {:?}: ",
-		     self.states.insert(state_name.to_owned(), is_final));
-	    if is_start {
-		self.change_start(state_name);
-	    }
-	    true
-	}
-	else {
-	    println!("State already exists, call delete() before replacing");
-	    false
-	}
-    }
-
-    pub fn insert_transition(&mut self, state_name : &String,
-			     new_transition : &(Option<char>, String),
-			     _insert : bool) {
-	// checks to see if the read symbol is either an epsilon or inside
-	// of the alphabet if not in the alphabet rejects that specific
-	// insertion
-
-	// if an empty symbol/an epsilon is ever inserted, we immediately
-	// lose determinism
-
-	// the first bool shows if the new state should be inserted, the
-	// second if it is .
-
-	// insertion occurs if the following checks are made:
-	// the transition character is in the alphabet, both states exist,
-	// and the insert is either intended to be non- or the insert is unique
-	let should_insert : (bool, bool) = match &new_transition.0 {
-	    Some(symbol) => (self.alphabet.contains(&symbol) &&
-			     self.states.contains_key(&(new_transition.1).to_owned()) &&
-			     self.states.contains_key(state_name) &&
-			     (!_insert ||
-			      self.transition_function
-			      .get(&(state_name.to_owned(), new_transition.0)) == None),
-			     true),
-	    None => (true, false)
-	};
-
-	if should_insert.0 {
-	    self.transition_function.insert(((&state_name).to_string(), new_transition.0),
-					    (&new_transition.1).to_owned());
-	    self.check_determinism();
-	}
-	else {
-	    println!("Tried to incorrectly insert {:?}, {:?}", state_name, new_transition);
-	    println!("{:?}, {:?} is either a copy of an existing value, or previous delete failed",
-		     state_name, new_transition);
-	}		
-    }
-
-    pub fn delete_transition(&mut self, transition : &(String, Option<char>))
-			     -> bool {
-	let return_val : bool = match self.transition_function.remove(transition) {
-	    Some(_) => true,
-	    None => false
-	};
-
-	self.check_determinism();
-
-	return_val
-    }
-    
-    pub fn insert_new_state(&mut self, state_name : &String, is_final : bool, 
-			    transitions : HashSet<(Option<char>, String)>,
-			    is_start : bool, _insert : bool) {
-	if self.insert_empty_state(&state_name.to_owned(), is_final, is_start) {
-	    for i in transitions.iter() {
-		self.insert_transition(state_name, i, _insert);
-	    }
-	}
-    }
-    
-    pub fn delete_state(&mut self, state_name : &String) -> bool {
-	// start by checking to see that the state exists
-	let state_exists = match self.states.get(&state_name.to_owned()) {
-	    None => false,
-	    Some(_) => true	
-        };
-
-	if state_exists {
-	    // delete state from the states HashSet
-	    self.states.remove(state_name);
-
-	    // find and delete all transitions to and from the state in the
-	    // transitions HashMap
-	    self.transition_function.retain
-		(|k, v| k.0 != state_name.to_owned() && v != state_name);
+	return_finite_automaton.check_determinism();
 	    
-	    true
+	(return_finite_automaton, json_struct.input_string.to_owned())
+    }
+
+    // convert the original string by using string.chars().collect()
+    pub fn validate_string_nfa(&self, validate_string : &Vec<char>, position : usize,
+			       mut current_path : Vec<(char, String)>, current_state : String)
+			       -> Option<Vec<(char, String)>> {
+	if position == validate_string.len() {
+	    let is_final : bool = match self.states.get(&current_state) {
+		Some(b) => *b,
+		None => false
+	    }; 
+	    if is_final {
+		Some(current_path.to_vec())
+	    }
+	    else {
+		// after the current symbol has been checked should check for epsilon transitions
+		let target_vec_epsilon_transitions =
+		    match self.transition_function.get_vec(&(current_state.to_owned(), None)) {
+			Some(v) => v.to_owned(),
+			None => Vec::new(),
+		    };
+
+		// check for epsilon transitions here
+		current_path.push(('Ɛ'.to_owned(), current_state.to_owned()));
+		for target_state in target_vec_epsilon_transitions {
+		    match self.validate_string_nfa(validate_string, position, current_path.to_owned(), target_state) {
+			Some(r) => return Some(r),
+			None => continue,
+		    };
+		}
+		
+		
+		None
+	    }
 	}
 	else {
-	    println!("Tried to delete nonexistant state: {:?}", state_name);
-	    false
+	    let search_tuple = (current_state.to_owned(), Some(validate_string[position]));
+	    let target_states_vec =
+		match self.transition_function.get_vec(&search_tuple.to_owned()) {
+		    Some(v) => v.to_owned(),
+		    None => Vec::new(),
+		};
+
+	    for target_state in target_states_vec {
+		current_path.to_owned()
+		    .push((validate_string[position], current_state.to_owned()));
+		match
+		    self.validate_string_nfa(
+			validate_string, position + 1, current_path.to_owned(),
+			(*target_state).to_owned()) {
+			Some(r) => return Some(r),
+			None => current_path.pop(),
+		    };
+	    }
+	    	    
+	    // after the current symbol has been checked should check for epsilon transitions
+	    let target_vec_epsilon_transitions =
+		match self.transition_function.get_vec(&(current_state.to_owned(), None)) {
+		    Some(v) => v.to_owned(),
+		    None => Vec::new(),
+		};
+
+	    current_path.push(('Ɛ'.to_owned(), current_state));
+	    for target_state in target_vec_epsilon_transitions {
+		match self.
+		    validate_string_nfa(validate_string, position, current_path.to_owned(), target_state) {
+			Some(r) => return Some(r),
+			None => continue,
+		    };
+	    }
+	    current_path.pop();
+	    
+	    
+	    None
 	}
     }
 
@@ -224,71 +159,86 @@ impl FiniteAutomaton {
 
     // this function assumes that the validation that the string is valid for the
     // alphabet occurs on the client side
-    pub fn validate_string(&mut self, validate_string : String)
+    pub fn validate_string(&mut self, validate_string : String, should_be_deterministic : bool)
 			   -> (bool, Option<Vec<(char, String)>>) {
-	self.check_determinism();
+	let mut return_vec : Vec<(char, String)> = [('_', (&self.start_state).to_owned())].to_vec();
+	
+	if should_be_deterministic {
+	    self.check_determinism();
 
-	if self.determinism {
-	    let mut return_vec : Vec<(char, String)> = [('_', (&self.start_state).to_owned())].to_vec();
+	    if self.determinism {
+		// iterate through the given string, moving from state to state, until
+		// the string is empty and the end state is reached or not reached
+		for symbol in validate_string.chars() {
+		    // the current state is the one at the end of the return vec
 
-	    // iterate through the given string, moving from state to state, until
-	    // the string is empty and the end state is reached or not reached
-	    for symbol in validate_string.chars() {
-		// the current state is the one at the end of the return vec
-
-		let current_state : String = match return_vec.last() {
-		    Some((_, state)) => state.to_owned(),
-		    None => "".to_owned()
-		};
-
-		let next_state : String =
-		    match self.transition_function.get(&(current_state, Some(symbol))) {
-			Some(new_state) => new_state.to_owned(),
+		    let current_state : String = match return_vec.last() {
+			Some((_, state)) => state.to_owned(),
 			None => "".to_owned()
 		    };
+
+		    let next_state =
+			match self.transition_function.get(&(current_state, Some(symbol))) {
+			    Some(s) => s.to_owned(),
+			    None => "".to_owned()
+			};
+
+		    if next_state != "".to_owned() {
+			return_vec.push((symbol, next_state.to_owned()));
+		    }		    
+		}
 		
-		return_vec.push((symbol, next_state));
+		(self.determinism, Some(return_vec))		    
 	    }
-
-	    // check to see that the last state pushed is an accepting state
-	    let accepted_string : bool = match return_vec.last() {
-		Some((_, state)) => match self.states.get(state) {
-		    Some(return_bool) => *return_bool,
-		    None => false
-		},
-		None => false
-	    };
-
-	    (accepted_string, Some(return_vec))
+	    else {
+		// should probably change return type to Result<> rather than just a tuple
+		(false, None) 
+	    }
 	}
-	else {			
-	    (false, None)
+	else {
+	    let validate_vec : Vec<char> = validate_string.chars().collect();
+	    let return_vec =
+		self.validate_string_nfa(&validate_vec, 0, return_vec, self.start_state.to_owned());
+
+	    (false, return_vec)
 	}
     }
 
-    pub fn validate_string_json(&mut self, validate_string : String) -> Result<String> {
-	serde_json::to_string_pretty(&self.validate_string(validate_string))
+    pub fn validate_string_json(&mut self, validate_string : String,
+				should_be_deterministic : bool) -> Result<String> {
+	serde_json::to_string_pretty(&self.validate_string(validate_string, should_be_deterministic))
     }
     
-    fn check_determinism(&mut self) -> bool {
-	for (state, _) in &self.states {
+    fn check_determinism(&mut self) {
+	let mut determinism_check : bool = true;
+	for (source_state, _) in &self.states {
+	    //checks to make sure that there are no epsilon transitions
+	    determinism_check &=
+		self.transition_function.get(&(source_state.to_owned(), None)) == None;
+
+	    // checks to make sure that there is exactly one target state for each
+	    // transition character
 	    for transition in &self.alphabet {
-		let return_val : bool =
-		    self.transition_function.contains_key(
-			&(state.to_owned(), Some(*transition)));
-		
-		if ! return_val {
-		    println!("{} {} ", state, transition);
-		    
-		    self.determinism = false;
-		    return false;
-		}								   
-	    }
+		let check_vec =
+		    self.transition_function.get_vec(
+			&(source_state.to_owned(), Some(transition.to_owned()))).to_owned();
+		determinism_check &= match check_vec {
+		    Some(v) => (v.len() == 1),
+		    None => false,
+		};
+
+		// makes this check to break out early from the loop in order to not
+		// waste time
+		if ! determinism_check {
+		    self.determinism = determinism_check;
+		    return;
+		  }
+	  }
 	}
+	
+	let alphabet_vec : Vec<char> = self.alphabet.iter().cloned().collect();
 
-	self.determinism = true;
-
-	self.determinism
+	self.determinism = determinism_check;
     }
 
     pub fn generate_tests(self, min_length : u8, max_length : u8, include_empty : bool,
@@ -329,9 +279,9 @@ impl FiniteAutomaton {
     }
 
     // should probably write a separate api for verifying strings
-    pub fn serialize_json(&self) -> Result<String> {
+    /* pub fn serialize_json(&self) -> Result<String> {
 	serde_json::to_string_pretty(&FiniteAutomatonJson::new(self, &"".to_string()))
-    } 
+    } */
     
     fn deserialize_json(self, input_json : serde_json::Value) -> Option<FiniteAutomaton> {
 	let json_struct_string : String =
