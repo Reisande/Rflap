@@ -36,7 +36,6 @@ pub struct FiniteAutomaton {
     // representing all of the transitions for the current state
     // the transition of a current state is a letter and a next state
     transition_function : MultiMap<(String, Option<char>), String>,
-
     determinism : bool
 }
 
@@ -45,13 +44,13 @@ impl FiniteAutomaton {
 	       a_new_states : HashMap<String, bool>,
 	       a_transitions : MultiMap<(String, Option<char>), String>)
 	       -> FiniteAutomaton {		
-	  // should probably add a check for validity of automaton, or maybe it
-	  // should be done client side
-	  FiniteAutomaton {
-	      alphabet : a_alphabet, start_state : a_start_state,
-	      states : a_new_states, transition_function : a_transitions,
-	      determinism : true
-	    }
+	// should probably add a check for validity of automaton, or maybe it
+	// should be done client side
+	FiniteAutomaton {
+	    alphabet : a_alphabet, start_state : a_start_state,
+	    states : a_new_states, transition_function : a_transitions,
+	    determinism : true
+	}
     }
 
     pub fn new_from_json(json_struct : &FiniteAutomatonJson) -> (FiniteAutomaton, String) {
@@ -232,11 +231,9 @@ impl FiniteAutomaton {
 		if ! determinism_check {
 		    self.determinism = determinism_check;
 		    return;
-		  }
-	  }
+		}
+	    }
 	}
-	
-	let alphabet_vec : Vec<char> = self.alphabet.iter().cloned().collect();
 
 	self.determinism = determinism_check;
     }
