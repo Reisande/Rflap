@@ -6,4 +6,3 @@ pub enum RegExp {
 	Or(std::vec::Vec<Box<RegExp>>)
 }
 
-

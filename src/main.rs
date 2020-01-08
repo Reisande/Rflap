@@ -145,13 +145,15 @@ fn test_nfas() -> () {
 	     test_nfa_b.validate_string("100".to_string(), false));
 }
 
-#[post("/api", format = "json", data = "<input_automaton>")]
-fn api(input_automaton : Json<finite_automaton::FiniteAutomatonJson>) 
+#[post("/api", format = "json", data = "<input_automaton_json>")]
+fn api(input_automaton_json : Json<finite_automaton::FiniteAutomatonJson>) 
        -> JsonValue {
-    let (mut test_dfa, input_string) =
-	finite_automaton::FiniteAutomaton::new_from_json(&input_automaton);
+    let (input_automaton, input_string) =
+	finite_automaton::FiniteAutomaton::new_from_json(&input_automaton_json);
 
-    let return_path = test_dfa.validate_string(input_string, true);
+    let return_path =
+	input_automaton.validate_string(
+	    input_string, input_automaton_json.should_be_deterministic);
     
     json!(return_path)
 }
