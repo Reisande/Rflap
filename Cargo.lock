@@ -16,7 +16,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
 name = "automata"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "multimap 0.8.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "quick-xml 0.17.0 (registry+https://github.com/rust-lang/crates.io-index)",

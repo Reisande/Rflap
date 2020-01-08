@@ -3,15 +3,17 @@ extern crate rocket_contrib;
 extern crate rand;
 extern crate multimap;
 
-use rand::Rng;
 
 use serde::{Deserialize, Serialize};
 use serde_json::Result;
 
+use multimap::MultiMap;
+
+use rand::Rng;
+
 use std::convert::TryInto;
 use std::collections::*;
-
-use multimap::MultiMap;
+use std::assert;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct FiniteAutomatonJson {
@@ -21,6 +23,8 @@ pub struct FiniteAutomatonJson {
     transition_function : Vec<(String, Option<char>, String)>,
     pub should_be_deterministic : bool,
     input_string : String
+    // we need to update the api so that it passes a vec of strings, and the
+    // post returns a vec of bools
 }
 
 #[derive(Debug)]
@@ -267,3 +271,170 @@ impl FiniteAutomaton {
     fn deserialize_xml() -> () { }
      */
 }
+
+#[cfg(test)]
+#[test]
+pub fn test_dfas() -> () {
+    // start out with a test DFA, which recognizes the language of only a* out
+    // of the alphabet a,b,c
+    
+    let mut a_alphabet : HashSet<char> = HashSet::new();
+    a_alphabet.insert('a');
+    a_alphabet.insert('b');
+    
+    let a_start_state : String = "q_0".to_owned();
+
+    let mut a_new_states : HashMap<String, bool> = HashMap::new();
+    a_new_states.insert("q_0".to_owned(), true);
+    a_new_states.insert("q_1".to_owned(), false);
+    
+    let mut a_transitions : MultiMap<(String, Option<char>), String> = MultiMap::new();
+
+    a_transitions.insert(("q_0".to_owned(), Some('a')), "q_0".to_owned());
+    a_transitions.insert(("q_0".to_owned(), Some('b')), "q_1".to_owned());
+    a_transitions.insert(("q_1".to_owned(), Some('a')), "q_1".to_owned());
+    a_transitions.insert(("q_1".to_owned(), Some('b')), "q_1".to_owned());	
+
+    let mut test_dfa : FiniteAutomaton =
+	FiniteAutomaton::new(a_alphabet, a_start_state, a_new_states, a_transitions, true);
+
+    assert_eq!(test_dfa.validate_string("".to_string(), true),
+	       (true, true, vec![('_'.to_owned(), "q_0".to_owned())]));
+    assert_eq!(test_dfa.validate_string("a".to_string(), true),
+	       (true, true, vec![('_'.to_owned(), "q_0".to_owned()), ('a'.to_owned(), "q_0".to_owned())]));
+    assert_eq!(test_dfa.validate_string("aa".to_string(), true),
+	       (true, true, vec![('_'.to_owned(), "q_0".to_owned()), ('a'.to_owned(), "q_0".to_owned()), ('a'.to_owned(), "q_0".to_owned())]));
+    assert_eq!(test_dfa.validate_string("ab".to_string(), true),
+	       (true, false, vec![('_'.to_owned(), "q_0".to_owned())]));
+    assert_eq!(test_dfa.validate_string("aba".to_string(), true),
+	       (true, false, vec![('_'.to_owned(), "q_0".to_owned())]));
+    assert_eq!(test_dfa.validate_string("abb".to_string(), true),
+	       (true, false, vec![('_'.to_owned(), "q_0".to_owned())]));
+}
+
+#[cfg(test)]
+#[test]
+pub fn test_nfas() -> () {
+    // simplified solution to 2a from hw1 f19
+    // multiple transitions with the same character but different end states
+    // however there are no epsilon transitions
+    let mut a_alphabet : HashSet<char> = HashSet::new();
+    a_alphabet.insert('a');
+    a_alphabet.insert('b');
+    
+    let a_start_state : String = "q_0".to_owned();
+
+    let mut a_new_states : HashMap<String, bool> = HashMap::new();
+    a_new_states.insert("q_0".to_owned(), false);
+    a_new_states.insert("q_1".to_owned(), false);
+    a_new_states.insert("q_2".to_owned(), false);
+    a_new_states.insert("q_3".to_owned(), true);
+    
+    let mut a_transitions : MultiMap<(String, Option<char>), String> = MultiMap::new();
+
+    a_transitions.insert(("q_0".to_owned(), Some('a')), "q_1".to_owned());
+    a_transitions.insert(("q_0".to_owned(), Some('b')), "q_2".to_owned());
+
+    a_transitions.insert(("q_1".to_owned(), Some('a')), "q_1".to_owned()); 
+    a_transitions.insert(("q_1".to_owned(), Some('b')), "q_1".to_owned());
+    a_transitions.insert(("q_1".to_owned(), Some('b')), "q_3".to_owned());
+
+    a_transitions.insert(("q_2".to_owned(), Some('b')), "q_2".to_owned());
+    a_transitions.insert(("q_2".to_owned(), Some('a')), "q_2".to_owned());
+    a_transitions.insert(("q_2".to_owned(), Some('a')), "q_3".to_owned());
+
+    let mut test_nfa_a : FiniteAutomaton =
+	FiniteAutomaton::new(a_alphabet, a_start_state, a_new_states, a_transitions, false);
+
+    //println!("\n{:#?}", test_nfa_a);
+    //println!("\n{:?}", test_dfa.generate_tests(1, 8, true, 8, true));
+
+    /*
+    '' : (false, false, [('_', "q_0")]) 
+    a: (false, false, [('_', "q_0")]) 
+    aa: (false, false, [('_', "q_0")]) 
+    ab: (false, true, [('_', "q_0"), ('a', "q_1"), ('b', "q_3")]) 
+    aba: (false, false, [('_', "q_0")]) 
+    bab: (false, false, [('_', "q_0")]) 
+    abb: (false, true, [('_', "q_0"), ('a', "q_1"), ('b', "q_1"), ('b', "q_3")]) 
+    ab: (false, true, [('_', "q_0"), ('b', "q_2"), ('a', "q_2"), ('a', "q_3")])
+     */
+    
+    // lets check some hand written sample strings
+    assert_eq!(test_nfa_a.validate_string("".to_string(), false),
+	       (false, false, vec![('_'.to_owned(), "q_0".to_owned())]) );
+    assert_eq!(test_nfa_a.validate_string("a".to_string(), false),
+	       (false, false, vec![('_'.to_owned(), "q_0".to_owned())]));
+    assert_eq!(test_nfa_a.validate_string("aa".to_string(), false),
+	       (false, false, vec![('_'.to_owned(), "q_0".to_owned())]));
+    assert_eq!(test_nfa_a.validate_string("ab".to_string(), false),
+	       (false, true, vec![('_'.to_owned(), "q_0".to_owned()), ('a'.to_owned(), "q_1".to_owned()), ('b'.to_owned(), "q_3".to_owned())]));
+    assert_eq!(test_nfa_a.validate_string("aba".to_string(), false),
+	       (false, false, vec![('_'.to_owned(), "q_0".to_owned())]));
+    assert_eq!(test_nfa_a.validate_string("bab".to_string(), false),
+	       (false, false, vec![('_'.to_owned(), "q_0".to_owned())]));
+    assert_eq!(test_nfa_a.validate_string("abb".to_string(), false),
+	       (false, true, vec![('_'.to_owned(), "q_0".to_owned()), ('a'.to_owned(), "q_1".to_owned()), ('b'.to_owned(), "q_1".to_owned()), ('b'.to_owned(), "q_3".to_owned())]));
+    assert_eq!(test_nfa_a.validate_string("baa".to_string(), false),
+	       (false, true, vec![('_'.to_owned(), "q_0".to_owned()), ('b'.to_owned(), "q_2".to_owned()), ('a'.to_owned(), "q_2".to_owned()), ('a'.to_owned(), "q_3".to_owned())]));
+    
+    // simplified solution to 2b from hw1 f19
+    // this one has epsilon transitions, and accepts any string with a caridanility of 2 or less
+
+    let mut b_alphabet : HashSet<char> = HashSet::new();
+    b_alphabet.insert('0');
+    b_alphabet.insert('1');
+    
+    let b_start_state : String = "q_0".to_owned();
+
+    let mut b_new_states : HashMap<String, bool> = HashMap::new();
+    b_new_states.insert("q_0".to_owned(), false);
+    b_new_states.insert("q_1".to_owned(), false);
+    b_new_states.insert("q_2".to_owned(), false);
+    b_new_states.insert("q_3".to_owned(), true);
+    
+    let mut b_transitions : MultiMap<(String, Option<char>), String> = MultiMap::new();
+
+    b_transitions.insert(("q_0".to_owned(), Some('0')), "q_1".to_owned());
+    b_transitions.insert(("q_0".to_owned(), Some('1')), "q_1".to_owned());
+    b_transitions.insert(("q_0".to_owned(), None), "q_3".to_owned());
+
+    b_transitions.insert(("q_1".to_owned(), Some('0')), "q_2".to_owned());
+    b_transitions.insert(("q_1".to_owned(), Some('1')), "q_2".to_owned());
+    b_transitions.insert(("q_1".to_owned(), None), "q_3".to_owned());
+
+    b_transitions.insert(("q_2".to_owned(), None), "q_3".to_owned());
+
+    let mut test_nfa_b : FiniteAutomaton =
+	FiniteAutomaton::new(b_alphabet, b_start_state, b_new_states, b_transitions, false);
+
+    /*
+    '' : (false, true, [('_', "q_0"), ('Ɛ', "q_3")]) 
+    0: (false, true, [('_', "q_0"), ('0', "q_1"), ('Ɛ', "q_3")]) 
+    00: (false, true, [('_', "q_0"), ('0', "q_1"), ('0', "q_2"), ('Ɛ', "q_3")]) 
+    01: (false, true, [('_', "q_0"), ('0', "q_1"), ('1', "q_2"), ('Ɛ', "q_3")]) 
+    010: (false, false, [('_', "q_0")]) 
+    101: (false, false, [('_', "q_0")]) 
+    011: (false, false, [('_', "q_0")]) 
+    100: (false, false, [('_', "q_0")])
+    */
+    
+    // lets check some hand written sample strings
+    assert_eq!(test_nfa_b.validate_string("".to_string(), false),
+	       (false, true, [('_'.to_owned(), "q_0".to_owned()), ('Ɛ'.to_owned(), "q_3".to_owned())].to_vec()) );
+    assert_eq!(test_nfa_b.validate_string("0".to_string(), false),
+	       (false, true, [('_'.to_owned(), "q_0".to_owned()), ('0'.to_owned(), "q_1".to_owned()), ('Ɛ'.to_owned(), "q_3".to_owned())].to_vec()));
+    assert_eq!(test_nfa_b.validate_string("00".to_string(), false),
+	       (false, true, [('_'.to_owned(), "q_0".to_owned()), ('0'.to_owned(), "q_1".to_owned()), ('0'.to_owned(), "q_2".to_owned()), ('Ɛ'.to_owned(), "q_3".to_owned())].to_vec()));
+    assert_eq!(test_nfa_b.validate_string("01".to_string(), false),
+	       (false, true, [('_'.to_owned(), "q_0".to_owned()), ('0'.to_owned(), "q_1".to_owned()), ('1'.to_owned(), "q_2".to_owned()), ('Ɛ'.to_owned(), "q_3".to_owned())].to_vec()));
+    assert_eq!(test_nfa_b.validate_string("010".to_string(), false),
+	       (false, false, [('_'.to_owned(), "q_0".to_owned())].to_vec()));
+    assert_eq!(test_nfa_b.validate_string("101".to_string(), false),
+	       (false, false, [('_'.to_owned(), "q_0".to_owned())].to_vec()));
+    assert_eq!(test_nfa_b.validate_string("011".to_string(), false),
+	       (false, false, [('_'.to_owned(), "q_0".to_owned())].to_vec()));
+    assert_eq!(test_nfa_b.validate_string("100".to_string(), false),
+	       (false, false, [('_'.to_owned(), "q_0".to_owned())].to_vec()));
+}
+

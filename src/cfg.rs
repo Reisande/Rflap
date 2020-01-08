@@ -15,5 +15,9 @@ pub struct CFG {
 }
 
 impl CFG {
+    // this takes an argument of a string instead of a vector of strings because,
+    // like the automata path, the vector of strings is validated one at a time
+    pub fn verify_string(self, input_string : String) -> bool {
 	
+    }
 }
