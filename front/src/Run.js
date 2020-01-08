@@ -173,11 +173,11 @@ function Run(props){
     }
 
 async function postToRustApi(){
-    let url = "http://localhost:8000/";
+    let url = "http://localhost:8000/api";
 
     let postingObject = {
         method: "POST",
-        mode:"cors",
+        mode:"no-cors",
         cache:"no-cache",
         credentials: "same-origin",
         headers:{
@@ -187,8 +187,9 @@ async function postToRustApi(){
         referrer: "no-referrer",
         body: JSON.stringify(packet_to_misha_the_microsoft_engineer)
     }
-
+    console.log("callback")
     const Algorithms_are_the_computational_content_of_proofs = await fetch(url,postingObject);
+    console.log("callback")
 
     return await Algorithms_are_the_computational_content_of_proofs.json();
     

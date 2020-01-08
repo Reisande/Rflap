@@ -17,6 +17,16 @@ let master_context = {
     graphobj: null,
 };
 
+// const disable_handler= (e) =>{
+//   e.stopPropagation();
+//   e.preventDefault();
+// }
+// const disable_click = (duration) =>{
+//   document.removeEventListener("click");
+//   window.setTimeout(document.addEventListener("click",disable_handler),3000) 
+//   document.removeEventListener()
+// }
+
 function App() {
 
 
@@ -42,13 +52,17 @@ console.log("<>")
       if(target_check === "Run" && sidebar_display == false){
         set_sidebar_display(true);
         console.log("Value of sidebar_display: " + sidebar_display);
+        
       }
-      if(sidebar_display == true && target_check === "Run"){
+      else if(sidebar_display == true && target_check === "Run"){
+        
         set_sidebar_display(false);
         console.log("Closing sidebar");
       }
-    })
-  })
+    } )
+  });
+
+
   //Constrols modal, called by contex_menu first one.
   function openModal(e,data){
     set_modal_state(true)
