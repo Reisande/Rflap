@@ -23,14 +23,14 @@ mod finite_automaton;
 #[post("/api", format = "json", data = "<input_automaton_json>")]
 fn api(input_automaton_json : Json<finite_automaton::FiniteAutomatonJson>) 
        -> JsonValue {
-    let (input_automaton, input_string) =
+    let (input_automaton, input_string, hint) =
 	finite_automaton::FiniteAutomaton::new_from_json(&input_automaton_json);
 
     let return_path =
 	input_automaton.validate_string(
 	    input_string, input_automaton_json.should_be_deterministic);
     
-    json!(return_path)
+    json!((return_path, hint))
 }
 
 #[get("/")]

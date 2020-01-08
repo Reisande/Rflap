@@ -58,7 +58,7 @@ impl FiniteAutomaton {
 	}
     }
 
-    pub fn new_from_json(json_struct : &FiniteAutomatonJson) -> (FiniteAutomaton, String) {
+    pub fn new_from_json(json_struct : &FiniteAutomatonJson) -> (FiniteAutomaton, String, String) {
 	let mut new_transition_function : MultiMap<(String, Option<char>), String> =
 	    MultiMap::new();
 
@@ -78,9 +78,9 @@ impl FiniteAutomaton {
 	    is_deterministic : true 
 	};
 
-	return_finite_automaton.check_is_deterministic();
+	let hint : String = return_finite_automaton.check_is_deterministic();
 	    
-	(return_finite_automaton, json_struct.input_string.to_owned())
+	(return_finite_automaton, json_struct.input_string.to_owned(), hint)
     }
 
     // convert the original string by using string.chars().collect()
@@ -165,6 +165,7 @@ impl FiniteAutomaton {
     // alphabet occurs on the client side
 
     // return API dictates: (is_deterministic, accepted, path)
+    // string is any possible hint in creation
     pub fn validate_string(&self, validate_string : String, should_be_deterministic : bool)
 			   -> (bool, bool, Vec<(char, String)>) {	
 	let mut return_vec : Vec<(char, String)> = Vec::new();
@@ -181,34 +182,47 @@ impl FiniteAutomaton {
 	serde_json::to_string_pretty(&self.validate_string(validate_string, should_be_deterministic))
     }
     
-    fn check_is_deterministic(&mut self) {
+    fn check_is_deterministic(&mut self) -> String {
 	let mut is_deterministic_check : bool = true;
 	for (source_state, _) in &self.states {
 	    //checks to make sure that there are no epsilon transitions
 	    is_deterministic_check &=
 		self.transition_function.get(&(source_state.to_owned(), None)) == None;
 
+	    if ! is_deterministic_check {
+		self.is_deterministic = is_deterministic_check;
+		return "Make sure no epsilon transitions exist".to_string();
+	    }
+	    
 	    // checks to make sure that there is exactly one target state for each
 	    // transition character
 	    for transition in &self.alphabet {
-		let check_vec =
-		    self.transition_function.get_vec(
-			&(source_state.to_owned(), Some(transition.to_owned()))).to_owned();
-		is_deterministic_check &= match check_vec {
-		    Some(v) => (v.len() == 1),
-		    None => false,
-		};
+		let check_vec_length =
+		    match self.transition_function.get_vec(
+			&(source_state.to_owned(), Some(transition.to_owned()))).to_owned() {
+			Some(v) => v.len(),
+			None => 0,
+		    };
+		
+		is_deterministic_check &= check_vec_length == 1;
 
 		// makes this check to break out early from the loop in order to not
 		// waste time
 		if ! is_deterministic_check {
 		    self.is_deterministic = is_deterministic_check;
-		    return;
+		    
+		    if check_vec_length == 0 {
+			return "Make sure all states have transitions for all states".to_string();
+		    }
+		    else { // too many inputs
+			return "Make sure each transition only occurs once for each state".to_string();
+		    }
 		}
 	    }
 	}
 
 	self.is_deterministic = is_deterministic_check;
+	"".to_string()
     }
 
     pub fn generate_tests(self, min_length : u8, max_length : u8, include_empty : bool,
@@ -345,20 +359,6 @@ pub fn test_nfas() -> () {
 
     let mut test_nfa_a : FiniteAutomaton =
 	FiniteAutomaton::new(a_alphabet, a_start_state, a_new_states, a_transitions, false);
-
-    //println!("\n{:#?}", test_nfa_a);
-    //println!("\n{:?}", test_dfa.generate_tests(1, 8, true, 8, true));
-
-    /*
-    '' : (false, false, [('_', "q_0")]) 
-    a: (false, false, [('_', "q_0")]) 
-    aa: (false, false, [('_', "q_0")]) 
-    ab: (false, true, [('_', "q_0"), ('a', "q_1"), ('b', "q_3")]) 
-    aba: (false, false, [('_', "q_0")]) 
-    bab: (false, false, [('_', "q_0")]) 
-    abb: (false, true, [('_', "q_0"), ('a', "q_1"), ('b', "q_1"), ('b', "q_3")]) 
-    ab: (false, true, [('_', "q_0"), ('b', "q_2"), ('a', "q_2"), ('a', "q_3")])
-     */
     
     // lets check some hand written sample strings
     assert_eq!(test_nfa_a.validate_string("".to_string(), false),
@@ -407,17 +407,6 @@ pub fn test_nfas() -> () {
 
     let mut test_nfa_b : FiniteAutomaton =
 	FiniteAutomaton::new(b_alphabet, b_start_state, b_new_states, b_transitions, false);
-
-    /*
-    '' : (false, true, [('_', "q_0"), ('Ɛ', "q_3")]) 
-    0: (false, true, [('_', "q_0"), ('0', "q_1"), ('Ɛ', "q_3")]) 
-    00: (false, true, [('_', "q_0"), ('0', "q_1"), ('0', "q_2"), ('Ɛ', "q_3")]) 
-    01: (false, true, [('_', "q_0"), ('0', "q_1"), ('1', "q_2"), ('Ɛ', "q_3")]) 
-    010: (false, false, [('_', "q_0")]) 
-    101: (false, false, [('_', "q_0")]) 
-    011: (false, false, [('_', "q_0")]) 
-    100: (false, false, [('_', "q_0")])
-    */
     
     // lets check some hand written sample strings
     assert_eq!(test_nfa_b.validate_string("".to_string(), false),
