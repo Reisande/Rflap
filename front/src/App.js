@@ -1,4 +1,4 @@
-import React, { useEffect,useState,useRef } from 'react';
+import React, { useEffect,useState,useRef, useCallback } from 'react';
 import logo from './logo.svg';
 import './App.css';
 import { Graph } from "react-d3-graph";
@@ -27,6 +27,8 @@ let master_context = {
 //   document.removeEventListener()
 // }
 
+
+
 function App() {
 
 
@@ -34,40 +36,59 @@ function App() {
   let toggle_menu = useRef();
   const [sidebar_display,set_sidebar_display] = useState(false);
   const [modal_state,set_modal_state] = useState(false);
-  let node_name;
+  const [render_visual,set_render_visual] = useState(false);
+  // Lock Run Button temporarily as to not cause infinite loop between sidebar appearing and not appearing
+  let lock_run_button = false;
   // Catch run click and load sidebar:
+  const render_sidebar_callback = useCallback( (display_lock)=>{
+    set_sidebar_display(display_lock);
+    },[])
 
-console.log("<>")
-  useEffect( ()=>{
-    window.addEventListener('click', (e)=>{
-      // Check if event is not null, else breaks everything
-      // toggle_menu.handleContextClick(e);
-      if(e == null || e.target == null || e.target.lastChild == null){
-        return;
-      }
-      e.preventDefault();
-      let target_check = e.target.lastChild.data;
+const render_visual_callback = useCallback( ()=>{
+  set_render_visual(true);
+},[] )
+  const click_run_handler = (e) => {
 
+    // Check if event is not null, then continue
+    // toggle_menu.handleContextClick(e);
+    if(e == null || e.target == null || e.target.lastChild == null){
+      return;
+    }
+    e.preventDefault();
+    // which href/button pressed, as Bootstrap navbar headers are link HREFS and not buttons
+    let target_check = e.target.lastChild.data;
+
+    // if lock run button is not true, then load - or unload - sidebar component
+    // else skip, as infinite loading/unloading react component refresh cycle
+    // setTimeOut to avoid infinite loading/unloading of react component  
+    if(target_check === "Run" && sidebar_display == false && !lock_run_button){
+      lock_run_button = true; 
+      render_sidebar_callback(true);
       
-      if(target_check === "Run" && sidebar_display == false){
-        set_sidebar_display(true);
-        console.log("Value of sidebar_display: " + sidebar_display);
-        
-      }
-      else if(sidebar_display == true && target_check === "Run"){
-        
-        set_sidebar_display(false);
-        console.log("Closing sidebar");
-      }
-    } )
-  });
+    }
+    else if(target_check === "Run" && sidebar_display == true && !lock_run_button  ){
+      lock_run_button = true;
+      render_sidebar_callback(false); 
+    }
+};
+
+  useEffect( ()=>{
+    // render_visual_callback();
+    console.log("RENDER")
+    window.addEventListener('click',(e)=> click_run_handler(e));
+
+    return ()=>{
+      window.removeEventListener('click', (e)=>click_run_handler(e));
+
+    }
+  },[sidebar_display,modal_state,render_visual]);
 
 
-  //Constrols modal, called by contex_menu first one.
+  // modal, called by contex_menu first one.
   function openModal(e,data){
     set_modal_state(true)
 
-  }
+  }                                                                                                                                         
   function add_node(e,data){
 
     console.log(e,data);
@@ -84,11 +105,13 @@ console.log("<>")
     console.log('////////HANDLECLICK///////');
 
   }
+  
   return (
     <div className="App">
       <AutomataContext.Provider value={master_context}   >
         {sidebar_display ? <Sidebar id = "sidebar-app" sidebar={<Run/>}
         touch = {false}
+        children = {<div></div>}
         defaultSidebarWidth = {20}
         open = {false}
         shadow = {true}
@@ -97,7 +120,7 @@ console.log("<>")
         ></Sidebar>: null }
       <HeaderMenu/>
         
-      <Visual/>
+      <Visual/> 
      
       </AutomataContext.Provider>
 

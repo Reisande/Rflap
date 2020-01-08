@@ -115,7 +115,7 @@ function Visual() {
   //   let return_id = -1;
   //   node_ids.forEach((id)=>{
   //     let node_x = node_postions[id].x;
-  //     let node_y = node_postions[id].y;
+  //     let node_y = node_postions[id].y;  
   //     // Approximating area of node.
   //     let offset_bound = 30;
   //     let lower_x = node_x - offset_bound;
@@ -133,21 +133,18 @@ function Visual() {
   //     });
 
   //   return return_id;
-
+ 
 
   // }
 
 let network;
 
 useEffect( ()=>{
-
   network = new vis.Network(wrapper.current,graph,options);
-  console.log(network);
+  console.log("Event: " + network);
   //context-click for graph
   network.on("showPopup", (params)=>{
-
   });
-
   //graph event listeners here:
   network.on("hoverNode", (params)=>{
     console.log("hoverNode: ");
@@ -157,21 +154,17 @@ useEffect( ()=>{
       console.log("add_node_mode");
     graph.nodes.get().forEach(  (node)=>{
       if(node.id == node_id_clicked){
-        
         found_node = node;
       }
-      
     }
     );
     console.log(found_node);
     nodesDS.update([{id:found_node.id, label: " Q "+ (graph.nodes.get().length) + " "}]);
-
     console.log(params.node)
     in_add_node_mode = false;
     console.log("end add_Node_mode\n--------------")
   }
   in_add_node_mode = false;
-
   })
   network.on("controlNodeDragEnd",(params)=>{
     console.log("disabled edit mode");
@@ -181,7 +174,6 @@ useEffect( ()=>{
     
     edgesDS.update([{id:edge_identifier, arrows:'to'}])
   });
-
   network.on("select", (params)=>{
     console.log(params);
     console.log("In intial_mode " + in_initial_mode);
@@ -189,7 +181,6 @@ useEffect( ()=>{
     console.log(params.nodes);
     console.log(params.nodes[0] != null);
     if( (params != null ) && in_initial_mode && (params.nodes > 0 || params.nodes[0] !=null)){
-
       console.log("SELECT-initial");
       console.log(in_initial_mode);
       console.log(params.nodes[0]);
@@ -198,11 +189,8 @@ useEffect( ()=>{
       //find node given
       graph.nodes.get().forEach(  (node)=>{
         if(node.id == node_id_clicked){
-          
           found_node = node;
-        }
-        
-      }
+        }}
       );
       console.log(found_node);
       // nodesDS.update([{id:node_id_clicked,color: "#00bfff"}]);
@@ -225,10 +213,7 @@ useEffect( ()=>{
       }
       in_initial_mode = false;
       console.log("END-initial")
-      
-
     }
-
     if((params != null )  && (params.nodes != null) && in_accepting_mode_ &&  ( params.nodes >  0 || params.nodes[0] != null )){
       console.log("SELECT-accepting");
       console.log(in_accepting_mode_)
@@ -237,15 +222,11 @@ useEffect( ()=>{
       let node_id_clicked = params.nodes[0];
       graph.nodes.get().forEach(  (node)=>{
         if(node.id == node_id_clicked){
-         
           found_node = node;
         }
-   
-      }
-      );
+        } );
       console.log(found_node);
       let final_color = "#000000";
-    
       if(found_node.color == "#000000"){
         final_color = "grey";
       }
@@ -256,9 +237,7 @@ useEffect( ()=>{
       nodesDS.update([{id:node_id_clicked, color: final_color}]);
       in_accepting_mode_ = false;
       console.log("END-accepting")
-
     }
-
     if(params.edges.length  == 1 && params.nodes == 0){
     console.log(params.edges[0]);
     let edge_id = params.edges[0];
@@ -267,8 +246,15 @@ useEffect( ()=>{
       ChangeEdgeText(user_input_string, edge_id)
 
   }});
-
-})
+  //remove event listeners
+ return ()=>{
+   network.off("select");
+   network.off("controlNodeDragEnd");
+   network.off("hoverNode");
+   network.off("showPopup");
+   network.destroy();
+  }
+});
 
 const ChangeEdgeText = (userInput, edgeID)=>{
 
