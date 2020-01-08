@@ -28,8 +28,7 @@ fn api(input_automaton_json: Json<finite_automaton::FiniteAutomatonJson>) -> Jso
     let (input_automaton, input_string, hint) =
         finite_automaton::FiniteAutomaton::new_from_json(&input_automaton_json);
 
-    let return_path =
-        input_automaton.validate_string(input_string, input_automaton_json.should_be_deterministic);
+    let return_path = input_automaton.validate_string(input_string);
 
     json!((return_path, hint))
 }

@@ -10,7 +10,6 @@ use multimap::MultiMap;
 
 use std::assert;
 use std::collections::*;
-use std::convert::TryInto;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct FiniteAutomatonJson {
@@ -18,7 +17,6 @@ pub struct FiniteAutomatonJson {
     start_state: String,
     states: HashMap<String, bool>,
     transition_function: Vec<(String, Option<char>, String)>,
-    pub should_be_deterministic: bool,
     input_string: String, // we need to update the api so that it passes a vec of strings, and the
                           // post returns a vec of bools
 }
@@ -188,12 +186,8 @@ impl FiniteAutomaton {
 
     // return API dictates: (is_deterministic, accepted, path)
     // string is any possible hint in creation
-    pub fn validate_string(
-        &self,
-        validate_string: String,
-        should_be_deterministic: bool,
-    ) -> (bool, bool, Vec<(char, String)>) {
-        let mut return_vec: Vec<(char, String)> = Vec::new();
+    pub fn validate_string(&self, validate_string: String) -> (bool, bool, Vec<(char, String)>) {
+        let return_vec: Vec<(char, String)> = Vec::new();
 
         let validate_vec: Vec<char> = validate_string.chars().collect();
         let (accepted, return_vec) = self._validate_string(
@@ -207,14 +201,8 @@ impl FiniteAutomaton {
         (self.is_deterministic.to_owned(), accepted, return_vec)
     }
 
-    pub fn validate_string_json(
-        &self,
-        validate_string: String,
-        should_be_deterministic: bool,
-    ) -> Result<String> {
-        serde_json::to_string_pretty(
-            &self.validate_string(validate_string, should_be_deterministic),
-        )
+    pub fn validate_string_json(&self, validate_string: String) -> Result<String> {
+        serde_json::to_string_pretty(&self.validate_string(validate_string))
     }
 
     fn check_is_deterministic(&mut self) -> String {
@@ -264,22 +252,6 @@ impl FiniteAutomaton {
         self.is_deterministic = is_deterministic_check;
         "".to_string()
     }
-
-    fn deserialize_json(self, input_json: serde_json::Value) -> Option<FiniteAutomaton> {
-        let json_struct_string: String = serde_json::to_string(&input_json).unwrap();
-        let json_struct: Result<FiniteAutomatonJson> = serde_json::from_str(&json_struct_string);
-
-        match json_struct {
-            Ok(val) => Some(FiniteAutomaton::new_from_json(&val).0),
-            Err(_) => None,
-        }
-    }
-
-    /*
-    fn serialize_xml() -> () { }
-
-    fn deserialize_xml() -> () { }
-     */
 }
 
 #[cfg(test)]
