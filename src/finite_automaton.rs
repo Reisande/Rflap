@@ -8,8 +8,6 @@ use serde_json::Result;
 
 use multimap::MultiMap;
 
-use rand::Rng;
-
 use std::assert;
 use std::collections::*;
 use std::convert::TryInto;
@@ -22,7 +20,7 @@ pub struct FiniteAutomatonJson {
     transition_function: Vec<(String, Option<char>, String)>,
     pub should_be_deterministic: bool,
     input_string: String, // we need to update the api so that it passes a vec of strings, and the
-    // post returns a vec of bools
+                          // post returns a vec of bools
 }
 
 #[derive(Debug)]
@@ -43,7 +41,7 @@ pub struct FiniteAutomaton {
 
 impl FiniteAutomaton {
     pub fn new(
-	a_alphabet: HashSet<char>,
+        a_alphabet: HashSet<char>,
         a_start_state: String,
         a_new_states: HashMap<String, bool>,
         a_transitions: MultiMap<(String, Option<char>), String>,
@@ -267,46 +265,6 @@ impl FiniteAutomaton {
         "".to_string()
     }
 
-    pub fn generate_tests(
-        self,
-        min_length: u8,
-        max_length: u8,
-        include_empty: bool,
-        size: u8,
-        random: bool,
-    ) -> Vec<String> {
-        assert!(min_length <= max_length);
-
-        let mut return_vec: Vec<String> = [].to_vec();
-
-        if include_empty {
-            return_vec.push("".to_string());
-        }
-
-        let alphabet_vec: Vec<char> = self.alphabet.iter().cloned().collect();
-
-        if random {
-            while return_vec.len() < size.try_into().unwrap() {
-                let mut rng = rand::thread_rng();
-
-                let string_length: u8 = rng.gen_range(min_length, max_length);
-
-                let new_test_string: String = (0..string_length)
-                    .map(|_| {
-                        let idx: usize = rng.gen_range(0, alphabet_vec.len()).try_into().unwrap();
-                        alphabet_vec[idx] as char
-                    })
-                    .collect();
-
-                return_vec.push(new_test_string);
-            }
-        } else {
-            // implement trie and flattening
-        }
-
-        return_vec
-    }
-
     fn deserialize_json(self, input_json: serde_json::Value) -> Option<FiniteAutomaton> {
         let json_struct_string: String = serde_json::to_string(&input_json).unwrap();
         let json_struct: Result<FiniteAutomatonJson> = serde_json::from_str(&json_struct_string);
@@ -352,7 +310,7 @@ pub fn test_dfas() -> () {
 
     assert_eq!(
         test_dfa.validate_string("".to_string(), true),
-        (true, true, vec![('_'.to_owned(), "q_0".to_owned())])
+        (true, true, vec![('_'.to_owned(), "q_0".to_owned()),],)
     );
     assert_eq!(
         test_dfa.validate_string("a".to_string(), true),
@@ -361,8 +319,8 @@ pub fn test_dfas() -> () {
             true,
             vec![
                 ('_'.to_owned(), "q_0".to_owned()),
-                ('a'.to_owned(), "q_0".to_owned())
-            ]
+                ('a'.to_owned(), "q_0".to_owned()),
+            ],
         )
     );
     assert_eq!(
@@ -373,21 +331,21 @@ pub fn test_dfas() -> () {
             vec![
                 ('_'.to_owned(), "q_0".to_owned()),
                 ('a'.to_owned(), "q_0".to_owned()),
-                ('a'.to_owned(), "q_0".to_owned())
-            ]
+                ('a'.to_owned(), "q_0".to_owned()),
+            ],
         )
     );
     assert_eq!(
         test_dfa.validate_string("ab".to_string(), true),
-        (true, false, vec![('_'.to_owned(), "q_0".to_owned())])
+        (true, false, vec![('_'.to_owned(), "q_0".to_owned()),],)
     );
     assert_eq!(
         test_dfa.validate_string("aba".to_string(), true),
-        (true, false, vec![('_'.to_owned(), "q_0".to_owned())])
+        (true, false, vec![('_'.to_owned(), "q_0".to_owned()),],)
     );
     assert_eq!(
         test_dfa.validate_string("abb".to_string(), true),
-        (true, false, vec![('_'.to_owned(), "q_0".to_owned())])
+        (true, false, vec![('_'.to_owned(), "q_0".to_owned()),],)
     );
 }
 
@@ -433,15 +391,15 @@ pub fn test_nfas() -> () {
     // lets check some hand written sample strings
     assert_eq!(
         test_nfa_a.validate_string("".to_string(), false),
-        (false, false, vec![('_'.to_owned(), "q_0".to_owned())])
+        (false, false, vec![('_'.to_owned(), "q_0".to_owned()),],)
     );
     assert_eq!(
         test_nfa_a.validate_string("a".to_string(), false),
-        (false, false, vec![('_'.to_owned(), "q_0".to_owned())])
+        (false, false, vec![('_'.to_owned(), "q_0".to_owned()),],)
     );
     assert_eq!(
         test_nfa_a.validate_string("aa".to_string(), false),
-        (false, false, vec![('_'.to_owned(), "q_0".to_owned())])
+        (false, false, vec![('_'.to_owned(), "q_0".to_owned()),],)
     );
     assert_eq!(
         test_nfa_a.validate_string("ab".to_string(), false),
@@ -451,17 +409,17 @@ pub fn test_nfas() -> () {
             vec![
                 ('_'.to_owned(), "q_0".to_owned()),
                 ('a'.to_owned(), "q_1".to_owned()),
-                ('b'.to_owned(), "q_3".to_owned())
-            ]
+                ('b'.to_owned(), "q_3".to_owned()),
+            ],
         )
     );
     assert_eq!(
         test_nfa_a.validate_string("aba".to_string(), false),
-        (false, false, vec![('_'.to_owned(), "q_0".to_owned())])
+        (false, false, vec![('_'.to_owned(), "q_0".to_owned()),],)
     );
     assert_eq!(
         test_nfa_a.validate_string("bab".to_string(), false),
-        (false, false, vec![('_'.to_owned(), "q_0".to_owned())])
+        (false, false, vec![('_'.to_owned(), "q_0".to_owned()),],)
     );
     assert_eq!(
         test_nfa_a.validate_string("abb".to_string(), false),
@@ -472,8 +430,8 @@ pub fn test_nfas() -> () {
                 ('_'.to_owned(), "q_0".to_owned()),
                 ('a'.to_owned(), "q_1".to_owned()),
                 ('b'.to_owned(), "q_1".to_owned()),
-                ('b'.to_owned(), "q_3".to_owned())
-            ]
+                ('b'.to_owned(), "q_3".to_owned()),
+            ],
         )
     );
     assert_eq!(
@@ -485,8 +443,8 @@ pub fn test_nfas() -> () {
                 ('_'.to_owned(), "q_0".to_owned()),
                 ('b'.to_owned(), "q_2".to_owned()),
                 ('a'.to_owned(), "q_2".to_owned()),
-                ('a'.to_owned(), "q_3".to_owned())
-            ]
+                ('a'.to_owned(), "q_3".to_owned()),
+            ],
         )
     );
 
@@ -532,10 +490,10 @@ pub fn test_nfas() -> () {
             false,
             true,
             [
-                ('_'.to_owned(), "q_0".to_owned()),
-                ('Ɛ'.to_owned(), "q_3".to_owned())
+                ('_'.to_owned(), "q_0".to_owned(),),
+                ('Ɛ'.to_owned(), "q_3".to_owned(),),
             ]
-		.to_vec()
+            .to_vec(),
         )
     );
     assert_eq!(
@@ -544,11 +502,11 @@ pub fn test_nfas() -> () {
             false,
             true,
             [
-                ('_'.to_owned(), "q_0".to_owned()),
-                ('0'.to_owned(), "q_1".to_owned()),
-                ('Ɛ'.to_owned(), "q_3".to_owned())
+                ('_'.to_owned(), "q_0".to_owned(),),
+                ('0'.to_owned(), "q_1".to_owned(),),
+                ('Ɛ'.to_owned(), "q_3".to_owned(),),
             ]
-		.to_vec()
+            .to_vec(),
         )
     );
     assert_eq!(
@@ -560,9 +518,9 @@ pub fn test_nfas() -> () {
                 ('_'.to_owned(), "q_0".to_owned()),
                 ('0'.to_owned(), "q_1".to_owned()),
                 ('0'.to_owned(), "q_2".to_owned()),
-                ('Ɛ'.to_owned(), "q_3".to_owned())
+                ('Ɛ'.to_owned(), "q_3".to_owned()),
             ]
-		.to_vec()
+            .to_vec(),
         )
     );
     assert_eq!(
@@ -574,25 +532,25 @@ pub fn test_nfas() -> () {
                 ('_'.to_owned(), "q_0".to_owned()),
                 ('0'.to_owned(), "q_1".to_owned()),
                 ('1'.to_owned(), "q_2".to_owned()),
-                ('Ɛ'.to_owned(), "q_3".to_owned())
+                ('Ɛ'.to_owned(), "q_3".to_owned()),
             ]
-		.to_vec()
+            .to_vec(),
         )
     );
     assert_eq!(
         test_nfa_b.validate_string("010".to_string(), false),
-        (false, false, [('_'.to_owned(), "q_0".to_owned())].to_vec())
+        (false, false, [('_'.to_owned(), "q_0".to_owned())].to_vec(),)
     );
     assert_eq!(
         test_nfa_b.validate_string("101".to_string(), false),
-        (false, false, [('_'.to_owned(), "q_0".to_owned())].to_vec())
+        (false, false, [('_'.to_owned(), "q_0".to_owned())].to_vec(),)
     );
     assert_eq!(
         test_nfa_b.validate_string("011".to_string(), false),
-        (false, false, [('_'.to_owned(), "q_0".to_owned())].to_vec())
+        (false, false, [('_'.to_owned(), "q_0".to_owned())].to_vec(),)
     );
     assert_eq!(
         test_nfa_b.validate_string("100".to_string(), false),
-        (false, false, [('_'.to_owned(), "q_0".to_owned())].to_vec())
+        (false, false, [('_'.to_owned(), "q_0".to_owned())].to_vec(),)
     );
 }

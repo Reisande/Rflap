@@ -17,6 +17,7 @@ use std::path::{Path, PathBuf};
 use multimap::MultiMap;
 
 mod finite_automaton;
+mod generate_tests;
 //mod cfg;
 //mod reg_exp;
 //mod pda;
