@@ -1,16 +1,18 @@
 #![feature(proc_macro_hygiene, decl_macro)]
 
-#[macro_use] extern crate rocket;
-#[macro_use] extern crate rocket_contrib;
+#[macro_use]
+extern crate rocket;
+#[macro_use]
+extern crate rocket_contrib;
 
-use std::collections::HashSet;
 use std::collections::HashMap;
+use std::collections::HashSet;
 use std::io;
 
 use rocket_contrib::json::{Json, JsonValue};
 
-use std::path::{Path, PathBuf};
 use rocket::response::NamedFile;
+use std::path::{Path, PathBuf};
 
 use multimap::MultiMap;
 
@@ -21,15 +23,13 @@ mod finite_automaton;
 //mod tm;
 
 #[post("/api", format = "json", data = "<input_automaton_json>")]
-fn api(input_automaton_json : Json<finite_automaton::FiniteAutomatonJson>) 
-       -> JsonValue {
+fn api(input_automaton_json: Json<finite_automaton::FiniteAutomatonJson>) -> JsonValue {
     let (input_automaton, input_string, hint) =
-	finite_automaton::FiniteAutomaton::new_from_json(&input_automaton_json);
+        finite_automaton::FiniteAutomaton::new_from_json(&input_automaton_json);
 
     let return_path =
-	input_automaton.validate_string(
-	    input_string, input_automaton_json.should_be_deterministic);
-    
+        input_automaton.validate_string(input_string, input_automaton_json.should_be_deterministic);
+
     json!((return_path, hint))
 }
 
@@ -45,6 +45,6 @@ pub fn file(file: PathBuf) -> Option<NamedFile> {
 
 fn main() {
     rocket::ignite()
-	.mount("/", routes![api, index, file])
-	.launch();
+        .mount("/", routes![api, index, file])
+        .launch();
 }
