@@ -17,6 +17,7 @@ use std::path::{Path, PathBuf};
 use multimap::MultiMap;
 
 mod finite_automaton;
+mod generate_tests;
 //mod cfg;
 //mod reg_exp;
 //mod pda;
@@ -24,13 +25,16 @@ mod finite_automaton;
 
 #[post("/api", format = "json", data = "<input_automaton_json>")]
 fn api(input_automaton_json: Json<finite_automaton::FiniteAutomatonJson>) -> JsonValue {
-    let (input_automaton, input_string, hint) =
+    let (input_automaton, input_strings, hint) =
         finite_automaton::FiniteAutomaton::new_from_json(&input_automaton_json);
 
-    let return_path =
-        input_automaton.validate_string(input_string, input_automaton_json.should_be_deterministic);
+    let mut return_paths = Vec::new();
 
-    json!((return_path, hint))
+    for input_string in input_strings {
+        return_paths.push(input_automaton.validate_string(input_string.to_owned()));
+    }
+
+    json!((return_paths, hint))
 }
 
 #[get("/")]

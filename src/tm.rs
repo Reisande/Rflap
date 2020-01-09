@@ -1,7 +1,3 @@
-struct Tm {
-	
-}
+struct Tm {}
 
-impl Tm {
-
-}
+impl Tm {}
