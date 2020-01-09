@@ -10,7 +10,8 @@ import not_ferris  from "./rFlapLogo.png";
 import add_svg from './add.svg';
 import add_red from './add_red.svg';
 import add_black from './add_black.svg';
-import RowEntry from './RowEntry.js'
+// import {RowEntry} from './RowEntry.js';
+import RowInput from './RowInput.js';
 
 var util = require('util')
 let bool_check = false;
@@ -20,6 +21,7 @@ function Run(props){
 
     const [s_or_e,set_image] = useState([error_image,success_image]);
     const [succeded_failed,set_succeded_failed] = useState(0);
+    const [row_entry_array,set_row_entries] = useState([{user_input: ""}]);
     const add_button = useRef(null);
     const image_ref = useRef(null);
     let arrray_index = 0;
@@ -263,7 +265,7 @@ async function postToRustApi(){
 
 
         <Row><br/></Row>
-        
+
         <InputGroup className="mb-3" as={Col}>
 
         <Form.Control onChange={ (event) => setInputVal(event)} aria-label=""  />
@@ -274,7 +276,12 @@ async function postToRustApi(){
         <img ref={image_ref} width="32px" height = "32px" src={s_or_e[succeded_failed]}></img>
         </InputGroup.Append>
         </Col>
+
+
      </InputGroup>
+     
+     <RowInput ></RowInput>
+
     </div>
     );
     
