@@ -48,7 +48,9 @@ pub fn file(file: PathBuf) -> Option<NamedFile> {
 }
 
 fn main() {
-    rocket::ignite()
-        .mount("/", routes![api, index, file])
-        .launch();
+    println!("{:?}\n", generate_tests::generate_tests(test, 4, 0, false));
+
+    /*rocket::ignite()
+    .mount("/", routes![api, index, file])
+    .launch();*/
 }

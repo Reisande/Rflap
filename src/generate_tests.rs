@@ -1,22 +1,12 @@
 use rand::Rng;
+
 use std::collections::HashSet;
 use std::convert::TryInto;
 
-pub fn generate_tests(
-    alphabet: HashSet<char>,
-    min_length: u8,
-    max_length: u8,
-    include_empty: bool,
-    size: u8,
-    random: bool,
-) -> Vec<String> {
-    assert!(min_length <= max_length);
-
+pub fn generate_tests(alphabet: HashSet<char>, length: u8, size: u8, random: bool) -> Vec<String> {
     let mut return_vec: Vec<String> = [].to_vec();
 
-    if include_empty {
-        return_vec.push("".to_string());
-    }
+    return_vec.push("".to_string());
 
     let alphabet_vec: Vec<char> = alphabet.iter().cloned().collect();
 
@@ -24,7 +14,7 @@ pub fn generate_tests(
         while return_vec.len() < size.try_into().unwrap() {
             let mut rng = rand::thread_rng();
 
-            let string_length: u8 = rng.gen_range(min_length, max_length);
+            let string_length: u8 = rng.gen_range(0, length);
 
             let new_test_string: String = (0..string_length)
                 .map(|_| {
@@ -36,7 +26,19 @@ pub fn generate_tests(
             return_vec.push(new_test_string);
         }
     } else {
-        // implement trie and flattening
+        let mut position: usize = 0;
+
+        for i in 0..length {
+            while return_vec[position].len() == usize::from(i) {
+                let mut prefix = return_vec[position].to_owned();
+                for letter in &alphabet_vec {
+                    prefix.push(*letter);
+                    return_vec.push(prefix.to_owned());
+                    prefix.pop();
+                }
+                position += 1;
+            }
+        }
     }
 
     return_vec
