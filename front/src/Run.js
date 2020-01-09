@@ -31,9 +31,11 @@ function Run(props){
             determinism: false,
             input_string:[],
     };
+
+    //useEffect clause
     useEffect( ()=>{
  
-    })
+    });
     const master_context = useContext(AutomataContext);
 
     let input_val = "default";
