@@ -55,12 +55,14 @@ const render_visual_callback = useCallback( ()=>{
       return;
     }
     e.preventDefault();
+
     // which href/button pressed, as Bootstrap navbar headers are link HREFS and not buttons
     let target_check = e.target.lastChild.data;
 
     // if lock run button is not true, then load - or unload - sidebar component
     // else skip, as infinite loading/unloading react component refresh cycle
-    // setTimeOut to avoid infinite loading/unloading of react component  
+    //  with locker lock_run_button variable.
+    // lock_run_button is reset to false at rerender (!important)
     if(target_check === "Run" && sidebar_display == false && !lock_run_button){
       lock_run_button = true; 
       render_sidebar_callback(true);

@@ -3,3 +3,16 @@
     background-color: powderblue;
 
 } */
+/* #api_button:focus,#api_button:active:focus,#api_button.active:focus,
+#api_button.focus,#api_button:active.focus,#api_button.active.focus {
+    outline: none;
+    
+} */
+
+#api_button{
+    box-shadow:none;
+}
+#add_button:focus{
+    outline:none;
+    }
+
