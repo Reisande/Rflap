@@ -7,6 +7,10 @@ import error_image from './error.svg';
 import success_image from './success.svg';
 import {AutomataContext} from './AutomataContext.js'
 import not_ferris  from "./rFlapLogo.png";
+import add_svg from './add.svg';
+import add_red from './add_red.svg';
+import add_black from './add_black.svg';
+import RowEntry from './RowEntry.js'
 
 var util = require('util')
 let bool_check = false;
@@ -16,6 +20,7 @@ function Run(props){
 
     const [s_or_e,set_image] = useState([error_image,success_image]);
     const [succeded_failed,set_succeded_failed] = useState(0);
+    const add_button = useRef(null);
     const image_ref = useRef(null);
     let arrray_index = 0;
     let packet_to_misha_the_microsoft_engineer = {
@@ -198,6 +203,7 @@ async function postToRustApi(){
 };
 
    async function onClickPingToApi(event){
+       event.preventDefault();
        console.log("String from user: " +input_val);
        packet_to_misha_the_microsoft_engineer.input_string = input_val;
        console.log("State info:" );
@@ -226,7 +232,11 @@ async function postToRustApi(){
 
 
    };
+   function addBar(e){
 
+    console.log(e.target);
+    e.preventDefault();
+   }
    function setInputVal(value){
     input_val = value.target.value;
    }
@@ -237,15 +247,23 @@ async function postToRustApi(){
 
         <Navbar.Brand href="#home"> <b> <font color="#835C3B">R </font>   <font color = "#FFD700">FLAP</font></b></Navbar.Brand>
         <Nav>
-        <Button onClick={ (event) => onClickPingToApi(event) } variant="warning">
-           Run Strings
+        {/* <Button ref = {add_button}onClick={ (event) => addBar(event) } variant="warning">
+           Add
+        </Button> */}
+        <Col>
+        <input type="image" id="add_button" src={add_black} width="38" height="38" name="add_row_input"/>
+        </Col>
+        <Button id="api_button" onClick={ (event) => onClickPingToApi(event) } variant="warning">
+           Run!
         </Button>
+
         </Nav>
         </Navbar>
 
 
 
         <Row><br/></Row>
+        
         <InputGroup className="mb-3" as={Col}>
 
         <Form.Control onChange={ (event) => setInputVal(event)} aria-label=""  />
