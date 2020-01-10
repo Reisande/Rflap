@@ -20,7 +20,7 @@ let bool_check = false;
 
 
 function Run(props){
-    
+    let user_input_row_collection = []
     const [s_or_e,set_image] = useState([error_image,success_image]);
     const [succeded_failed,set_succeded_failed] = useState(0);
 
@@ -33,6 +33,8 @@ function Run(props){
     const image_ref = useRef(null);
     const row_ref_container = useRef(null);
     let entry_amount = 30;
+    let array_of_row_refs = []
+
     console.log(row_entry_array);
     let packet_to_misha_the_microsoft_engineer = {
             alphabet:[],
@@ -253,6 +255,30 @@ async function postToRustApi(){
 
 
    };
+   const HTMLCol_to_array = (html_collection) => Array.prototype.slice.call(html_collection);
+
+   const process_userinput = (row_table_DOM_node,id) =>{
+    console.log("PROCESSING")
+    console.log(id);
+    user_input_row_collection[id] = (HTMLCol_to_array(row_table_DOM_node.children)[0]).value;
+
+
+    console.log("PROCESSING")
+
+   }
+
+   function on_click_test_api(event){
+    //reset list for each click to api with amount of rows
+    user_input_row_collection = [...Array(HTMLCol_to_array(row_ref_container.current.children).length)];
+    console.log("ON_CLICK_API_TEST")
+    event.preventDefault();
+    console.log(event);
+    HTMLCol_to_array(row_ref_container.current.children).map(process_userinput);
+    console.log(user_input_row_collection);
+    // row_ref_container.current.childNodes().map( (DOM_node,id)=>process_row_for_userinput(DOM_node,id));
+    console.log("ON_CLICK_API_TEST")
+
+   }
    function addBar(e){
 
     console.log(e.target);
@@ -261,27 +287,21 @@ async function postToRustApi(){
    function setInputVal(value){
     input_val = value.target.value;
    }
-//    function add_row_entry(){
-//         set_row_entries((array)=> array.push("");
-//    }
+
+    // !Functional component, put into production instead of map in return() below!
+    
 //    const  row_entry_components  =  row_entry_array.map((id)=>
 //         <RowInput key= {id}></RowInput>
-
 //     );
-//    function array_state(){
-//        return row_entry
-//        _array.push("");
-//    }
-   
+
+   //Update state of Run.js component based on image_click.
+   // Rerenders Run.js when button is clicked, thus adding a row entry component 
    function image_click_handler(event){
-    console.log(event);
-    console.log(row_entry_array);
+ 
     let new_array = row_entry_array;
     new_array.push({})
     set_row_entries([...new_array]);
-    console.log("-")
-    console.log(row_entry_array);
-    console.log("-")
+
 
    }
    function export_click_handler(event){
@@ -301,7 +321,7 @@ async function postToRustApi(){
         <input id = "add_row_button" onClick={ (event) => image_click_handler(event)}type="image" id="add_button" src={add_perfect} width="33" height="33" name="add_row_input"/>
         </Col>
         
-        <Button id="api_button" onClick={ (event) => onClickPingToApi(event) } variant="warning">
+        <Button id="api_button" onClick={ (event) => on_click_test_api(event) } variant="warning">
            Test
         </Button>
 
@@ -312,7 +332,7 @@ async function postToRustApi(){
 
         <Row><br/></Row>
         <div className="name" ref={row_ref_container}>
-        {row_entry_array ? row_entry_array.map((_, key) => <RowInput  key = {key} image={idle_svg}/> ):<></>}
+        {row_entry_array ? row_entry_array.map((_, key) => <RowInput key = {key} image={idle_svg}/> ):<></>}
         </div>
 
     </div>
