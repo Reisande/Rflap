@@ -14,6 +14,7 @@ import add_black from './add_black.svg';
 import RowInput from './RowInput.js';
 import idle_svg from './button.svg';
 import add_perfect from './plus.svg';
+
 var util = require('util')
 let bool_check = false;
 
@@ -25,6 +26,7 @@ function Run(props){
 
 
     const [row_entry_array,set_row_entries] = useState([{}]);
+
 
 
     const add_button = useRef(null);
@@ -312,6 +314,7 @@ async function postToRustApi(){
         <div className="name" ref={row_ref_container}>
         {row_entry_array ? row_entry_array.map((_, key) => <RowInput  key = {key} image={idle_svg}/> ):<></>}
         </div>
+
     </div>
     );
     
