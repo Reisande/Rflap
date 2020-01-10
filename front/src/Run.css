@@ -1,4 +1,4 @@
-/* #inside-div-scrollbar{
+    /* #inside-div-scrollbar{
     width: 500px;
     background-color: powderblue;
 
@@ -16,3 +16,16 @@
     outline:none;
     }
 
+
+#nav-header{
+     /* display:flex     */
+}
+#add_row_button{
+    float: center;
+}
+#add_row_button_container{
+    align-content: center;
+    position:relative;
+    /* aligns the div container for the Run component buttons */
+    bottom: -2px;
+}
