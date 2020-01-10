@@ -272,7 +272,7 @@ impl FiniteAutomaton {
         let mut reachable_states = HashSet::new();
         reachable_states.insert(self.start_state.to_owned());
 
-        while (new_states.len() != 0) {
+        while new_states.len() != 0 {
             let temp = HashSet::new();
             for source_state in &new_states {
                 for letter in &self.alphabet {
@@ -310,14 +310,45 @@ impl FiniteAutomaton {
 
             new_automata_states.insert(state, current_state_is_final);
         }
-        // remove all values in the transition function which are related to the unreachable states
-        // check for non-distinguishible states
+
+        // check for any references to unreachable states
+        let mut unreachable_states: HashSet<String> = HashSet::new();
+        for (state, _) in &self.states {
+            if !new_automata_states.contains_key(state) {
+                unreachable_states.insert(state.to_string());
+            }
+        }
+
+        // remove all values in the transition function which are related to the
+        // unreachable states check for non-distinguishible states
+        let mut new_transition_function: MultiMap<(String, Option<char>), String> = MultiMap::new();
+
+        for ((source, transition), _) in self.transition_function.iter() {
+            if unreachable_states.contains(source) {
+                continue;
+            }
+
+            let targets = match self
+                .transition_function
+                .get_vec(&(source.to_owned(), *transition))
+            {
+                Some(t) => t.to_owned(),
+                None => Vec::new(),
+            };
+
+            for target in &targets {
+                if unreachable_states.contains(target) {
+                    new_transition_function
+                        .insert((source.to_string(), *transition), target.to_string())
+                }
+            }
+        }
 
         FiniteAutomaton::new(
             self.alphabet,
             self.start_state,
             new_automata_states,
-            self.transition_function,
+            new_transition_function,
             self.is_deterministic,
         )
     }
