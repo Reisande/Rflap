@@ -18,13 +18,19 @@ let bool_check = false;
 
 
 function Run(props){
-
+    
     const [s_or_e,set_image] = useState([error_image,success_image]);
     const [succeded_failed,set_succeded_failed] = useState(0);
-    const [row_entry_array,set_row_entries] = useState([{user_input: ""}]);
+
+
+    const [row_entry_array,set_row_entries] = useState([""]);
+
+
     const add_button = useRef(null);
     const image_ref = useRef(null);
-    let arrray_index = 0;
+    const row_ref_container = useRef(null);
+    let entry_amount = 30;
+    console.log(row_entry_array);
     let packet_to_misha_the_microsoft_engineer = {
             alphabet:[],
             start_state:"",
@@ -41,8 +47,18 @@ function Run(props){
 
     //useEffect clause
     useEffect( ()=>{
+    setInterval(  ()=>{
+        console.log(row_ref_container);
+    
+    },3000 )
+
+
+    // row_entry_array.forEach( (id)=>{
+    //     row_entry_refs[id] = useRef(null);
+    // }   ) 
  
-    });
+    }
+    );
     const master_context = useContext(AutomataContext);
 
     let input_val = "default";
@@ -242,7 +258,29 @@ async function postToRustApi(){
    function setInputVal(value){
     input_val = value.target.value;
    }
+//    function add_row_entry(){
+//         set_row_entries((array)=> array.push("");
+//    }
+//    const  row_entry_components  =  row_entry_array.map((id)=>
+//         <RowInput key= {id}></RowInput>
 
+//     );
+//    function array_state(){
+//        return row_entry
+//        _array.push("");
+//    }
+   
+   function image_click_handler(event){
+    console.log(event);
+    console.log(row_entry_array);
+    let new_array = row_entry_array;
+    new_array.push("")
+    set_row_entries([...new_array]);
+    console.log("-")
+    console.log(row_entry_array);
+    console.log("-")
+
+   }
     return(
         <div id = "inside-div-scrollbar"> 
         <Navbar className="bg-dark justify-content-between" id ='nav-header' >
@@ -253,7 +291,7 @@ async function postToRustApi(){
            Add
         </Button> */}
         <Col>
-        <input type="image" id="add_button" src={add_black} width="38" height="38" name="add_row_input"/>
+        <input onClick={ (event) => image_click_handler(event)}type="image" id="add_button" src={add_black} width="38" height="38" name="add_row_input"/>
         </Col>
         <Button id="api_button" onClick={ (event) => onClickPingToApi(event) } variant="warning">
            Run!
@@ -266,7 +304,7 @@ async function postToRustApi(){
 
         <Row><br/></Row>
 
-        <InputGroup className="mb-3" as={Col}>
+        {/* <InputGroup className="mb-3" as={Col}>
 
         <Form.Control onChange={ (event) => setInputVal(event)} aria-label=""  />
         <Col md="auto" >
@@ -278,9 +316,12 @@ async function postToRustApi(){
         </Col>
 
 
-     </InputGroup>
-     
-     <RowInput ></RowInput>
+     </InputGroup> */}
+        <div ref= {row_ref_container}>
+        {row_entry_array ? row_entry_array.map((id) =><RowInput key={id}></RowInput> ):<></>}
+        </div>￼
+￼
+
 
     </div>
     );
