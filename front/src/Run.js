@@ -12,7 +12,8 @@ import add_red from './add_red.svg';
 import add_black from './add_black.svg';
 // import {RowEntry} from './RowEntry.js';
 import RowInput from './RowInput.js';
-
+import idle_svg from './button.svg';
+import add_perfect from './plus.svg';
 var util = require('util')
 let bool_check = false;
 
@@ -23,7 +24,7 @@ function Run(props){
     const [succeded_failed,set_succeded_failed] = useState(0);
 
 
-    const [row_entry_array,set_row_entries] = useState([""]);
+    const [row_entry_array,set_row_entries] = useState([{}]);
 
 
     const add_button = useRef(null);
@@ -47,10 +48,10 @@ function Run(props){
 
     //useEffect clause
     useEffect( ()=>{
-    setInterval(  ()=>{
-        console.log(row_ref_container);
+    // setInterval(  ()=>{
+    //     console.log(row_ref_container);
     
-    },3000 )
+    // },3000 )
 
 
     // row_entry_array.forEach( (id)=>{
@@ -274,7 +275,7 @@ async function postToRustApi(){
     console.log(event);
     console.log(row_entry_array);
     let new_array = row_entry_array;
-    new_array.push("")
+    new_array.push({})
     set_row_entries([...new_array]);
     console.log("-")
     console.log(row_entry_array);
@@ -291,7 +292,7 @@ async function postToRustApi(){
            Add
         </Button> */}
         <Col>
-        <input onClick={ (event) => image_click_handler(event)}type="image" id="add_button" src={add_black} width="38" height="38" name="add_row_input"/>
+        <input onClick={ (event) => image_click_handler(event)}type="image" id="add_button" src={add_perfect} width="38" height="38" name="add_row_input"/>
         </Col>
         <Button id="api_button" onClick={ (event) => onClickPingToApi(event) } variant="warning">
            Run!
@@ -303,26 +304,9 @@ async function postToRustApi(){
 
 
         <Row><br/></Row>
-
-        {/* <InputGroup className="mb-3" as={Col}>
-
-        <Form.Control onChange={ (event) => setInputVal(event)} aria-label=""  />
-        <Col md="auto" >
-        
-        <InputGroup.Append  >
-
-        <img ref={image_ref} width="32px" height = "32px" src={s_or_e[succeded_failed]}></img>
-        </InputGroup.Append>
-        </Col>
-
-
-     </InputGroup> */}
-        <div ref= {row_ref_container}>
-        {row_entry_array ? row_entry_array.map((id) =><RowInput key={id}></RowInput> ):<></>}
-        </div>￼
-￼
-
-
+        <div className="name">
+            {row_entry_array ? row_entry_array.map((_, key) => <RowInput  key = {key} image={idle_svg}/> ):<></>}
+        </div>
     </div>
     );
     
