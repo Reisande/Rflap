@@ -304,8 +304,8 @@ async function postToRustApi(){
 
 
         <Row><br/></Row>
-        <div className="name">
-            {row_entry_array ? row_entry_array.map((_, key) => <RowInput  key = {key} image={idle_svg}/> ):<></>}
+        <div className="name" ref={row_ref_container}>
+        {row_entry_array ? row_entry_array.map((_, key) => <RowInput  key = {key} image={idle_svg}/> ):<></>}
         </div>
     </div>
     );
