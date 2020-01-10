@@ -282,20 +282,25 @@ async function postToRustApi(){
     console.log("-")
 
    }
+   function export_click_handler(event){
+       console.log(event);
+   }
     return(
         <div id = "inside-div-scrollbar"> 
         <Navbar className="bg-dark justify-content-between" id ='nav-header' >
-
-        <Navbar.Brand href="#home"> <b> <font color="#835C3B">R </font>   <font color = "#FFD700">FLAP</font></b></Navbar.Brand>
-        <Nav>
+        <Button id="export_xmljson" onClick={ (event)=>{export_click_handler(event)}} variant="info">
+           Export
+        </Button>
+                <Nav>
         {/* <Button ref = {add_button}onClick={ (event) => addBar(event) } variant="warning">
            Add
         </Button> */}
-        <Col>
-        <input onClick={ (event) => image_click_handler(event)}type="image" id="add_button" src={add_perfect} width="38" height="38" name="add_row_input"/>
+        <Col className="justify-content-between" id ="add_row_button_container">
+        <input id = "add_row_button" onClick={ (event) => image_click_handler(event)}type="image" id="add_button" src={add_perfect} width="33" height="33" name="add_row_input"/>
         </Col>
+        
         <Button id="api_button" onClick={ (event) => onClickPingToApi(event) } variant="warning">
-           Run!
+           Test
         </Button>
 
         </Nav>
