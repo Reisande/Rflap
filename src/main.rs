@@ -28,6 +28,7 @@ fn api(
     for input_string in input_strings {
         return_paths.push(input_automaton.validate_string(input_string.to_owned()));
     }
+    println!("{:?}", Json((return_paths.to_owned(),hint.to_owned())));
 
     Json((return_paths, hint))
 }
