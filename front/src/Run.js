@@ -73,6 +73,7 @@ function Run(props){
         console.log("edge process");
         console.log(edgeObj);
         let transition_triple = [];
+        packet_to_misha_the_microsoft_engineer.transition_function = []
         edgeObj.forEach( (edgeObj) =>{
 
             transition_triple = [];
@@ -191,7 +192,7 @@ function Run(props){
         }  );
     }
     const preprocess = () =>{
-        console.log("preprocesser: ");
+        console.log("PREPROCESSOR")
         console.log(master_context.graphobj.nodes.get());
         console.log(master_context.graphobj.edges.get());
         nodeProcess(master_context.graphobj.nodes.get());
@@ -200,16 +201,17 @@ function Run(props){
         console.log("After node and edge processing: ");
 
         console.log(packet_to_misha_the_microsoft_engineer);
+        console.log("PREPROCESSOR")
 
     }
 
 async function postToRustApi(){
-    let url = "http://localhost:8000/";
+    let url = "http://localhost:8000/api";
 
     let postingObject = {
         method: "POST",
-        mode:"cors",
-        cache:"no-cache",
+        mode:"no-cors",
+        // cache:"no-cache",
         credentials: "same-origin",
         headers:{
             "Content-Type":"application/json",
@@ -251,7 +253,10 @@ async function postToRustApi(){
                 else{
 
                 bool_check = true;
-
+                //to add when finally getting callback:
+                // iterate through the callback, make a new array with each index updated to whether it succeeded or not.
+                // then rerender component via:
+                // set_row_entries([... new_array_with_callback_info])
                 
                 set_succeded_failed(1);
 
@@ -276,10 +281,7 @@ async function postToRustApi(){
     console.log("PROCESSING")
     console.log(id);
     user_input_row_collection[id] = (HTMLCol_to_array(row_table_DOM_node.children)[0]).value;
-
-
     console.log("PROCESSING")
-
    }
 
    function on_click_test_api(event){
@@ -323,9 +325,12 @@ async function postToRustApi(){
 
    }
    function export_click_handler(event){
-       console.log(event);
+      console.log("EXPORT_BUTTON");
+       preprocess();
+       console.log(packet_to_misha_the_microsoft_engineer)
 
-       
+        console.log("EXPORT_BUTTON");
+
    }
     return(
         <div id = "inside-div-scrollbar"> 
