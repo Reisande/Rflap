@@ -23,8 +23,8 @@ mod generate_tests;
 //mod pda;
 //mod tm;
 
-#[post("/api", format = "json", data = "<input_automaton_json>")]
-fn api(input_automaton_json: Json<finite_automaton::FiniteAutomatonJson>) -> JsonValue {
+#[post("/api", format="text/plain;charset=utf-8", data = "<input_automaton_json>")]
+fn api(input_automaton_json: Json<finite_automaton::FiniteAutomatonJson>) -> Json<(std::vec::Vec<(bool, bool, std::vec::Vec<(char, std::string::String)>, std::string::String)>, std::string::String)> {
     let (input_automaton, input_strings, hint) =
         finite_automaton::FiniteAutomaton::new_from_json(&input_automaton_json);
 
@@ -33,8 +33,9 @@ fn api(input_automaton_json: Json<finite_automaton::FiniteAutomatonJson>) -> Jso
     for input_string in input_strings {
         return_paths.push(input_automaton.validate_string(input_string.to_owned()));
     }
+    println!("{:?}", Json((return_paths.to_owned(),hint.to_owned())));
 
-    json!((return_paths, hint))
+    Json((return_paths.to_owned(), hint.to_owned()))
 }
 
 #[get("/")]
