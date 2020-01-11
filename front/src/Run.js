@@ -25,9 +25,9 @@ function Run(props){
     let user_input_row_collection = []
     const [s_or_e,set_image] = useState([error_image,success_image]);
     const [succeded_failed,set_succeded_failed] = useState(0);
+    let image_collection = [error_image,idle_svg,add_perfect];
 
-
-    const [row_entry_array,set_row_entries] = useState([{}]);
+    const [row_entry_array,set_row_entries] = useState([1]);
 
 
 
@@ -204,11 +204,11 @@ function Run(props){
     }
 
 async function postToRustApi(){
-    let url = "http://localhost:8000/api";
+    let url = "http://localhost:8000/";
 
     let postingObject = {
         method: "POST",
-        mode:"no-cors",
+        mode:"cors",
         cache:"no-cache",
         credentials: "same-origin",
         headers:{
@@ -243,13 +243,21 @@ async function postToRustApi(){
         console.log(callback);
 
             if(callback[0]){
+                // Check for valid DFA
+                if(callback[1] == false && master_context.mode == "Determinstic Finite Automata"){
+                    alert("Not a valid DFA!");
+
+                }
+                else{
+
                 bool_check = true;
 
                 
                 set_succeded_failed(1);
 
                 console.log("SUCCESS");
-                console.log(master_context.graphobj.nodes)
+                console.log(master_context.graphobj.nodes);
+            }
             }
             else{
                 bool_check = false;
@@ -309,7 +317,7 @@ async function postToRustApi(){
    function image_click_handler(event){
  
     let new_array = row_entry_array;
-    new_array.push({})
+    new_array.push(1);
     set_row_entries([...new_array]);
 
 
@@ -332,7 +340,7 @@ async function postToRustApi(){
         <Col className="justify-content-between" id ="add_row_button_container">
         <input id = "add_row_button" onClick={ (event) => image_click_handler(event)}type="image" id="add_button" src={add_perfect} width="33" height="33" name="add_row_input"/>
         </Col>
-        
+
         <Button id="api_button" onClick={ (event) => on_click_test_api(event) } variant="warning">
            Test
         </Button>
@@ -344,7 +352,7 @@ async function postToRustApi(){
 
         <Row><br/></Row>
         <div className="name" ref={row_ref_container}>
-        {row_entry_array ? row_entry_array.map((_, key) => <RowInput key = {key} image={idle_svg}/> ):<></>}
+        {row_entry_array ? row_entry_array.map((_, key) => <RowInput key = {key} image={image_collection[row_entry_array[key]]}/> ):<></>}
         </div>
 
     </div>
