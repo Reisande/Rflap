@@ -20,6 +20,8 @@ let bool_check = false;
 
 
 function Run(props){
+    const master_context = useContext(AutomataContext);
+
     let user_input_row_collection = []
     const [s_or_e,set_image] = useState([error_image,success_image]);
     const [succeded_failed,set_succeded_failed] = useState(0);
@@ -46,7 +48,7 @@ function Run(props){
             //lists of lists:
             transition_function:[],
             //bool
-            determinism: false,
+            determinism: master_context.mode == "Determinstic Finite Automata" ? true : false,
             input_string:[],
     };
 
@@ -64,7 +66,6 @@ function Run(props){
  
     }
     );
-    const master_context = useContext(AutomataContext);
 
     let input_val = "default";
     let toBePushed = [];
@@ -218,7 +219,7 @@ async function postToRustApi(){
         body: JSON.stringify(packet_to_misha_the_microsoft_engineer)
     }
     console.log("callback")
-        
+
     const Algorithms_are_the_computational_content_of_proofs = await fetch(url,postingObject);
     console.log("callback")
 
@@ -230,6 +231,9 @@ async function postToRustApi(){
     //    event.preventDefault();
        input_val = user_input_row_collection;
        packet_to_misha_the_microsoft_engineer.input_string = input_val;
+       console.log("MODE");
+       console.log(master_context['mode']);
+       console.log("MODE");
 
 
        console.log("State info:" );
@@ -240,6 +244,8 @@ async function postToRustApi(){
 
             if(callback[0]){
                 bool_check = true;
+
+                
                 set_succeded_failed(1);
 
                 console.log("SUCCESS");
