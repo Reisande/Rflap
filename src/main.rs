@@ -30,7 +30,7 @@ fn api(
     }
     println!("{:?}", Json((return_paths.to_owned(),hint.to_owned())));
 
-    Json((return_paths, hint))
+    Json((return_paths.to_owned(), hint.to_owned()))
 }
 
 fn tests(tests: generate_tests::TestsJson) -> Json<Vec<String>> {
