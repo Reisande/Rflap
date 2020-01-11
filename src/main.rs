@@ -26,8 +26,9 @@ fn api(input_automaton_json: finite_automaton::FiniteAutomatonJson) -> JsonValue
     for input_string in input_strings {
         return_paths.push(input_automaton.validate_string(input_string.to_owned()));
     }
+    println!("{:?}", Json((return_paths.to_owned(),hint.to_owned())));
 
-    json!((return_paths, hint))
+    Json((return_paths.to_owned(), hint.to_owned()))
 }
 
 fn main() -> io::Result<()> {

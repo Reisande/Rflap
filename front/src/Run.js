@@ -49,7 +49,7 @@ function Run(props){
             transition_function:[],
             //bool
             determinism: master_context.mode == "Determinstic Finite Automata" ? true : false,
-            input_string:[],
+            input_strings:["a"],
     };
 
     //useEffect clause
@@ -73,6 +73,7 @@ function Run(props){
         console.log("edge process");
         console.log(edgeObj);
         let transition_triple = [];
+        packet_to_misha_the_microsoft_engineer.determinism = (master_context.mode == "Determinstic Finite Automata" ? true : false)
         packet_to_misha_the_microsoft_engineer.transition_function = []
         edgeObj.forEach( (edgeObj) =>{
 
@@ -211,7 +212,7 @@ async function postToRustApi(){
     let postingObject = {
         method: "POST",
         mode:"no-cors",
-        // cache:"no-cache",
+        cache:"no-cache",
         credentials: "same-origin",
         headers:{
             "Content-Type":"application/json",
@@ -223,16 +224,19 @@ async function postToRustApi(){
     console.log("callback")
 
     const Algorithms_are_the_computational_content_of_proofs = await fetch(url,postingObject);
-    console.log("callback")
+    console.log("POST_TO_RUST_API: callback")
+    console.log(Algorithms_are_the_computational_content_of_proofs);
+    console.log("POST_TO_RUST_API: calllback")
+    // console.log( await Algorithms_are_the_computational_content_of_proofs.json());
 
-    return await Algorithms_are_the_computational_content_of_proofs.json();
+    return   await Algorithms_are_the_computational_content_of_proofs.json();
     
 };
 
    async function onClickPingToApi(){
     //    event.preventDefault();
        input_val = user_input_row_collection;
-       packet_to_misha_the_microsoft_engineer.input_string = input_val;
+       packet_to_misha_the_microsoft_engineer.input_strings = input_val;
        console.log("MODE");
        console.log(master_context['mode']);
        console.log("MODE");
@@ -242,7 +246,9 @@ async function postToRustApi(){
         preprocess();
         try{
         const callback = await postToRustApi();
+        console.log("COMPLETE CALLBACK:")
         console.log(callback);
+        console.log("COMPLETE CALLBACK:")
 
             if(callback[0]){
                 // Check for valid DFA
@@ -328,6 +334,7 @@ async function postToRustApi(){
       console.log("EXPORT_BUTTON");
        preprocess();
        console.log(packet_to_misha_the_microsoft_engineer)
+    //    window.location.href = "http:locahost:8000/packet.json"
 
         console.log("EXPORT_BUTTON");
 
