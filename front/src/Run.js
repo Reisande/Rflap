@@ -214,7 +214,7 @@ async function postToRustApi(){
     let postingObject = {
         method: "POST",
         mode:"no-cors",
-        // cache:"no-cache",
+        cache:"no-cache",
         credentials: "same-origin",
         headers:{
             "Content-Type":"application/json",
