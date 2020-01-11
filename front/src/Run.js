@@ -75,7 +75,10 @@ function Run(props){
         console.log("edge process");
         console.log(edgeObj);
         let transition_triple = [];
+<<<<<<< HEAD
         packet_to_misha_the_microsoft_engineer.determinism = (master_context.mode == "Determinstic Finite Automata" ? true : false)
+=======
+>>>>>>> Added final preparation for API callbacks for multiple postings
         packet_to_misha_the_microsoft_engineer.transition_function = []
         edgeObj.forEach( (edgeObj) =>{
 
@@ -209,6 +212,7 @@ function Run(props){
     }
 
 async function postToRustApi(){
+<<<<<<< HEAD
     let url = "http://localhost:8080/api";
 
     let postingObject = {
@@ -216,6 +220,15 @@ async function postToRustApi(){
         mode:"cors",
         // cache:"no-cache",
         // credentials: "same-origin",
+=======
+    let url = "http://localhost:8000/api";
+
+    let postingObject = {
+        method: "POST",
+        mode:"no-cors",
+        // cache:"no-cache",
+        credentials: "same-origin",
+>>>>>>> Added final preparation for API callbacks for multiple postings
         headers:{
             "Content-Type":"application/json",
         },
@@ -343,8 +356,11 @@ async function postToRustApi(){
       console.log("EXPORT_BUTTON");
        preprocess();
        console.log(packet_to_misha_the_microsoft_engineer)
+<<<<<<< HEAD
        downloadObjectAsJson(packet_to_misha_the_microsoft_engineer,"RFLAP + " + Math.random() * (100));
     //    window.location.href = "http:locahost:8000/packet.json"
+=======
+>>>>>>> Added final preparation for API callbacks for multiple postings
 
         console.log("EXPORT_BUTTON");
 
