@@ -218,6 +218,7 @@ async function postToRustApi(){
         body: JSON.stringify(packet_to_misha_the_microsoft_engineer)
     }
     console.log("callback")
+        
     const Algorithms_are_the_computational_content_of_proofs = await fetch(url,postingObject);
     console.log("callback")
 
@@ -225,10 +226,12 @@ async function postToRustApi(){
     
 };
 
-   async function onClickPingToApi(event){
-       event.preventDefault();
-       console.log("String from user: " +input_val);
+   async function onClickPingToApi(){
+    //    event.preventDefault();
+       input_val = user_input_row_collection;
        packet_to_misha_the_microsoft_engineer.input_string = input_val;
+
+
        console.log("State info:" );
         preprocess();
         try{
@@ -252,8 +255,6 @@ async function postToRustApi(){
             console.error(error);
         }
 
-
-
    };
    const HTMLCol_to_array = (html_collection) => Array.prototype.slice.call(html_collection);
 
@@ -269,14 +270,17 @@ async function postToRustApi(){
 
    function on_click_test_api(event){
     //reset list for each click to api with amount of rows
+    //array that contains all the input strings from the user
     user_input_row_collection = [...Array(HTMLCol_to_array(row_ref_container.current.children).length)];
     console.log("ON_CLICK_API_TEST")
     event.preventDefault();
     console.log(event);
     HTMLCol_to_array(row_ref_container.current.children).map(process_userinput);
     console.log(user_input_row_collection);
+    // collection of all the 
     // row_ref_container.current.childNodes().map( (DOM_node,id)=>process_row_for_userinput(DOM_node,id));
     console.log("ON_CLICK_API_TEST")
+    onClickPingToApi();
 
    }
    function addBar(e){
@@ -306,6 +310,8 @@ async function postToRustApi(){
    }
    function export_click_handler(event){
        console.log(event);
+
+       
    }
     return(
         <div id = "inside-div-scrollbar"> 
