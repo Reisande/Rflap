@@ -50,23 +50,29 @@ pub fn file(file: PathBuf) -> Option<NamedFile> {
 }
 
 fn main() -> () {
-    let default = rocket_cors::CorsOptions::default();
-    let allowed_origins = AllowedOrigins::all(); //some_exact(&["https://developer.mozilla.org"]);
 
-    // You can also deserialize this
-    let cors = rocket_cors::CorsOptions {
-        allowed_origins,
-        allowed_methods: vec![Method::Post].into_iter().map(From::from).collect(),
-        allowed_headers: AllowedHeaders::some(&["Authorization", "Accept"]),
-        allow_credentials: true,
-        ..Default::default()
-    }
-    .to_cors();
+    if false {
+	let default = rocket_cors::CorsOptions::default();
+	let allowed_origins = AllowedOrigins::all(); //some_exact(&["https://developer.mozilla.org"]);
 
-    rocket::ignite()
-        .mount("/", routes![api, index, file])
+	// You can also deserialize this
+	let cors = rocket_cors::CorsOptions {
+            allowed_origins,
+            allowed_methods: vec![Method::Post].into_iter().map(From::from).collect(),
+            allowed_headers: AllowedHeaders::some(&["Authorization", "Accept"]),
+            allow_credentials: true,
+            ..Default::default()
+	}
+	.to_cors();
+
+	rocket::ignite()
+            .mount("/", routes![api, index, file])
         // Mount the routes to catch all the OPTIONS pre-flight requests
-        .mount("/", rocket_cors::catch_all_options_routes())
-        .manage(default)
-        .launch();
+            .mount("/", rocket_cors::catch_all_options_routes())
+            .manage(default)
+            .launch();
+    }
+    else {
+	
+    }
 }
