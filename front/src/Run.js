@@ -28,7 +28,7 @@ function Run(props){
     let image_collection = [error_image,idle_svg,add_perfect];
 
     const [row_entry_array,set_row_entries] = useState([1]);
-
+   
 
 
     const add_button = useRef(null);
@@ -333,22 +333,32 @@ async function postToRustApi(){
    //Update state of Run.js component based on image_click.
    // Rerenders Run.js when button is clicked, thus adding a row entry component 
    function image_click_handler(event){
- 
     let new_array = row_entry_array;
     new_array.push(1);
     set_row_entries([...new_array]);
-
-
    }
+   
    function export_click_handler(event){
       console.log("EXPORT_BUTTON");
        preprocess();
        console.log(packet_to_misha_the_microsoft_engineer)
+       downloadObjectAsJson(packet_to_misha_the_microsoft_engineer,"RFLAP + " + Math.random() * (100));
     //    window.location.href = "http:locahost:8000/packet.json"
 
         console.log("EXPORT_BUTTON");
 
    }
+
+   //function to mount anchor tag and initiate download
+   function downloadObjectAsJson(exportObj, exportName){
+    var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportObj));
+    var downloadAnchorNode = document.createElement('a');
+    downloadAnchorNode.setAttribute("href",     dataStr);
+    downloadAnchorNode.setAttribute("download", exportName + ".json");
+    document.body.appendChild(downloadAnchorNode); // required for firefox
+    downloadAnchorNode.click();
+    downloadAnchorNode.remove();
+  }
     return(
         <div id = "inside-div-scrollbar"> 
         <Navbar className="bg-dark justify-content-between" id ='nav-header' >
