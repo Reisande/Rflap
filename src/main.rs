@@ -42,7 +42,7 @@ fn api(
 #[post("/generate_tests", format = "application/json", data = "<tests>")]
 fn tests(tests: Json<generate_tests::TestsJson>) -> Json<Vec<String>> {
     let return_vec = generate_tests::generate_tests(tests.into_inner());
-    Json((*return_vec).to_owned())
+    Json(return_vec.to_owned())
 }
 
 #[get("/")]
