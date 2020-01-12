@@ -32,9 +32,9 @@ fn api(
     Json((return_paths, hint))
 }
 
-fn tests(tests: generate_tests::TestsJson) -> Json<Vec<String>> {
-    let return_vec = generate_tests::generate_tests(tests);
-    Json((*return_vec).to_owned())
+fn tests(tests: Json<generate_tests::TestsJson>) -> Json<Vec<String>> {
+    let return_vec = generate_tests::generate_tests(tests.into_inner());
+    Json(return_vec.to_owned())
 }
 
 fn main() -> io::Result<()> {
