@@ -1,7 +1,7 @@
 import React, { useEffect,useState,useRef, useCallback } from 'react';
 import logo from './logo.svg';
 import './App.css';
-import { Graph } from "react-d3-graph";
+// import { Graph } from "react-d3-graph";
 import Visual from './Visual.js';
 import HeaderMenu from './HeaderMenu.js';
 import {AutomataContext} from './AutomataContext.js';
@@ -47,7 +47,7 @@ function App() {
 const render_visual_callback = useCallback( ()=>{
   set_render_visual(true);
 },[] )
-  const click_run_handler = (e) => {
+  const click_run_handler = (e : any) => {
 
     // Check if event is not null, then continue
     // toggle_menu.handleContextClick(e);
@@ -87,11 +87,11 @@ const render_visual_callback = useCallback( ()=>{
 
 
   // modal, called by contex_menu first one.
-  function openModal(e,data){
+  function openModal(e : any,data:any){
     set_modal_state(true)
 
   }                                                                                                                                         
-  function add_node(e,data){
+  function add_node(e: any,data:any){
 
     console.log(e,data);
 

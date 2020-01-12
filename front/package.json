@@ -3,6 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@types/d3": "^5.7.2",
+    "@types/react-sidebar": "^3.0.0",
     "bootstrap": "^4.3.1",
     "d3": "^5.13.0",
     "react": "^16.12.0",
@@ -10,7 +12,7 @@
     "react-contextmenu": "^2.13.0",
     "react-d3-graph": "^2.3.0",
     "react-dom": "^16.12.0",
-    "react-scripts": "3.2.0",
+    "react-scripts": "^3.3.0",
     "react-sidebar": "^3.0.2",
     "reactjs-popup": "^1.5.0",
     "vis-network": "^6.4.4"
@@ -35,5 +37,10 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "awesome-typescript-loader": "^5.2.1",
+    "source-map-loader": "^0.2.4",
+    "typescript": "^3.7.4"
   }
 }
