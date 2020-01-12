@@ -9,9 +9,9 @@ use std::collections::HashMap;
 use std::collections::HashSet;
 use std::io;
 
-use rocket_contrib::json::{Json, JsonValue};
-
 use rocket::response::NamedFile;
+use rocket_contrib::json::{Json, JsonValue};
+use rocket_cors::{AllowedHeaders, AllowedOrigins, Cors, CorsOptions};
 use std::path::{Path, PathBuf};
 
 use multimap::MultiMap;
@@ -48,7 +48,10 @@ pub fn file(file: PathBuf) -> Option<NamedFile> {
 }
 
 fn main() {
+    let default = rocket_cors::CorsOptions::default();
+
     rocket::ignite()
         .mount("/", routes![api, index, file])
+        .manage(default.to_cors().expect("To not fail"))
         .launch();
 }
