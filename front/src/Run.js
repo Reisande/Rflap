@@ -257,6 +257,7 @@ async function postToRustApi(){
         try{
             
         const callback = await postToRustApi();
+
         console.log("COMPLETE CALLBACK:")
         console.log(callback);
         console.log("COMPLETE CALLBACK:")
