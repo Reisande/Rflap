@@ -229,7 +229,7 @@ async function postToRustApi(){
     console.log(JSON.stringify(packet_to_misha_the_microsoft_engineer));
     let Algorithms_are_the_computational_content_of_proofs = await fetch(url,postingObject);
     console.log("POST_TO_RUST_API: callback")
-        console.log(JSON.parse(JSON.stringify(Algorithms_are_the_computational_content_of_proofs)));
+    console.log(JSON.parse(JSON.stringify(Algorithms_are_the_computational_content_of_proofs)));
     // console.log(Algorithms_are_the_computational_content_of_proofs.json())
     console.log("POST_TO_RUST_API: calllback")
     // console.log( await Algorithms_are_the_computational_content_of_proofs.json());
