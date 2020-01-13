@@ -7,24 +7,17 @@ extern crate rocket_contrib;
 
 use std::collections::HashMap;
 use std::collections::HashSet;
+use std::env;
 use std::io;
 
 use rocket_contrib::json::{Json, JsonValue};
-
-use rocket::response::NamedFile;
-use std::path::{Path, PathBuf};
 
 use multimap::MultiMap;
 
 mod finite_automaton;
 mod generate_tests;
-//mod cfg;
-//mod reg_exp;
-//mod pda;
-//mod tm;
 
-#[post("/api", format = "json", data = "<input_automaton_json>")]
-fn api(input_automaton_json: Json<finite_automaton::FiniteAutomatonJson>) -> JsonValue {
+fn api(input_automaton_json: finite_automaton::FiniteAutomatonJson) -> JsonValue {
     let (input_automaton, input_strings, hint) =
         finite_automaton::FiniteAutomaton::new_from_json(&input_automaton_json);
 
@@ -37,18 +30,16 @@ fn api(input_automaton_json: Json<finite_automaton::FiniteAutomatonJson>) -> Jso
     json!((return_paths, hint))
 }
 
-#[get("/")]
-pub fn index() -> io::Result<NamedFile> {
-    NamedFile::open("client/build/index.html")
-}
+fn main() -> io::Result<()> {
+    use std::io::Read;
 
-#[get("/<file..>")]
-pub fn file(file: PathBuf) -> Option<NamedFile> {
-    NamedFile::open(Path::new("client/build/").join(file)).ok()
-}
+    let mut buffer = String::new();
+    io::stdin().read_to_string(&mut buffer)?;
 
-fn main() {
-    rocket::ignite()
-        .mount("/", routes![api, index, file])
-        .launch();
+    println!(
+        "{:?}",
+        api(serde_json::de::from_str::<finite_automaton::FiniteAutomatonJson>(&buffer).unwrap())
+    );
+
+    Ok(())
 }
