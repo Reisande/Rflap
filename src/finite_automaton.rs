@@ -262,6 +262,57 @@ impl FiniteAutomaton {
         self.is_deterministic = is_deterministic_check;
         "".to_string()
     }
+
+    fn find_epsilon_closure(&self, start_state: &String, transition: Option<char>) -> Vec<String> {
+        let return_vec: &mut Vec<String> = &mut Vec::new();
+        if transition != None {
+            match self
+                .transition_function
+                .get_vec(&(start_state.to_owned(), transition))
+            {
+                Some(v) => {
+                    return_vec.append(&mut v.to_owned());
+                    for target in &v.to_owned() {
+                        return_vec.append(&mut self.find_epsilon_closure(target, None));
+                    }
+                }
+                None => {} // do nothing
+            }
+        }
+        match self
+            .transition_function
+            .get_vec(&(start_state.to_owned(), None))
+        {
+            Some(v) => {
+                return_vec.append(&mut v.to_owned());
+                for target in &v.to_owned() {
+                    return_vec.append(&mut self.find_epsilon_closure(target, transition));
+                }
+            }
+            None => {} // do nothing
+        }
+
+        return_vec.to_owned()
+    }
+
+    pub fn convert_to_dfa(self) -> FiniteAutomaton {
+        if self.is_deterministic {
+            // if an automaton is a dfa it is trivially a dfa. Should probably
+            // minimize this later though
+            self
+        } else {
+            let mut return_automata = FiniteAutomaton::new(
+                self.alphabet,
+                self.start_state.to_owned(),
+                self.states,
+                self.transition_function,
+                true,
+            );
+            let mut current_state = self.start_state;
+
+            return_automata
+        }
+    }
 }
 
 #[cfg(test)]
