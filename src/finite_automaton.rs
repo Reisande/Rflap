@@ -344,6 +344,9 @@ impl FiniteAutomaton {
             }
         }
 
+        // I am not sure how to make a good algorithmic equivalency test which would
+        // also work with nfas, outside of just converting to a dfa and minimizing that
+
         FiniteAutomaton::new(
             self.alphabet,
             self.start_state,
