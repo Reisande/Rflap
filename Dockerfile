@@ -29,6 +29,6 @@ WORKDIR /app
 COPY --from=build-backend /usr/local/cargo/bin/automata .
 COPY --from=build-client /src/build ./client/build
 
-EXPOSE 8000
+EXPOSE 8000 8080
 
 CMD ["./automata"]
