@@ -219,13 +219,15 @@ async function postToRustApi(){
         headers:{
             "Content-Type":"application/json",
         },
-        redirect:"follow",
-        referrer: "no-referrer",
+        // redirect:"follow",
+        // referrer: "no-referrer",
         body: JSON.stringify(packet_to_misha_the_microsoft_engineer)
     }
     console.log("callback")
-
-    const Algorithms_are_the_computational_content_of_proofs = await fetch(url,postingObject);
+    
+    
+    console.log(JSON.stringify(packet_to_misha_the_microsoft_engineer));
+    let Algorithms_are_the_computational_content_of_proofs = await fetch(url,postingObject);
     console.log("POST_TO_RUST_API: callback")
         console.log(JSON.parse(JSON.stringify(Algorithms_are_the_computational_content_of_proofs)));
     // console.log(Algorithms_are_the_computational_content_of_proofs.json())
@@ -253,6 +255,7 @@ async function postToRustApi(){
        console.log("State info:" );
         preprocess();
         try{
+            
         const callback = await postToRustApi();
         console.log("COMPLETE CALLBACK:")
         console.log(callback);
