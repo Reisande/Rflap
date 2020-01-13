@@ -15,7 +15,12 @@
 #add_button:focus{
     outline:none;
     }
-
+#import_json{
+    box-shadow: none;
+}
+#export_xmljson{
+    box-shadow: none;
+}
 /* 
 #nav-header{
      display:flex    
