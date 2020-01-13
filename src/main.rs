@@ -46,8 +46,13 @@ fn main() -> io::Result<()> {
 
     let args: Vec<String> = env::args().collect();
     
+<<<<<<< HEAD
     for string in args {
         println("{}", string);
+=======
+    for string in &args {
+        println!("{}\n", string);
+>>>>>>> import/export merge conflict resolves and prep to PING API
     }
 
     if &args[1] == "automata" {
