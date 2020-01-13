@@ -11,7 +11,15 @@ app.use(cors());
 
 app.post('/api', (req, res) => {
     const json = JSON.stringify(req.body);
-    child_process.exec(`echo '${json}' | cargo run `, {cwd: '..'}, (error, stdout, stderr) => {
+    child_process.exec(`echo '${json}' | cargo run automata `, {cwd: '..'}, (error, stdout, stderr) => {
+        if (error) res.status(500).send(stderr);
+        else res.status(200).send(stdout);
+    });
+})
+
+app.post('/generate-tests', (req, res) => {
+    const json = JSON.stringify(req.body);
+    child_process.exec(`echo '${json}' | cargo run tests`, {cwd: '..'}, (error, stdout, stderr) => {
         if (error) res.status(500).send(stderr);
         else res.status(200).send(stdout);
     });

@@ -3,18 +3,29 @@ use rand::Rng;
 use std::collections::HashSet;
 use std::convert::TryInto;
 
-pub fn generate_tests(alphabet: HashSet<char>, length: u8, size: u8, random: bool) -> Vec<String> {
+use serde::{Deserialize, Serialize};
+use serde_json::Result;
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct TestsJson {
+    alphabet: HashSet<char>,
+    length: u8, // longest string
+    size: u8,   // how many strings for non deterministic, ignored for deterministic
+    random: bool,
+}
+
+pub fn generate_tests(input_json: TestsJson) -> Vec<String> {
     let mut return_vec: Vec<String> = [].to_vec();
 
     return_vec.push("".to_string());
 
-    let alphabet_vec: Vec<char> = alphabet.iter().cloned().collect();
+    let alphabet_vec: Vec<char> = input_json.alphabet.iter().cloned().collect();
 
-    if random {
-        while return_vec.len() < size.try_into().unwrap() {
+    if input_json.random {
+        while return_vec.len() < input_json.size.try_into().unwrap() {
             let mut rng = rand::thread_rng();
 
-            let string_length: u8 = rng.gen_range(0, length);
+            let string_length: u8 = rng.gen_range(0, input_json.length);
 
             let new_test_string: String = (0..string_length)
                 .map(|_| {
@@ -28,7 +39,7 @@ pub fn generate_tests(alphabet: HashSet<char>, length: u8, size: u8, random: boo
     } else {
         let mut position: usize = 0;
 
-        for i in 0..length {
+        for i in 0..input_json.length {
             while return_vec[position].len() == usize::from(i) {
                 let mut prefix = return_vec[position].to_owned();
                 for letter in &alphabet_vec {

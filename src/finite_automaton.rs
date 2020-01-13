@@ -10,6 +10,7 @@ use multimap::MultiMap;
 
 use std::assert;
 use std::collections::*;
+use std::iter::FromIterator;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct FiniteAutomatonJson {
@@ -261,6 +262,98 @@ impl FiniteAutomaton {
 
         self.is_deterministic = is_deterministic_check;
         "".to_string()
+    }
+
+    // takes the current automata and returns a new, minimal automata
+    fn minimize(self) -> FiniteAutomaton {
+        // check for unreachable states
+        let mut new_states = HashSet::new();
+        new_states.insert(self.start_state.to_owned());
+        let mut reachable_states = HashSet::new();
+        reachable_states.insert(self.start_state.to_owned());
+
+        while new_states.len() != 0 {
+            let temp = HashSet::new();
+            for source_state in &new_states {
+                for letter in &self.alphabet {
+                    let reachable_from_source = match self
+                        .transition_function
+                        .get_vec(&(source_state.to_owned(), Some(*letter)))
+                    {
+                        Some(v) => HashSet::from_iter(v.iter().cloned()),
+                        None => HashSet::new(),
+                    };
+
+                    temp.union(&reachable_from_source);
+                }
+                let reachable_from_source_epsilon = match self
+                    .transition_function
+                    .get_vec(&(source_state.to_owned(), None))
+                {
+                    Some(v) => HashSet::from_iter(v.iter().cloned()),
+                    None => HashSet::new(),
+                };
+
+                temp.union(&reachable_from_source_epsilon);
+            }
+
+            temp.difference(&reachable_states);
+            new_states = temp;
+            reachable_states.union(&new_states);
+        }
+        let mut new_automata_states = HashMap::new();
+        for state in reachable_states {
+            let current_state_is_final = match self.states.get(&state) {
+                Some(b) => *b,
+                None => false, // this line will never be reached
+            };
+
+            new_automata_states.insert(state, current_state_is_final);
+        }
+
+        // check for any references to unreachable states
+        let mut unreachable_states: HashSet<String> = HashSet::new();
+        for (state, _) in &self.states {
+            if !new_automata_states.contains_key(state) {
+                unreachable_states.insert(state.to_string());
+            }
+        }
+
+        // remove all values in the transition function which are related to the
+        // unreachable states check for non-distinguishible states
+        let mut new_transition_function: MultiMap<(String, Option<char>), String> = MultiMap::new();
+
+        for ((source, transition), _) in self.transition_function.iter() {
+            if unreachable_states.contains(source) {
+                continue;
+            }
+
+            let targets = match self
+                .transition_function
+                .get_vec(&(source.to_owned(), *transition))
+            {
+                Some(t) => t.to_owned(),
+                None => Vec::new(),
+            };
+
+            for target in &targets {
+                if unreachable_states.contains(target) {
+                    new_transition_function
+                        .insert((source.to_string(), *transition), target.to_string())
+                }
+            }
+        }
+
+        // I am not sure how to make a good algorithmic equivalency test which would
+        // also work with nfas, outside of just converting to a dfa and minimizing that
+
+        FiniteAutomaton::new(
+            self.alphabet,
+            self.start_state,
+            new_automata_states,
+            new_transition_function,
+            self.is_deterministic,
+        )
     }
 }
 

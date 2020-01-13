@@ -17,7 +17,9 @@ use multimap::MultiMap;
 mod finite_automaton;
 mod generate_tests;
 
-fn api(input_automaton_json: finite_automaton::FiniteAutomatonJson) -> JsonValue {
+fn api(
+    input_automaton_json: finite_automaton::FiniteAutomatonJson,
+) -> Json<(Vec<(bool, bool, Vec<(char, String)>, String)>, String)> {
     let (input_automaton, input_strings, hint) =
         finite_automaton::FiniteAutomaton::new_from_json(&input_automaton_json);
 
@@ -27,7 +29,12 @@ fn api(input_automaton_json: finite_automaton::FiniteAutomatonJson) -> JsonValue
         return_paths.push(input_automaton.validate_string(input_string.to_owned()));
     }
 
-    json!((return_paths, hint))
+    Json((return_paths, hint))
+}
+
+fn tests(tests: generate_tests::TestsJson) -> Json<Vec<String>> {
+    let return_vec = generate_tests::generate_tests(tests);
+    Json(return_vec.to_owned())
 }
 
 fn main() -> io::Result<()> {
@@ -36,10 +43,21 @@ fn main() -> io::Result<()> {
     let mut buffer = String::new();
     io::stdin().read_to_string(&mut buffer)?;
 
-    println!(
-        "{:?}",
-        api(serde_json::de::from_str::<finite_automaton::FiniteAutomatonJson>(&buffer).unwrap())
-    );
+    let args: Vec<String> = env::args().collect();
+
+    if &args[1] == "automata" {
+        println!(
+            "{:?}",
+            api(
+                serde_json::de::from_str::<finite_automaton::FiniteAutomatonJson>(&buffer).unwrap()
+            )
+        );
+    } else if &args[1] == "tests" {
+        println!(
+            "{:?}",
+            tests(serde_json::de::from_str::<generate_tests::TestsJson>(&buffer).unwrap())
+        );
+    }
 
     Ok(())
 }
