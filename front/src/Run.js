@@ -209,19 +209,13 @@ function Run(props){
     }
 
 async function postToRustApi(){
-    let url = "http://localhost:8000/api";
+    let url = "http://localhost:8080/api";
 
     let postingObject = {
         method: "POST",
-<<<<<<< HEAD
-        mode:"no-cors",
+        mode:"cors",
         cache:"no-cache",
         credentials: "same-origin",
-=======
-        mode:"cors",
-        // cache:"no-cache",
-        // credentials: "same-origin",
->>>>>>> added import button, created Popups with versatile component to display error messages for importation and non-valid DFA
         headers:{
             "Content-Type":"application/json",
         },
@@ -233,12 +227,8 @@ async function postToRustApi(){
 
     const Algorithms_are_the_computational_content_of_proofs = await fetch(url,postingObject);
     console.log("POST_TO_RUST_API: callback")
-<<<<<<< HEAD
-    console.log(Algorithms_are_the_computational_content_of_proofs);
-=======
         console.log(JSON.parse(JSON.stringify(Algorithms_are_the_computational_content_of_proofs)));
     // console.log(Algorithms_are_the_computational_content_of_proofs.json())
->>>>>>> prepping for API debugging. No BODY response from API fetch()
     console.log("POST_TO_RUST_API: calllback")
     // console.log( await Algorithms_are_the_computational_content_of_proofs.json());
     // Algorithms_are_the_computational_content_of_proofs.json((items)=>{
