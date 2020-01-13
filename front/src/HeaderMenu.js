@@ -19,6 +19,7 @@ function HeaderMenu(props){
     const PDA = useRef();
     const CFG = useRef();
     const REG = useRef();
+    
     useEffect( ()=>{
       master_context.mode = machine_select;
     }  )  ;
@@ -37,6 +38,8 @@ function HeaderMenu(props){
         master_context['test_value']= "Change made to test_value in HeaderMenu.js";
         // console.log("In propogateEvent");
     }
+
+
 
 return(
 <Navbar  bg="primary"  className="bg-dark" id = "nav-header">
@@ -81,7 +84,10 @@ return(
       <Col></Col>
       <Nav>
   <Nav.Link href="" class="text-primary" id = 'runbutton'>Run</Nav.Link>
-  <Col></Col>
+
+  <Col>
+  
+  </Col>
  
   </Nav>
     </Nav>

@@ -2,6 +2,7 @@ import  React, {useRef,useContext,useState,useEffect} from 'react';
 import {Button,Form, Col,Row,Navbar,Nav, InputGroup,FormControl} from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { inspect } from 'util' 
+import Popup from 'reactjs-popup';
 import "./Run.css";
 import error_image from './error.svg';
 import success_image from './success.svg';
@@ -14,10 +15,12 @@ import add_black from './add_black.svg';
 import RowInput from './RowInput.js';
 import idle_svg from './button.svg';
 import add_perfect from './plus.svg';
+import NotPopUp from './NotPopUp.js';
 
 var util = require('util')
 let bool_check = false;
-
+const not_dfa = "Not a valid DFA!";
+const import_error = "Importation Errror!";
 
 function Run(props){
     const master_context = useContext(AutomataContext);
@@ -25,6 +28,8 @@ function Run(props){
     let user_input_row_collection = []
     const [s_or_e,set_image] = useState([error_image,success_image]);
     const [succeded_failed,set_succeded_failed] = useState(0);
+    const [determinism_tf,set_determinism_tf] = useState(false);
+    const [importation_error,set_import_status] = useState(false);
     let image_collection = [error_image,idle_svg,add_perfect];
 
     const [row_entry_array,set_row_entries] = useState([1]);
@@ -211,7 +216,7 @@ async function postToRustApi(){
 
     let postingObject = {
         method: "POST",
-        mode:"no-cors",
+        mode:"cors",
         // cache:"no-cache",
         // credentials: "same-origin",
         headers:{
@@ -359,9 +364,19 @@ async function postToRustApi(){
     downloadAnchorNode.click();
     downloadAnchorNode.remove();
   }
+
+  function import_json(event){
+
+    console.log(event);
+  }
     return(
         <div id = "inside-div-scrollbar"> 
         <Navbar className="bg-dark justify-content-between" id ='nav-header' >
+
+        <Button id="import_json" onClick={ (event) => import_json(event) } variant="info">
+           Import
+        </Button>
+
         <Button id="export_xmljson" onClick={ (event)=>{export_click_handler(event)}} variant="info">
            Export
         </Button>
@@ -372,21 +387,24 @@ async function postToRustApi(){
         <Col className="justify-content-between" id ="add_row_button_container">
         <input id = "add_row_button" onClick={ (event) => image_click_handler(event)}type="image" id="add_button" src={add_perfect} width="33" height="33" name="add_row_input"/>
         </Col>
-
         <Button id="api_button" onClick={ (event) => on_click_test_api(event) } variant="warning">
            Test
         </Button>
-
         </Nav>
         </Navbar>
-
-
-
         <Row><br/></Row>
         <div className="name" ref={row_ref_container}>
         {row_entry_array ? row_entry_array.map((_, key) => <RowInput key = {key} image={image_collection[row_entry_array[key]]}/> ):<></>}
         </div>
-
+            <Popup
+            open ={determinism_tf}
+            >
+            <NotPopUp text={not_dfa}></NotPopUp>
+            </Popup>
+            <Popup
+            open={importation_error}>
+            <NotPopUp text={importation_error}></NotPopUp>
+            </Popup>
     </div>
     );
     
