@@ -5,6 +5,7 @@ import Popup from 'reactjs-popup';
 
 
 function NotPopUp(props){
+   
 
     return(
         <div>
@@ -15,4 +16,4 @@ function NotPopUp(props){
 
 }
 
-export default NotPopUp.js;
+export default NotPopUp;

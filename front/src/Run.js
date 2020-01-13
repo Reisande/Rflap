@@ -402,11 +402,11 @@ async function postToRustApi(){
             <Popup
             open ={determinism_tf}
             >
-            <NotPopUp text={not_dfa}></NotPopUp>
+            <NotPopUp text={not_dfa}/>
             </Popup>
             <Popup
             open={importation_error}>
-            <NotPopUp text={importation_error}></NotPopUp>
+            <NotPopUp text={import_error}/>
             </Popup>
     </div>
     );
