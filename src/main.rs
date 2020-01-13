@@ -32,8 +32,8 @@ fn api(
     Json((return_paths, hint))
 }
 
-fn tests(tests: Json<generate_tests::TestsJson>) -> Json<Vec<String>> {
-    let return_vec = generate_tests::generate_tests(tests.into_inner());
+fn tests(tests: generate_tests::TestsJson) -> Json<Vec<String>> {
+    let return_vec = generate_tests::generate_tests(tests);
     Json(return_vec.to_owned())
 }
 
@@ -43,10 +43,21 @@ fn main() -> io::Result<()> {
     let mut buffer = String::new();
     io::stdin().read_to_string(&mut buffer)?;
 
-    println!(
-        "{:?}",
-        api(serde_json::de::from_str::<finite_automaton::FiniteAutomatonJson>(&buffer).unwrap())
-    );
+    let args: Vec<String> = env::args().collect();
+
+    if &args[1] == "automata" {
+        println!(
+            "{:?}",
+            api(
+                serde_json::de::from_str::<finite_automaton::FiniteAutomatonJson>(&buffer).unwrap()
+            )
+        );
+    } else if &args[1] == "tests" {
+        println!(
+            "{:?}",
+            tests(serde_json::de::from_str::<generate_tests::TestsJson>(&buffer).unwrap())
+        );
+    }
 
     Ok(())
 }
