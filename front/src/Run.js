@@ -39,6 +39,7 @@ function Run(props){
     const add_button = useRef(null);
     const image_ref = useRef(null);
     const row_ref_container = useRef(null);
+    const file_dialog = useRef(null);
     let entry_amount = 30;
     let array_of_row_refs = []
 
@@ -59,18 +60,14 @@ function Run(props){
 
     //useEffect clause
     useEffect( ()=>{
-    // setInterval(  ()=>{
-    //     console.log(row_ref_container);
-    
-    // },3000 )
+        document.querySelector("#import_json_button_run").addEventListener("change",(e)=>{
 
+            console.log(e.target.files[0]);
+        });
 
-    // row_entry_array.forEach( (id)=>{
-    //     row_entry_refs[id] = useRef(null);
-    // }   ) 
  
-    }
-    );
+ 
+    });
 
     let input_val = "default";
     let toBePushed = [];
@@ -372,14 +369,20 @@ async function postToRustApi(){
   }
 
   function import_json(event){
+    console.log("import_json");
+    // console.log(file_dialog.click());
+    const dialog_box = document.querySelector('#import_json_button_run');
+     dialog_box.click( (file)=>{console.log(file.target);}  );
 
-    console.log(event);
-  }
+    console.log("import_json");
+
+
+}
     return(
         <div id = "inside-div-scrollbar"> 
         <Navbar className="bg-dark justify-content-between" id ='nav-header' >
-
-        <Button id="import_json" onClick={ (event) => import_json(event) } variant="info">
+        <input ref= {file_dialog} id="import_json_button_run" accept= ".json" type = "file" style={{display:"none"}}/>
+        <Button id="import_json" onClick={ (event) => import_json(event)} variant="info">
            Import
         </Button>
 
