@@ -9,10 +9,10 @@ app.use(cors());
 
 app.post('/api', (req, res) => {
     const json = JSON.stringify(req.body);
-    child_process.exec(`cargo run` /*${json}`*/, {cwd: '..'}, (error, stdout, stderr) => {
+    child_process.exec(`echo '${json}' | cargo run `, {cwd: '..'}, (error, stdout, stderr) => {
         if (error) res.status(500).send(stderr);
         res.status(200).send(stdout);
     });
 })
 
-app.listen(8000, () => console.log('App Running'));
+app.listen(8080, () => console.log('App Running'));
