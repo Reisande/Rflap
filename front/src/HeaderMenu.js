@@ -21,7 +21,7 @@ function HeaderMenu(props){
     const REG = useRef();
 
 
-    const [machine_select,set_machine_title] = useState(" Finite-Automata");
+    const [machine_select,set_machine_title] = useState("Determinstic Finite Automata");
 
     // console.log("master context "  + master_context['test_value']);
 
@@ -46,12 +46,14 @@ return(
        <br></br>
        </Col>
     </Col>     
-    {/* <Navbar.Brand ><b> <font color="#835C3B">R </font>  <font color="#FFD700">FLAP</font></b></Navbar.Brand> */}
-    <Navbar.Brand> <img
+    <Col>
+    <Navbar.Brand id="logo_text" ><b> <font size = "5" color="#835C3B">R </font>  <font size="5" color="#FFD700">FLAP</font></b></Navbar.Brand>
+    </Col>
+    {/* <Navbar.Brand> <img
       src={not_ferris}
       height = "75px"
       width= "100px"
-    /></Navbar.Brand>
+    /></Navbar.Brand> */}
     {/* add xs field for release */}
     <Col md = {3}></Col>
     <Col md = {3}>
@@ -70,7 +72,7 @@ return(
       
         
         <NavDropdown.Item onClick={(event) => propagateEvent(event,DFA)} ref= {DFA}  href="">Determinstic Finite Automata</NavDropdown.Item>
-        <NavDropdown.Item onClick={(event) => propagateEvent(event,NFA)} ref= {NFA} href="">Non- Finite Automata</NavDropdown.Item>
+        <NavDropdown.Item onClick={(event) => propagateEvent(event,NFA)} ref= {NFA} href="">Non-Determinstic Finite Automata</NavDropdown.Item>
         <NavDropdown.Item onClick={(event) => propagateEvent(event,TM)} ref= {TM}href="">Turing Machine</NavDropdown.Item>
         <NavDropdown.Item onClick={(event) => propagateEvent(event,PDA)} ref= {PDA}href="">Push-down Automata</NavDropdown.Item>
         <NavDropdown.Item onClick={(event) => propagateEvent(event,CFG)} ref= {CFG}href="">Context-free Grammar</NavDropdown.Item>
