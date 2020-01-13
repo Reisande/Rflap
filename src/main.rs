@@ -44,6 +44,10 @@ fn main() -> io::Result<()> {
     io::stdin().read_to_string(&mut buffer)?;
 
     let args: Vec<String> = env::args().collect();
+    
+    for string in args {
+        println("{}", string);
+    }
 
     if &args[1] == "automata" {
         println!(
