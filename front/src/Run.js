@@ -201,7 +201,7 @@ function Run(props){
     }
 
 async function postToRustApi(){
-    let url = "http://localhost:8000/api";
+    let url = `${window.location.origin}/api`;
 
     let postingObject = {
         method: "POST",
