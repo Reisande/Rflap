@@ -1,7 +1,5 @@
 extern crate multimap;
 extern crate rand;
-extern crate rocket;
-extern crate rocket_contrib;
 
 use serde::{Deserialize, Serialize};
 use serde_json::Result;
