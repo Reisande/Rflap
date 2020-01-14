@@ -34,8 +34,10 @@ RUN npm run build
 # Publish Image
 FROM node:12-slim as publish
 
+ENV NODE_ENV=production
+
 WORKDIR /app
-COPY --from=build-backend /usr/local/cargo/bin/automata .
+COPY --from=build-backend /usr/local/cargo/bin/automata /usr/local/bin/automata
 COPY --from=build-front /src/build ./front/build
 COPY --from=build-api /src ./temp-api
 
