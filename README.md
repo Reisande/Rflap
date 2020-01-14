@@ -54,5 +54,5 @@ docker build -t reisande/rflap .
 
 ### Run Docker Container
 ```
-docker run -it --rm -p 8000:8000 reisande/rflap
+docker run -it --rm -p 8080:8080 reisande/rflap
 ```
