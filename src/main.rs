@@ -5,16 +5,16 @@ use std::collections::HashSet;
 use std::env;
 use std::io;
 
-use rocket_contrib::json::{Json, JsonValue};
+//use rocket_contrib::json::{Json, JsonValue};
+use serde::{Deserialize, Serialize};
+use serde_json::Result;
 
 use multimap::MultiMap;
 
 mod finite_automaton;
 mod generate_tests;
 
-fn api(
-    input_automaton_json: finite_automaton::FiniteAutomatonJson,
-) -> Json<(Vec<(bool, bool, Vec<(char, String)>, String)>, String)> {
+fn api(input_automaton_json: finite_automaton::FiniteAutomatonJson) -> Result<String> {
     let (input_automaton, input_strings, hint) =
         finite_automaton::FiniteAutomaton::new_from_json(&input_automaton_json);
 
@@ -24,12 +24,27 @@ fn api(
         return_paths.push(input_automaton.validate_string(input_string.to_owned()));
     }
 
-    Json((return_paths.to_owned(), hint.to_owned()))
+    let callback = finite_automaton::FiniteAutomatonCallback {
+        list_of_strings: return_paths.to_owned(),
+        hint: hint.to_owned(),
+    };
+
+    let callback_string = serde_json::to_string(&callback)?;
+    println!("{}", callback_string);
+    Ok("".to_string())
 }
 
-fn tests(tests: generate_tests::TestsJson) -> Json<Vec<String>> {
-    let return_vec = generate_tests::generate_tests(tests);
-    Json(return_vec.to_owned())
+fn tests(tests: generate_tests::TestsJson) -> Result<String> {
+    let callback = generate_tests::generate_tests(tests);
+    let t = serde_json::to_string(&callback)?;
+    println!("{}", t);
+    Ok("".to_string())
+}
+
+#[derive(Serialize, Deserialize)]
+struct Address {
+    street: String,
+    city: String,
 }
 
 fn main() -> io::Result<()> {
@@ -41,17 +56,9 @@ fn main() -> io::Result<()> {
     let args: Vec<String> = env::args().collect();
 
     if &args[1] == "automata" {
-        println!(
-            "{:?}",
-            api(
-                serde_json::de::from_str::<finite_automaton::FiniteAutomatonJson>(&buffer).unwrap()
-            )
-        );
+        api(serde_json::de::from_str::<finite_automaton::FiniteAutomatonJson>(&buffer).unwrap());
     } else if &args[1] == "tests" {
-        println!(
-            "{:?}",
-            tests(serde_json::de::from_str::<generate_tests::TestsJson>(&buffer).unwrap())
-        );
+        tests(serde_json::de::from_str::<generate_tests::TestsJson>(&buffer).unwrap());
     }
 
     Ok(())

@@ -10,7 +10,7 @@ use std::assert;
 use std::collections::*;
 use std::iter::FromIterator;
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Deserialize)]
 pub struct FiniteAutomatonJson {
     alphabet: HashSet<char>,
     start_state: String,
@@ -18,6 +18,12 @@ pub struct FiniteAutomatonJson {
     transition_function: Vec<(String, Option<char>, String)>,
     input_strings: Vec<String>, // we need to update the api so that it passes a vec
                                 // of strings, and the post returns a vec of bools
+}
+
+#[derive(Serialize)]
+pub struct FiniteAutomatonCallback {
+    pub list_of_strings: Vec<(bool, bool, Vec<(char, String)>, String)>,
+    pub hint: String,
 }
 
 #[derive(Debug)]

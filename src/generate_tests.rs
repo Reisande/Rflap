@@ -6,7 +6,7 @@ use std::convert::TryInto;
 use serde::{Deserialize, Serialize};
 use serde_json::Result;
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Deserialize)]
 pub struct TestsJson {
     alphabet: HashSet<char>,
     length: u8, // longest string
@@ -14,7 +14,12 @@ pub struct TestsJson {
     random: bool,
 }
 
-pub fn generate_tests(input_json: TestsJson) -> Vec<String> {
+#[derive(Debug, Serialize)]
+pub struct TestsJsonCallback {
+    return_vec: Vec<String>,
+}
+
+pub fn generate_tests(input_json: TestsJson) -> TestsJsonCallback {
     let mut return_vec: Vec<String> = [].to_vec();
 
     return_vec.push("".to_string());
@@ -52,5 +57,7 @@ pub fn generate_tests(input_json: TestsJson) -> Vec<String> {
         }
     }
 
-    return_vec
+    TestsJsonCallback {
+        return_vec: return_vec,
+    }
 }
