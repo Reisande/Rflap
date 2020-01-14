@@ -23,7 +23,6 @@ fn api(
     for input_string in input_strings {
         return_paths.push(input_automaton.validate_string(input_string.to_owned()));
     }
-    println!("{:?}", Json((return_paths.to_owned(),hint.to_owned())));
 
     Json((return_paths.to_owned(), hint.to_owned()))
 }
@@ -40,10 +39,6 @@ fn main() -> io::Result<()> {
     io::stdin().read_to_string(&mut buffer)?;
 
     let args: Vec<String> = env::args().collect();
-    
-    for string in args {
-        println("{}", string);
-    }
 
     if &args[1] == "automata" {
         println!(
