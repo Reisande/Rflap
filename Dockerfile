@@ -43,4 +43,4 @@ WORKDIR /app/temp-api
 
 EXPOSE 8080
 
-CMD "node build/server.js"
+CMD ["/usr/local/bin/node", "build/server.js"]
