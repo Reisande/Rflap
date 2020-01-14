@@ -1,4 +1,4 @@
-import React, { useState} from 'react';
+import React, { useState,useEffect} from 'react';
 import {useRef,useContext} from 'react';
 import './HeaderMenu.css'
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -19,7 +19,10 @@ function HeaderMenu(props){
     const PDA = useRef();
     const CFG = useRef();
     const REG = useRef();
-
+    
+    useEffect( ()=>{
+      master_context.mode = machine_select;
+    }  )  ;
 
     const [machine_select,set_machine_title] = useState("Determinstic Finite Automata");
 
@@ -28,15 +31,15 @@ function HeaderMenu(props){
 
     function propagateEvent(event,language){
         let name = language['current'].text;
-        console.log(event);
-        console.log(name);
+        // console.log(event);
+        // console.log(name);
         set_machine_title(name);
-        master_context['mode'] = name;
+        master_context.mode = name;
         master_context['test_value']= "Change made to test_value in HeaderMenu.js";
-        console.log("In propogateEvent");
-        
-
+        // console.log("In propogateEvent");
     }
+
+
 
 return(
 <Navbar  bg="primary"  className="bg-dark" id = "nav-header">
@@ -81,7 +84,10 @@ return(
       <Col></Col>
       <Nav>
   <Nav.Link href="" class="text-primary" id = 'runbutton'>Run</Nav.Link>
-  <Col></Col>
+
+  <Col>
+  
+  </Col>
  
   </Nav>
     </Nav>

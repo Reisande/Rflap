@@ -2,6 +2,7 @@ import  React, {useRef,useContext,useState,useEffect} from 'react';
 import {Button,Form, Col,Row,Navbar,Nav, InputGroup,FormControl} from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { inspect } from 'util' 
+import Popup from 'reactjs-popup';
 import "./Run.css";
 import error_image from './error.svg';
 import success_image from './success.svg';
@@ -14,25 +15,34 @@ import add_black from './add_black.svg';
 import RowInput from './RowInput.js';
 import idle_svg from './button.svg';
 import add_perfect from './plus.svg';
+import NotPopUp from './NotPopUp.js';
 
 var util = require('util')
 let bool_check = false;
-
+const not_dfa = "Not a valid DFA!";
+const import_error = "Importation Errror!";
 
 function Run(props){
-    
+    const master_context = useContext(AutomataContext);
+
+    let user_input_row_collection = []
     const [s_or_e,set_image] = useState([error_image,success_image]);
     const [succeded_failed,set_succeded_failed] = useState(0);
+    const [determinism_tf,set_determinism_tf] = useState(false);
+    const [importation_error,set_import_status] = useState(false);
+    let image_collection = [error_image,idle_svg,add_perfect];
 
-
-    const [row_entry_array,set_row_entries] = useState([{}]);
-
+    const [row_entry_array,set_row_entries] = useState([1]);
+   
 
 
     const add_button = useRef(null);
     const image_ref = useRef(null);
     const row_ref_container = useRef(null);
+    const file_dialog = useRef(null);
     let entry_amount = 30;
+    let array_of_row_refs = []
+
     console.log(row_entry_array);
     let packet_to_misha_the_microsoft_engineer = {
             alphabet:[],
@@ -44,25 +54,20 @@ function Run(props){
             //lists of lists:
             transition_function:[],
             //bool
-            determinism: false,
-            input_string:[],
+            determinism: master_context.mode == "Determinstic Finite Automata" ? true : false,
+            input_strings:["a"],
     };
 
     //useEffect clause
     useEffect( ()=>{
-    // setInterval(  ()=>{
-    //     console.log(row_ref_container);
-    
-    // },3000 )
+        document.querySelector("#import_json_button_run").addEventListener("change",(e)=>{
 
+            console.log(e.target.files[0]);
+        });
 
-    // row_entry_array.forEach( (id)=>{
-    //     row_entry_refs[id] = useRef(null);
-    // }   ) 
  
-    }
-    );
-    const master_context = useContext(AutomataContext);
+ 
+    });
 
     let input_val = "default";
     let toBePushed = [];
@@ -70,6 +75,8 @@ function Run(props){
         console.log("edge process");
         console.log(edgeObj);
         let transition_triple = [];
+        packet_to_misha_the_microsoft_engineer.determinism = (master_context.mode == "Determinstic Finite Automata" ? true : false)
+        packet_to_misha_the_microsoft_engineer.transition_function = []
         edgeObj.forEach( (edgeObj) =>{
 
             transition_triple = [];
@@ -188,7 +195,7 @@ function Run(props){
         }  );
     }
     const preprocess = () =>{
-        console.log("preprocesser: ");
+        console.log("PREPROCESSOR")
         console.log(master_context.graphobj.nodes.get());
         console.log(master_context.graphobj.edges.get());
         nodeProcess(master_context.graphobj.nodes.get());
@@ -197,6 +204,7 @@ function Run(props){
         console.log("After node and edge processing: ");
 
         console.log(packet_to_misha_the_microsoft_engineer);
+        console.log("PREPROCESSOR")
 
     }
 
@@ -205,40 +213,73 @@ async function postToRustApi(){
 
     let postingObject = {
         method: "POST",
-        mode:"no-cors",
-        cache:"no-cache",
-        credentials: "same-origin",
+        mode:"cors",
+        // cache:"no-cache",
+        // credentials: "same-origin",
         headers:{
             "Content-Type":"application/json",
         },
-        redirect:"follow",
-        referrer: "no-referrer",
+        // redirect:"follow",
+        // referrer: "no-referrer",
         body: JSON.stringify(packet_to_misha_the_microsoft_engineer)
     }
     console.log("callback")
-    const Algorithms_are_the_computational_content_of_proofs = await fetch(url,postingObject);
-    console.log("callback")
+    
+    
+    console.log(JSON.stringify(packet_to_misha_the_microsoft_engineer));
+    let Algorithms_are_the_computational_content_of_proofs = await fetch(url,postingObject);
+    console.log("POST_TO_RUST_API: callback")
+    console.log(JSON.parse(JSON.stringify(Algorithms_are_the_computational_content_of_proofs)));
+    // console.log(Algorithms_are_the_computational_content_of_proofs.json())
+    console.log("POST_TO_RUST_API: calllback")
+    // console.log( await Algorithms_are_the_computational_content_of_proofs.json());
+    // Algorithms_are_the_computational_content_of_proofs.json((items)=>{
 
-    return await Algorithms_are_the_computational_content_of_proofs.json();
+    //     console.log(items);
+    // }  ) 
+    console.log(JSON.stringify(Algorithms_are_the_computational_content_of_proofs));
+
+    return   await Algorithms_are_the_computational_content_of_proofs.json();
     
 };
 
-   async function onClickPingToApi(event){
-       event.preventDefault();
-       console.log("String from user: " +input_val);
-       packet_to_misha_the_microsoft_engineer.input_string = input_val;
+   async function onClickPingToApi(){
+    //    event.preventDefault();
+       input_val = user_input_row_collection;
+       packet_to_misha_the_microsoft_engineer.input_strings = input_val;
+       console.log("MODE");
+       console.log(master_context['mode']);
+       console.log("MODE");
+
+
        console.log("State info:" );
         preprocess();
         try{
+            
         const callback = await postToRustApi();
+        console.log("COMPLETE CALLBACK:")
         console.log(callback);
+        console.log("COMPLETE CALLBACK:")
 
             if(callback[0]){
+                // Check for valid DFA
+                if(callback[1] == false && master_context.mode == "Determinstic Finite Automata"){
+                    alert("Not a valid DFA!");
+
+                }
+                else{
+
                 bool_check = true;
+                //to add when finally getting callback:
+                // iterate through the callback, make a new array with each index updated to whether it succeeded or not.
+                // then rerender component via:
+                // set_row_entries([... new_array_with_callback_info])
+                
                 set_succeded_failed(1);
 
                 console.log("SUCCESS");
-                console.log(master_context.graphobj.nodes)
+                console.log(master_context.graphobj.nodes);
+            }
             }
             else{
                 bool_check = false;
@@ -250,9 +291,31 @@ async function postToRustApi(){
             console.error(error);
         }
 
-
-
    };
+   const HTMLCol_to_array = (html_collection) => Array.prototype.slice.call(html_collection);
+
+   const process_userinput = (row_table_DOM_node,id) =>{
+    console.log("PROCESSING")
+    console.log(id);
+    user_input_row_collection[id] = (HTMLCol_to_array(row_table_DOM_node.children)[0]).value;
+    console.log("PROCESSING")
+   }
+
+   function on_click_test_api(event){
+    //reset list for each click to api with amount of rows
+    //array that contains all the input strings from the user
+    user_input_row_collection = [...Array(HTMLCol_to_array(row_ref_container.current.children).length)];
+    console.log("ON_CLICK_API_TEST")
+    event.preventDefault();
+    console.log(event);
+    HTMLCol_to_array(row_ref_container.current.children).map(process_userinput);
+    console.log(user_input_row_collection);
+    // collection of all the 
+    // row_ref_container.current.childNodes().map( (DOM_node,id)=>process_row_for_userinput(DOM_node,id));
+    console.log("ON_CLICK_API_TEST")
+    onClickPingToApi();
+
+   }
    function addBar(e){
 
     console.log(e.target);
@@ -261,35 +324,61 @@ async function postToRustApi(){
    function setInputVal(value){
     input_val = value.target.value;
    }
-//    function add_row_entry(){
-//         set_row_entries((array)=> array.push("");
-//    }
+
+    // !Functional component, put into production instead of map in return() below!
+    
 //    const  row_entry_components  =  row_entry_array.map((id)=>
 //         <RowInput key= {id}></RowInput>
-
 //     );
-//    function array_state(){
-//        return row_entry
-//        _array.push("");
-//    }
-   
+
+   //Update state of Run.js component based on image_click.
+   // Rerenders Run.js when button is clicked, thus adding a row entry component 
    function image_click_handler(event){
-    console.log(event);
-    console.log(row_entry_array);
     let new_array = row_entry_array;
-    new_array.push({})
+    new_array.push(1);
     set_row_entries([...new_array]);
-    console.log("-")
-    console.log(row_entry_array);
-    console.log("-")
+   }
+   
+   function export_click_handler(event){
+      console.log("EXPORT_BUTTON");
+       preprocess();
+       console.log(packet_to_misha_the_microsoft_engineer)
+       downloadObjectAsJson(packet_to_misha_the_microsoft_engineer,"RFLAP + " + Math.random() * (100));
+    //    window.location.href = "http:locahost:8000/packet.json"
+
+        console.log("EXPORT_BUTTON");
 
    }
-   function export_click_handler(event){
-       console.log(event);
-   }
+
+   //function to mount anchor tag and initiate download
+   function downloadObjectAsJson(exportObj, exportName){
+    var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportObj));
+    var downloadAnchorNode = document.createElement('a');
+    downloadAnchorNode.setAttribute("href",     dataStr);
+    downloadAnchorNode.setAttribute("download", exportName + ".json");
+    document.body.appendChild(downloadAnchorNode); // required for firefox
+    downloadAnchorNode.click();
+    downloadAnchorNode.remove();
+  }
+
+  function import_json(event){
+    console.log("import_json");
+    // console.log(file_dialog.click());
+    const dialog_box = document.querySelector('#import_json_button_run');
+     dialog_box.click( (file)=>{console.log(file.target);}  );
+
+    console.log("import_json");
+
+
+}
     return(
         <div id = "inside-div-scrollbar"> 
         <Navbar className="bg-dark justify-content-between" id ='nav-header' >
+        <input ref= {file_dialog} id="import_json_button_run" accept= ".json" type = "file" style={{display:"none"}}/>
+        <Button id="import_json" onClick={ (event) => import_json(event)} variant="info">
+           Import
+        </Button>
+
         <Button id="export_xmljson" onClick={ (event)=>{export_click_handler(event)}} variant="info">
            Export
         </Button>
@@ -300,21 +389,24 @@ async function postToRustApi(){
         <Col className="justify-content-between" id ="add_row_button_container">
         <input id = "add_row_button" onClick={ (event) => image_click_handler(event)}type="image" id="add_button" src={add_perfect} width="33" height="33" name="add_row_input"/>
         </Col>
-        
-        <Button id="api_button" onClick={ (event) => onClickPingToApi(event) } variant="warning">
+        <Button id="api_button" onClick={ (event) => on_click_test_api(event) } variant="warning">
            Test
         </Button>
-
         </Nav>
         </Navbar>
-
-
-
         <Row><br/></Row>
         <div className="name" ref={row_ref_container}>
-        {row_entry_array ? row_entry_array.map((_, key) => <RowInput  key = {key} image={idle_svg}/> ):<></>}
+        {row_entry_array ? row_entry_array.map((_, key) => <RowInput key = {key} image={image_collection[row_entry_array[key]]}/> ):<></>}
         </div>
-
+            <Popup
+            open ={determinism_tf}
+            >
+            <NotPopUp text={not_dfa}/>
+            </Popup>
+            <Popup
+            open={importation_error}>
+            <NotPopUp text={import_error}/>
+            </Popup>
     </div>
     );
     

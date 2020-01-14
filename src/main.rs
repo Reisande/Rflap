@@ -24,7 +24,7 @@ fn api(
         return_paths.push(input_automaton.validate_string(input_string.to_owned()));
     }
 
-    Json((return_paths, hint))
+    Json((return_paths.to_owned(), hint.to_owned()))
 }
 
 fn tests(tests: generate_tests::TestsJson) -> Json<Vec<String>> {
