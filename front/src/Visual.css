@@ -23,3 +23,22 @@ canvas{
     outline:black;
     border: black,
 }
+
+.visual-button:active{
+    border: 2px solid yellow;
+
+}
+
+.visual-button{
+    border: 2px solid yellow;
+}
+#group-holder{
+    border: 4px solid white;
+
+}
+
+#bar{
+    position:relative;
+    /* left:-12px; */
+    /* justify-content: space-evenly; */
+}

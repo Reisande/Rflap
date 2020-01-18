@@ -24,7 +24,7 @@ const import_error = "Importation Errror!";
 
 function Run(props){
     const master_context = useContext(AutomataContext);
-
+    
     let user_input_row_collection = []
     const [s_or_e,set_image] = useState([error_image,success_image]);
     const [succeded_failed,set_succeded_failed] = useState(0);
@@ -43,7 +43,7 @@ function Run(props){
     let entry_amount = 30;
     let array_of_row_refs = []
 
-    console.log(row_entry_array);
+    // console.log(row_entry_array);
     let packet_to_misha_the_microsoft_engineer = {
             alphabet:[],
             start_state:"",
@@ -62,7 +62,7 @@ function Run(props){
     useEffect( ()=>{
         document.querySelector("#import_json_button_run").addEventListener("change",(e)=>{
 
-            console.log(e.target.files[0]);
+            // console.log(e.target.files[0]);
         });
 
  
@@ -72,8 +72,8 @@ function Run(props){
     let input_val = "default";
     let toBePushed = [];
     const edgeProcess = (edgeObj,nodeObj) =>{
-        console.log("edge process");
-        console.log(edgeObj);
+        // console.log("edge process");
+        // console.log(edgeObj);
         let transition_triple = [];
         packet_to_misha_the_microsoft_engineer.determinism = (master_context.mode == "Determinstic Finite Automata" ? true : false)
         packet_to_misha_the_microsoft_engineer.transition_function = []
@@ -86,13 +86,13 @@ function Run(props){
             to = edgeObj.to;
             label = edgeObj.label.trim();
             if(label.length > 1 && (from == to) ){
-                console.log("double-self loop detected---beginning")
-                console.log("subarray-creation:");
+                // console.log("double-self loop detected---beginning")
+                // console.log("subarray-creation:");
                 let sub_string_collection = label.split(",");
-                console.log(sub_string_collection);
-                console.log("subarray-ending");
+                // console.log(sub_string_collection);
+                // console.log("subarray-ending");
 
-                console.log("double-self loop detected---ending")
+                // console.log("double-self loop detected---ending")
                 
                 for(let i = 0 ; i  < sub_string_collection.length;i++){
                     let from_label,to_label
@@ -139,12 +139,12 @@ function Run(props){
         });
 
         packet_to_misha_the_microsoft_engineer.alphabet = [...new Set(toBePushed)];
-        console.log(edgeObj);
-        console.log("end of edgeProcess");
+        // console.log(edgeObj);
+        // console.log("end of edgeProcess");
     }
     const nodeProcess = (nodeObj) =>{
-        console.log("node process");
-        console.log(nodeObj);
+        // console.log("node process");
+        // console.log(nodeObj);
         let start_state = "";
         let accepting_states = [];
         let states = [];
@@ -160,9 +160,9 @@ function Run(props){
                 states.push( ""+node.label.trim());
             }
             //Getting the start state
-            console.log("NODECOLOR")
-            console.log(node.color)
-            console.log("NODECOLOR")
+            // console.log("NODECOLOR")
+            // console.log(node.color)
+            // console.log("NODECOLOR")
             if(node.init){
                 
                 sState = node.label.trim();
@@ -170,7 +170,7 @@ function Run(props){
             }
             if(node.color == "#FF8632"){
                 start_state = node.label.trim();
-                console.log("SETTING START_STATE" + start_state);
+                // console.log("SETTING START_STATE" + start_state);
             }
             //Accumulates the accepting states.
              if(node.color == "#000000"){
@@ -195,21 +195,21 @@ function Run(props){
         }  );
     }
     const preprocess = () =>{
-        console.log("PREPROCESSOR")
-        console.log(master_context.graphobj.nodes.get());
-        console.log(master_context.graphobj.edges.get());
+        // console.log("PREPROCESSOR")
+        // console.log(master_context.graphobj.nodes.get());
+        // console.log(master_context.graphobj.edges.get());
         nodeProcess(master_context.graphobj.nodes.get());
         edgeProcess(master_context.graphobj.edges.get(),master_context.graphobj.nodes.get()   );
 
-        console.log("After node and edge processing: ");
+        // console.log("After node and edge processing: ");
 
-        console.log(packet_to_misha_the_microsoft_engineer);
-        console.log("PREPROCESSOR")
+        // console.log(packet_to_misha_the_microsoft_engineer);
+        // console.log("PREPROCESSOR")
 
     }
 
 async function postToRustApi(){
-    let url = `${window.location.origin}/api`;
+    let url = `http://localhost:8080/api`;
 
     let postingObject = {
         method: "POST",
@@ -223,96 +223,114 @@ async function postToRustApi(){
         // referrer: "no-referrer",
         body: JSON.stringify(packet_to_misha_the_microsoft_engineer)
     }
-    console.log("callback")
-    
-    
     console.log(JSON.stringify(packet_to_misha_the_microsoft_engineer));
+    // console.log("callback")
+    
+    
+    // console.log((packet_to_misha_the_microsoft_engineer));
     let Algorithms_are_the_computational_content_of_proofs = await fetch(url,postingObject);
-    console.log("POST_TO_RUST_API: callback")
-    console.log(JSON.parse(JSON.stringify(Algorithms_are_the_computational_content_of_proofs)));
-    // console.log(Algorithms_are_the_computational_content_of_proofs.json())
-    console.log("POST_TO_RUST_API: calllback")
-    // console.log( await Algorithms_are_the_computational_content_of_proofs.json());
-    // Algorithms_are_the_computational_content_of_proofs.json((items)=>{
 
-    //     console.log(items);
-    // }  ) 
-    console.log(JSON.stringify(Algorithms_are_the_computational_content_of_proofs));
+    
 
     return   await Algorithms_are_the_computational_content_of_proofs.json();
     
 };
+   const checkForProperDetermnism = (listOfStringsCallback,single_entry) => {
+    let determinism_callback = listOfStringsCallback[1];
+    let determinism_index = 1;
+    let bool_check_for_determinism = false;
+    if(master_context['mode'] == "Determinstic Finite Automata"){
 
+        if(single_entry == true){
+            console.log(listOfStringsCallback[1]);
+            console.log("First");
+            console.log(!listOfStringsCallback[1]);
+            return !listOfStringsCallback[1];
+        }
+        else{
+            console.log("Second");
+
+            listOfStringsCallback.forEach((_,id)=>{
+                if(!_[determinism_index]){
+                    console.log(_);
+                    console.log(_[determinism_index]);
+                    bool_check_for_determinism = true;
+                }
+            });
+            return bool_check_for_determinism;
+        }
+    }
+
+
+   }
+
+   const checkForProperConstruction = ()=>{
+    console.log("CHECKFORPROPERCONSTRUCTION");
+
+   }
    async function onClickPingToApi(){
     //    event.preventDefault();
        input_val = user_input_row_collection;
        packet_to_misha_the_microsoft_engineer.input_strings = input_val;
-       console.log("MODE");
-       console.log(master_context['mode']);
-       console.log("MODE");
+    //    (master_context['mode']);
+    //     console.log("------")
+    //     console.log(master_context);
 
+    //     console.log("------")
 
-       console.log("State info:" );
+    //    console.log("State info:" );
         preprocess();
         try{
+            const callback = await postToRustApi();
             
-        const callback = await postToRustApi();
-        console.log("COMPLETE CALLBACK:")
-        console.log(callback);
-        console.log("COMPLETE CALLBACK:")
-
-            if(callback[0]){
-                // Check for valid DFA
-                if(callback[1] == false && master_context.mode == "Determinstic Finite Automata"){
-                    alert("Not a valid DFA!");
-
+            // console.log(callback);
+            console.log(callback);
+        if(checkForProperDetermnism(callback['list_of_strings'],row_entry_array.length == 1 ? true : false)){
+            // console.log("TRUUUU")
+            //mount alert component
+            alert("INVALID determinism!");
+        }
+        else{
+        
+   
+        //DIRECTIVE: check for proper determinsm<
+        
+        if(row_entry_array.length == 1){
+         
+            // console.log("SINGLE row entry api call: ");
+            // console.log( callback);
+        }   
+        else{
+            // console.log("ENSEMBLE row entries api call");
+            // console.log(callback);
                 }
-                else{
-
-                bool_check = true;
-                //to add when finally getting callback:
-                // iterate through the callback, make a new array with each index updated to whether it succeeded or not.
-                // then rerender component via:
-                // set_row_entries([... new_array_with_callback_info])
-                
-                set_succeded_failed(1);
-
-                console.log("SUCCESS");
-                console.log(master_context.graphobj.nodes);
-            }
-            }
-            else{
-                bool_check = false;
-                set_succeded_failed(0);
-                console.log("ERROR");
             }
         }
-        catch(error){
-            console.error(error);
+        catch(e){
+            // console.log(e);
         }
-
    };
    const HTMLCol_to_array = (html_collection) => Array.prototype.slice.call(html_collection);
 
    const process_userinput = (row_table_DOM_node,id) =>{
-    console.log("PROCESSING")
-    console.log(id);
+    // console.log("PROCESSING")
+    // console.log(id);
     user_input_row_collection[id] = (HTMLCol_to_array(row_table_DOM_node.children)[0]).value;
-    console.log("PROCESSING")
+    // console.log("PROCESSING")
    }
 
    function on_click_test_api(event){
     //reset list for each click to api with amount of rows
     //array that contains all the input strings from the user
     user_input_row_collection = [...Array(HTMLCol_to_array(row_ref_container.current.children).length)];
-    console.log("ON_CLICK_API_TEST")
+    // console.log("ON_CLICK_API_TEST")
     event.preventDefault();
-    console.log(event);
+    // console.log(event);
     HTMLCol_to_array(row_ref_container.current.children).map(process_userinput);
-    console.log(user_input_row_collection);
+    // console.log(user_input_row_collection);
     // collection of all the 
     // row_ref_container.current.childNodes().map( (DOM_node,id)=>process_row_for_userinput(DOM_node,id));
-    console.log("ON_CLICK_API_TEST")
+    // console.log("ON_CLICK_API_TEST")
     onClickPingToApi();
 
    }
@@ -340,13 +358,13 @@ async function postToRustApi(){
    }
    
    function export_click_handler(event){
-      console.log("EXPORT_BUTTON");
+    //   console.log("EXPORT_BUTTON");
        preprocess();
-       console.log(packet_to_misha_the_microsoft_engineer)
+    //    console.log(packet_to_misha_the_microsoft_engineer)
        downloadObjectAsJson(packet_to_misha_the_microsoft_engineer,"RFLAP + " + Math.random() * (100));
     //    window.location.href = "http:locahost:8000/packet.json"
 
-        console.log("EXPORT_BUTTON");
+        // console.log("EXPORT_BUTTON");
 
    }
 
@@ -365,7 +383,7 @@ async function postToRustApi(){
     console.log("import_json");
     // console.log(file_dialog.click());
     const dialog_box = document.querySelector('#import_json_button_run');
-     dialog_box.click( (file)=>{console.log(file.target);}  );
+    dialog_box.click( (file)=>{console.log(file.target);}  );
 
     console.log("import_json");
 
@@ -410,6 +428,6 @@ async function postToRustApi(){
     </div>
     );
     
-}
 
+    }
 export default Run;
