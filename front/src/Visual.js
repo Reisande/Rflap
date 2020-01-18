@@ -12,7 +12,7 @@ import points_bar from './points.svg';
 import reject_bar from './reject.svg';
 import transition_bar from './transition.svg';
 import blank_svg_bar from './blank.svg';
-
+import passive_bar from "./delete.svg";
 //Yo
 /*hieght and width make dimensions of graph fill screen*/
 let height = window.innerHeight -80;
@@ -20,15 +20,15 @@ let width = window.innerWidth;
 
 /*Beggining node and edge informaiton*/
 let nodesDS = new vis.DataSet([
-  {id: 1, label: ' Q 1 '},
-  {id: 2, label: ' Q 2 '},
+  // {id: 1, label: ' Q 1 '},
+  // {id: 2, label: ' Q 2 '},
   // {id: 3, label: ' Q 3 '},
   // {id: 4, label: ' Q 4 '},
   // {id: 5, label: ' Q 5 '},
 ]);
 let edgesDS = new vis.DataSet( [
-  { from: 1, to: 2, label: "a", id: "b",arrows:"to" },
-  { from: 2, to: 1, label: "a", id: "a",arrows:"to"}
+  // { from: 1, to: 2, label: "a", id: "b",arrows:"to" },
+  // { from: 2, to: 1, label: "a", id: "a",arrows:"to"}
   // { from: 3, to: 1, label:"c" ,id:"c",arrows:"to"},
   // { from: 2, to: 2, label:"2>2",id: "2->2" ,arrows:"to"},
   // { from: 4, to: 2, label:"2>2",id: "4->2" ,arrows:"to"}
@@ -151,7 +151,7 @@ function Visual() {
 let network;
 
 useEffect( ()=>{
-
+    img_status.current.src = passive_bar;
   network = new vis.Network(wrapper.current,graph,options);
   // console.log("Event: " + network);
   //context-click for graph
@@ -161,18 +161,24 @@ useEffect( ()=>{
   network.on("hoverNode", (params)=>{
     // console.log("hoverNode: ");
     let node_id_clicked = params.node;
-    let found_node;
     if(in_add_node_mode){
+      console.log("GRAPH NODE LENGTH : " + graph.nodes.get().length);
       // console.log("add_node_mode");
-    graph.nodes.get().forEach(  (node)=>{
-      if(node.id == node_id_clicked){
-        found_node = node;
-      }
-    }
-    );
-    // console.log(found_node);
-    nodesDS.update([{id:found_node.id, label: " Q "+ (graph.nodes.get().length) + " "}]);
-    // console.log(params.node)
+      nodesDS.remove({id:node_id_clicked});
+      let new_id = graph.nodes.get().length;
+      nodesDS.add([{id:new_id, label: " Q "+ (graph.nodes.get().length) + " "}])
+      network.moveNode(new_id, (Math.random()-.7) *200, (Math.random() -.3)*200)
+      
+    // graph.nodes.get().forEach(  (node)=>{
+    //   if(node.id == node_id_clicked){
+    //     found_node = node;
+       
+    //   }
+    // }
+    // );
+    // nodesDS.remove({id:found_node.id});
+    // // Update the name of the new Node
+    // nodesDS.update([{id:found_node.id, label: " Q "+ (graph.nodes.get().length) + " "}]);
     in_add_node_mode = false;
     // console.log("end add_Node_mode\n--------------")
   }
@@ -308,16 +314,16 @@ const findEdgeByNodes = (from,to) =>{
 }
 function toEditEdgeMode(props){
   // console.log("EditEdgeMode");
+  deselectAllModes();
+    img_status.current.src = transition_bar;
     network.enableEditMode();
     network.addEdgeMode();
-    // console.log("End");
 
 };
 function toAddNodeMode(props){
   deselectAllModes();
 
-  // console.log("AddNodeMode")
-
+  img_status.current.src = add_bar;
   network.enableEditMode();
   network.addNodeMode();
 
@@ -326,12 +332,14 @@ function toAddNodeMode(props){
 }
 function setInitial(props){
   deselectAllModes();
+  img_status.current.src = points_bar;
+
   in_initial_mode = true;
 
 }
 function setAccepting(props){
   deselectAllModes();
-
+  img_status.current.src = accept_bar;
   in_accepting_mode_ = true;
 
 }
