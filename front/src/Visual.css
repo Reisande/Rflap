@@ -63,11 +63,14 @@ canvas{
 }
 #trash_button{
  /* float:right; */
+ outline:none;
 
 }
 #trash_button_input{
     position: relative;
     top: .5em;
     left: -1em;
+    outline:none;
+
 
 }

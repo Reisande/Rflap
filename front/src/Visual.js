@@ -180,10 +180,11 @@ useEffect( ()=>{
     // nodesDS.remove({id:found_node.id});
     // // Update the name of the new Node
     // nodesDS.update([{id:found_node.id, label: " Q "+ (graph.nodes.get().length) + " "}]);
+
     in_add_node_mode = false;
+    img_status.current.src = passive_bar;
     // console.log("end add_Node_mode\n--------------")
   }
-  in_add_node_mode = false;
   })
   network.on("controlNodeDragEnd",(params)=>{
     // console.log("disabled edit mode");
@@ -195,15 +196,9 @@ useEffect( ()=>{
   });
   network.on("select", (params)=>{
     console.log("select");
-    // console.log(params);
-    // console.log("In intial_mode " + in_initial_mode);
-    // console.log("accepting " + in_accepting_mode_);
-    // console.log(params.nodes);
-    // console.log(params.nodes[0] != null);
+   
     if( (params != null ) && in_initial_mode && (params.nodes > 0 || params.nodes[0] !=null)){
-      // console.log("SELECT-initial");
-      // console.log(in_initial_mode);
-      // console.log(params.nodes[0]);
+   
       let node_id_clicked= params.nodes[0];
       let found_node;
       //find node given
@@ -215,6 +210,7 @@ useEffect( ()=>{
       // console.log(found_node);
       // nodesDS.update([{id:node_id_clicked,color: "#00bfff"}]);
       in_initial_mode = false;
+      img_status.current.src = passive_bar;
       let final_color;
       if(found_node.color == "#00bfff"){
         final_color = "grey";
@@ -256,6 +252,7 @@ useEffect( ()=>{
       }
       nodesDS.update([{id:node_id_clicked, color: final_color}]);
       in_accepting_mode_ = false;
+      img_status.current.src = passive_bar;
       // console.log("END-accepting")
     }
     if(params.edges.length  == 1 && params.nodes == 0){
@@ -264,6 +261,7 @@ useEffect( ()=>{
     // console.log("Clicked on an edge!");
      let user_input_string =  window.prompt("Edit String!");
       ChangeEdgeText(user_input_string, edge_id)
+      img_status.current.src = passive_bar;
 
   }});
   //remove event listeners
