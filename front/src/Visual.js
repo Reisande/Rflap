@@ -13,6 +13,7 @@ import reject_bar from './reject.svg';
 import transition_bar from './transition.svg';
 import blank_svg_bar from './blank.svg';
 import passive_bar from "./delete.svg";
+import remove_bar from "./remove.svg"
 //Yo
 /*hieght and width make dimensions of graph fill screen*/
 let height = window.innerHeight -80;
@@ -364,23 +365,27 @@ function deleteNodeOrEdge(props){
 }
 
   return (
-    <div>
+    <div id = "non-header-div">
         {/* <div id="button-hold"><Col></Col></div> */}
       
-      <div >
+      <div class="div-inline-group-below-header"  >
+      <div id = "trash_button" class = "div-inline-group-below-header">
+      <input  id= "trash_button_input" onClick={deleteNodeOrEdge}type="image"  src={remove_bar} width="33" height="33" name="remove_bar"/>
+      </div>
       
-      
-        <ButtonGroup id = "group-holder" className="mr-1" >
+        <ButtonGroup id = "group-holder" className="mr-2" >
 
       <Button class ="visual-button" variant="secondary" onClick={toEditEdgeMode}> <font color='yellow'>Add Transitions!</font></Button>
       <Button class ="visual-button" variant="secondary" onClick={toAddNodeMode}><font color='yellow'> Add Node</font> </Button>
       <Button class="visual-button" variant="secondary" onClick={setInitial}> <font color='yellow'>Mark Initial</font></Button>
       <Button class="visual-button" variant="secondary" onClick={setAccepting}> <font color='yellow'>Mark Accepting </font></Button>
-      <Button class="visual-button" variant="secondary"  onClick={deleteNodeOrEdge}> <font color='yellow'>Delete </font></Button>
       </ButtonGroup>  
       <img id="bar" ref={img_status}src={img_array[img_index]}  height="34" width="34"></img>
 
+      
       </div>
+
+
     <div style={{'height':`${height}px`}} id="graph-display"  className="Visual" ref={wrapper}></div>
     </div>
   );
