@@ -241,9 +241,7 @@ useEffect( ()=>{
     }
     //ACCEPTING BUTTON PRESS LISTENER
     else if((params != null )  && (params.nodes != null) && in_accepting_mode_ &&  ( params.nodes >  0 || params.nodes[0] != null )){
-      // console.log("SELECT-accepting");
-      // console.log(in_accepting_mode_)
-      // console.log(params.nodes);
+      
       let found_node;
       let node_id_clicked = params.nodes[0];
       graph.nodes.get().forEach(  (node)=>{
@@ -256,8 +254,8 @@ useEffect( ()=>{
       let border_width_a = 3;
       let border_width_b = 0;
 
-
-      if(found_node.borderWidthSelected == border_width_a){
+      // console.log()
+      if(found_node.borderWidth == border_width_a){
         final_border = border_width_b;
       }
       // then

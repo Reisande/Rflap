@@ -213,16 +213,10 @@ function Run(props){
         }  );
     }
     const preprocess = () =>{
-        // console.log("PREPROCESSOR")
-        // console.log(master_context.graphobj.nodes.get());
-        // console.log(master_context.graphobj.edges.get());
+     
         nodeProcess(master_context.graphobj.nodes.get());
         edgeProcess(master_context.graphobj.edges.get(),master_context.graphobj.nodes.get()   );
 
-        // console.log("After node and edge processing: ");
-
-        // console.log(packet_to_misha_the_microsoft_engineer);
-        // console.log("PREPROCESSOR")
 
     }
 
