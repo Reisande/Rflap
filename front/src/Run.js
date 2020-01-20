@@ -21,7 +21,13 @@ var util = require('util')
 let bool_check = false;
 const not_dfa = "Not a valid DFA!";
 const import_error = "Importation Errror!";
+let error_object = {
+    multiple_initial_states: false,
+    no_label_transition:false,
+    no_initial_state:false,
 
+
+}
 function Run(props){
     const master_context = useContext(AutomataContext);
     
@@ -80,7 +86,11 @@ function Run(props){
         edgeObj.forEach( (edgeObj) =>{
 
             transition_triple = [];
-            let label_to_add = edgeObj.label.trim();
+            if(edgeObj.label == undefined){
+                error_object.no_label_transition = true;
+                return undefined;
+            }
+            let label_to_add = edgeObj.label == undefined ? " ":  edgeObj.label.trim();
             let from,to,label;
             from = edgeObj.from;
             to = edgeObj.to;
@@ -148,41 +158,47 @@ function Run(props){
         let start_state = "";
         let accepting_states = [];
         let states = [];
+        let multiple_initial_states_check = false;
         //get complete object:
 
         // accepting: #FF8632
         // intial: #00bfff
         let sState = "";
+        console.log("LINEAR SEARCH:")
         nodeObj.forEach((node)=>{
-        
+
+            console.log(node);
             //Accumulates all states
             if( !(states.includes(node.label)) ){
                 states.push( ""+node.label.trim());
             }
             //Getting the start state
-            // console.log("NODECOLOR")
-            // console.log(node.color)
-            // console.log("NODECOLOR")
             if(node.init){
-                
+                if(multiple_initial_states_check){
+                    error_object.multiple_initial_states = true;
+                    return;
+                }
                 sState = node.label.trim();
-
+                multiple_initial_states_check = true;
             }
-            if(node.color == "#FF8632"){
+            if(node.shape == "triangle"){
                 start_state = node.label.trim();
+
                 // console.log("SETTING START_STATE" + start_state);
             }
             //Accumulates the accepting states.
-             if(node.color == "#000000"){
+             if(node.borderWidth == 3){
                 if(!(accepting_states.includes(node.label)))  {
 
                 accepting_states.push(node.label.trim());
                 }
             }
-
-            
         });
-
+        console.log(multiple_initial_states_check);
+        if(multiple_initial_states_check == false){
+            error_object.no_initial_state = true;
+            return;
+        }
         packet_to_misha_the_microsoft_engineer.start_state = sState;
         //boolean for accepting
         states.forEach( (label)=>{
@@ -228,10 +244,46 @@ async function postToRustApi(){
     
     
     // console.log((packet_to_misha_the_microsoft_engineer));
-    let Algorithms_are_the_computational_content_of_proofs = await fetch(url,postingObject);
+    //Check for Errors via the error_object
+    if(error_object.multiple_initial_states){
+        alert("\tMultiple Initial States!");
+        //reset object for next API request
+        error_object = {
+            no_label_transition: false,
+            multiple_initial_states: false,
+            no_initial_state:false
 
+        }
+        return null;
+    }
+    if(error_object.no_label_transition){
+        alert("\tUnlabeled Transition!");
+        error_object = {
+            multiple_initial_states :false,
+            no_label_transition: false,
+            no_initial_state:false
+        }
+        return null;
+    }
+    if(error_object.no_initial_state){
+        alert("\tNo Initial State!");
+        error_object = {
+            multiple_initial_states :false,
+            no_label_transition: false,
+            no_initial_state:false
+        }
+        return null;
+    }
     
-
+    let Algorithms_are_the_computational_content_of_proofs = await fetch(url,postingObject);
+    
+    //reset error_object
+    error_object = {
+        multiple_initial_states :false,
+        no_label_transition: false,
+        no_initial_state:false
+    }
+    
     return   await Algorithms_are_the_computational_content_of_proofs.json();
     
 };
@@ -282,7 +334,10 @@ async function postToRustApi(){
         preprocess();
         try{
             const callback = await postToRustApi();
-            
+            if(callback == null){
+                console.log("EXITING . . .")
+                return;
+            }
             // console.log(callback);
             console.log(callback);
         if(checkForProperDetermnism(callback['list_of_strings'],row_entry_array.length == 1 ? true : false)){

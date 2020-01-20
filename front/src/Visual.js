@@ -237,6 +237,7 @@ useEffect( ()=>{
       }
       // console.log("END-initial")
     }
+    //ACCEPTING BUTTON PRESS LISTENER
     else if((params != null )  && (params.nodes != null) && in_accepting_mode_ &&  ( params.nodes >  0 || params.nodes[0] != null )){
       // console.log("SELECT-accepting");
       // console.log(in_accepting_mode_)
@@ -249,15 +250,19 @@ useEffect( ()=>{
         }
         } );
       // console.log(found_node);
-      let final_color = "#000000";
-      if(found_node.color == "#000000"){
-        final_color = "grey";
+      let final_border = 3;
+      let border_width_a = 3;
+      let border_width_b = 0;
+
+
+      if(found_node.borderWidthSelected == border_width_a){
+        final_border = border_width_b;
       }
       // then
       else{
-        final_color = "#000000";
+        final_border = border_width_a;
       }
-      nodesDS.update([{id:node_id_clicked, color: final_color}]);
+      nodesDS.update([{id:node_id_clicked, borderWidth: final_border}]);
       in_accepting_mode_ = false;
       img_status.current.src = passive_bar;
       // console.log("END-accepting")
