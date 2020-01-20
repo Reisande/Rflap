@@ -211,26 +211,33 @@ useEffect( ()=>{
       // nodesDS.update([{id:node_id_clicked,color: "#00bfff"}]);
       in_initial_mode = false;
       img_status.current.src = passive_bar;
-      let final_color;
-      if(found_node.color == "#00bfff"){
-        final_color = "grey";
+      let final_state;
+      let circle_config = "circle";
+      let triangle_config = "triangle";
+      let border_config_a = 3;
+      let border_config_b = 0;
+      let init_state = "#00bfff";
+      
+
+      if(found_node.shape == circle_config || found_node.shape == null){ 
+        final_state = triangle_config;
       }
       else{
-        final_color = "#00bfff";
+        final_state = circle_config;
       }
       // console.log("SET THE INITIAL COLOR: ");
       // console.log(final_color);
       if(found_node.init == true){
-        // console.log("INITIAL TAG REMOVED");
-        nodesDS.update([{id:found_node.id,color:"grey" , init:false }]);
+        console.log("INITIAL TAG REMOVED");
+        console.log(final_state)
+        nodesDS.update([{id:found_node.id, shape: final_state, init:false }]);
       }
       else{
-      nodesDS.update([{id:found_node.id, color: final_color, init:true}]);
+      nodesDS.update([{id:found_node.id, shape: final_state, init:true}]);
       }
-      in_initial_mode = false;
       // console.log("END-initial")
     }
-    if((params != null )  && (params.nodes != null) && in_accepting_mode_ &&  ( params.nodes >  0 || params.nodes[0] != null )){
+    else if((params != null )  && (params.nodes != null) && in_accepting_mode_ &&  ( params.nodes >  0 || params.nodes[0] != null )){
       // console.log("SELECT-accepting");
       // console.log(in_accepting_mode_)
       // console.log(params.nodes);
@@ -255,7 +262,7 @@ useEffect( ()=>{
       img_status.current.src = passive_bar;
       // console.log("END-accepting")
     }
-    if(params.edges.length  == 1 && params.nodes == 0){
+    else if(params.edges.length  == 1 && params.nodes == 0){
     // console.log(params.edges[0]);
     let edge_id = params.edges[0];
     // console.log("Clicked on an edge!");
@@ -373,7 +380,7 @@ function deleteNodeOrEdge(props){
       
         <ButtonGroup id = "group-holder" className="mr-2" >
 
-      <Button class ="visual-button" variant="secondary" onClick={toEditEdgeMode}> <font color='yellow'>Add Transitions!</font></Button>
+      <Button class ="visual-button" variant="secondary" onClick={toEditEdgeMode}> <font color='yellow'>Add Transitions</font></Button>
       <Button class ="visual-button" variant="secondary" onClick={toAddNodeMode}><font color='yellow'> Add Node</font> </Button>
       <Button class="visual-button" variant="secondary" onClick={setInitial}> <font color='yellow'>Mark Initial</font></Button>
       <Button class="visual-button" variant="secondary" onClick={setAccepting}> <font color='yellow'>Mark Accepting </font></Button>
