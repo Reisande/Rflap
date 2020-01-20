@@ -290,6 +290,8 @@ async function postToRustApi(){
     console.log("-");
     console.log(listOfStringsCallback);
     console.log("-");
+    console.log(listOfStringsCallback);
+    console.log(single_entry);
     if(master_context['mode'] == "Determinstic Finite Automata"){
 
         if(single_entry == true){
@@ -324,8 +326,8 @@ async function postToRustApi(){
         packet_to_misha_the_microsoft_engineer.input_strings = [];
         // let process_empty_strings_array = [...row_entry_array];
        user_input_row_collection.forEach((_,id)=>{
-
-        (_=="") ? empty_string = true : packet_to_misha_the_microsoft_engineer.input_strings.push(_);
+        packet_to_misha_the_microsoft_engineer.input_strings.push(_);
+        // (_=="") ? empty_string = true : packet_to_misha_the_microsoft_engineer.input_strings.push(_);
         // (empty_string) ?  process_empty_strings_array[id] = 1 : dump_var = 2;
        });
     //    console.log(process_empty_strings_array);
@@ -345,7 +347,7 @@ async function postToRustApi(){
                 return;
             }
 
-        if( (checkForProperDetermnism(callback['list_of_strings'],row_entry_array.length == 1 ? true : false) || callback["hint"] != "") && master_context.mode == "Determinstic Finite Automata" ){
+        if(  callback["hint"] != "" && master_context.mode == "Determinstic Finite Automata" ){
             alert("Invalid determinism!\n" + callback["hint"]);
             let mounting_array = [];
             for(let i = 0 ; i < row_entry_array.length ;i++){
@@ -362,7 +364,7 @@ async function postToRustApi(){
 
         if(row_entry_array.length == 1){
             console.log("row_entry = 1");
-            callback.list_of_strings[0][0] ? new_array = [2] : new_array = [0];
+            callback.list_of_strings[0][1] ? new_array = [2] : new_array = [0];
             console.log(callback.list_of_strings[0][0])
             set_row_entries([...new_array]);
             // console.log("SINGLE row entry api call: ");
