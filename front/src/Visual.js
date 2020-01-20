@@ -16,6 +16,7 @@ import passive_bar from "./delete.svg";
 import remove_bar from "./remove.svg"
 //Yo
 /*hieght and width make dimensions of graph fill screen*/
+let node_id_global = 0;
 let height = window.innerHeight -80;
 let width = window.innerWidth;
 
@@ -166,9 +167,10 @@ useEffect( ()=>{
       console.log("GRAPH NODE LENGTH : " + graph.nodes.get().length);
       // console.log("add_node_mode");
       nodesDS.remove({id:node_id_clicked});
-      let new_id = graph.nodes.get().length;
+      let new_id = node_id_global;
+      node_id_global+=1;
       nodesDS.add([{id:new_id, label: " Q "+ (graph.nodes.get().length) + " "}])
-      network.moveNode(new_id, (Math.random()-.7) *200, (Math.random() -.3)*200)
+      network.moveNode(new_id, (Math.random()-.6) *200, (Math.random() -.7)*200)
       
     // graph.nodes.get().forEach(  (node)=>{
     //   if(node.id == node_id_clicked){

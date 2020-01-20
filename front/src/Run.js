@@ -24,7 +24,7 @@ const import_error = "Importation Errror!";
 let error_object = {
     multiple_initial_states: false,
     no_label_transition:false,
-    no_initial_state:false,
+    no_initial_state:false
 
 
 }
@@ -77,6 +77,7 @@ function Run(props){
 
     let input_val = "default";
     let toBePushed = [];
+    // error_object =
     const edgeProcess = (edgeObj,nodeObj) =>{
         // console.log("edge process");
         // console.log(edgeObj);
@@ -87,6 +88,7 @@ function Run(props){
 
             transition_triple = [];
             if(edgeObj.label == undefined){
+                // console.log()
                 error_object.no_label_transition = true;
                 return undefined;
             }
@@ -307,8 +309,8 @@ async function postToRustApi(){
 
             listOfStringsCallback.forEach((_,id)=>{
                 if(!_[determinism_index]){
-                    console.log(_);
-                    console.log(_[determinism_index]);
+                    // console.log(_);
+                    // console.log(_[determinism_index]);
                     bool_check_for_determinism = true;
                 }
             });
@@ -322,34 +324,50 @@ async function postToRustApi(){
   
    async function onClickPingToApi(){
     //    event.preventDefault();
-       input_val = user_input_row_collection;
-       packet_to_misha_the_microsoft_engineer.input_strings = input_val;
-    //    (master_context['mode']);
-    //     console.log("------")
-    //     console.log(master_context);
+    //lines 325 to 340 are for caching results of api requests, currently does nothin
+        let empty_string = false;
+        // let dump_var;
+        packet_to_misha_the_microsoft_engineer.input_strings = [];
+        // let process_empty_strings_array = [...row_entry_array];
+       user_input_row_collection.forEach((_,id)=>{
 
-    //     console.log("------")
-
-    //    console.log("State info:" );
+        (_=="") ? empty_string = true : packet_to_misha_the_microsoft_engineer.input_strings.push(_);
+        // (empty_string) ?  process_empty_strings_array[id] = 1 : dump_var = 2;
+       });
+    //    console.log(process_empty_strings_array);
+    //    set_row_entries([...process_empty_strings_array]);
+    
+       console.log("USER INPUT STRINGS:" + (packet_to_misha_the_microsoft_engineer.input_strings));
+  
         preprocess();
         try{
             const callback = await postToRustApi();
+            console.log("----")
+            console.log(callback);
+            console.log("----")
+
             if(callback == null){
                 console.log("EXITING . . .")
                 return;
             }
-            // console.log(callback);
-            console.log(callback);
-        if(checkForProperDetermnism(callback['list_of_strings'],row_entry_array.length == 1 ? true : false)){
-            // console.log("TRUUUU")
-            //mount alert component
-            alert("INVALID determinism!");
+
+        if( (checkForProperDetermnism(callback['list_of_strings'],row_entry_array.length == 1 ? true : false) || callback["hint"] != "") && master_context.mode == "Determinstic Finite Automata" ){
+            alert("Invalid determinism!\n" + callback["hint"]);
+            let mounting_array = [];
+            for(let i = 0 ; i < row_entry_array.length ;i++){
+              mounting_array.push(1);
+            }
+            set_row_entries([...mounting_array]);
         }
         else{
-            console.log(row_entry_array.length);
-        if(row_entry_array.length == 1){
+            console.log("CALBACK")
+            console.log(callback);
+            console.log("CALBACK")
+
             let new_array;
-            console.log("WWWWWW");
+
+        if(row_entry_array.length == 1){
+            console.log("row_entry = 1");
             callback.list_of_strings[0][0] ? new_array = [2] : new_array = [0];
             console.log(callback.list_of_strings[0][0])
             set_row_entries([...new_array]);
@@ -357,8 +375,27 @@ async function postToRustApi(){
             // console.log( callback);
         }   
         else{
+            let array_to_mount = [];
+            console.log("YOLO")
             // console.log("ENSEMBLE row entries api call");
             // console.log(callback);
+            //iterate through each array for each row index and declare it either rejected or accepted
+            console.log("---")
+            
+                    for(let i = 0 ; i < row_entry_array.length ;i++){
+                        // console.log(callback.list_of_strings[i][1]);
+                        if(  callback.list_of_strings[i][1]){
+                            array_to_mount.push(2);
+                        }
+                        else{
+                            array_to_mount.push(0);
+                        }
+                    }
+                    console.log("---")
+                    console.log(array_to_mount);
+                    set_row_entries([...array_to_mount]);
+                
+                
                 }
             }
         }
