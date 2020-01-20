@@ -252,18 +252,20 @@ useEffect( ()=>{
         }
         } );
       // console.log(found_node);
-      let final_border = 3;
+      let final_border = 0;
       let border_width_a = 3;
       let border_width_b = 0;
+      (found_node.borderWidth == undefined) ? found_node.borderWidth = 0 : found_node.borderWidth = found_node.borderWidth;
+      console.log(found_node.borderWidth + "v" + border_width_a);
 
-
-      if(found_node.borderWidthSelected == border_width_a){
+      if(found_node.borderWidth == 3){
         final_border = border_width_b;
       }
       // then
       else{
         final_border = border_width_a;
       }
+      console.log(final_border);
       nodesDS.update([{id:node_id_clicked, borderWidth: final_border}]);
       in_accepting_mode_ = false;
       img_status.current.src = passive_bar;
