@@ -482,9 +482,9 @@ async function postToRustApi(){
         <div id = "inside-div-scrollbar"> 
         <Navbar className="bg-dark justify-content-between" id ='nav-header' >
         <input ref= {file_dialog} id="import_json_button_run" accept= ".json" type = "file" style={{display:"none"}}/>
-        <Button id="import_json" onClick={ (event) => import_json(event)} variant="info">
+        {/* <Button id="import_json" onClick={ (event) => import_json(event)} variant="info">
            Import
-        </Button>
+        </Button> */}
 
         <Button id="export_xmljson" onClick={ (event)=>{export_click_handler(event)}} variant="info">
            Export
