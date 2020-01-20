@@ -36,7 +36,7 @@ function Run(props){
     const [succeded_failed,set_succeded_failed] = useState(0);
     const [determinism_tf,set_determinism_tf] = useState(false);
     const [importation_error,set_import_status] = useState(false);
-    let image_collection = [error_image,idle_svg,add_perfect];
+    let image_collection = [error_image,idle_svg,success_image];
 
     const [row_entry_array,set_row_entries] = useState([1]);
    
@@ -257,7 +257,7 @@ async function postToRustApi(){
         return null;
     }
     if(error_object.no_label_transition){
-        alert("\tUnlabeled Transition!");
+        alert("\t\tUnlabeled Transition!");
         error_object = {
             multiple_initial_states :false,
             no_label_transition: false,
@@ -291,13 +291,16 @@ async function postToRustApi(){
     let determinism_callback = listOfStringsCallback[1];
     let determinism_index = 1;
     let bool_check_for_determinism = false;
+    console.log("-");
+    console.log(listOfStringsCallback);
+    console.log("-");
     if(master_context['mode'] == "Determinstic Finite Automata"){
 
         if(single_entry == true){
-            console.log(listOfStringsCallback[1]);
+            console.log(listOfStringsCallback[0][1]);
             console.log("First");
-            console.log(!listOfStringsCallback[1]);
-            return !listOfStringsCallback[1];
+            console.log(!listOfStringsCallback[0][1]);
+            return !listOfStringsCallback[0][1];
         }
         else{
             console.log("Second");
@@ -316,10 +319,7 @@ async function postToRustApi(){
 
    }
 
-   const checkForProperConstruction = ()=>{
-    console.log("CHECKFORPROPERCONSTRUCTION");
-
-   }
+  
    async function onClickPingToApi(){
     //    event.preventDefault();
        input_val = user_input_row_collection;
@@ -346,12 +346,13 @@ async function postToRustApi(){
             alert("INVALID determinism!");
         }
         else{
-        
-   
-        //DIRECTIVE: check for proper determinsm<
-        
+            console.log(row_entry_array.length);
         if(row_entry_array.length == 1){
-         
+            let new_array;
+            console.log("WWWWWW");
+            callback.list_of_strings[0][0] ? new_array = [2] : new_array = [0];
+            console.log(callback.list_of_strings[0][0])
+            set_row_entries([...new_array]);
             // console.log("SINGLE row entry api call: ");
             // console.log( callback);
         }   
