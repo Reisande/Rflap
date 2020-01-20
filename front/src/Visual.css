@@ -23,3 +23,54 @@ canvas{
     outline:black;
     border: black,
 }
+
+.visual-button:active{
+    border: 2px solid yellow;
+
+}
+
+.visual-button{
+    border: 2px solid yellow;
+}
+#group-holder{
+    border: 4px solid white;
+
+}
+/* #non-header-div{
+    display:inline-block;
+} */
+#bar_holder{
+    /* justify-content: space-evenly; */
+    display: inline-block;
+
+
+}
+.div-inline-group-below-header{
+    display: inline;
+}
+#remove_bar{
+    top: -50px;
+    left: 50px;
+}
+#trash-button{
+    /* bottom: -30px; */
+    position: absolute;
+    right: -20px;
+}
+#trash_button_actual{
+    /* position: absolute; */
+
+}
+#trash_button{
+ /* float:right; */
+ outline:none;
+
+}
+#trash_button_input{
+    position: relative;
+    top: .7em;
+    left: -1em;
+    outline:none;
+
+
+}
