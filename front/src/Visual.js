@@ -295,6 +295,9 @@ const ChangeEdgeText = (userInput, edgeID)=>{
   graph.edges.forEach( (edge)=>{
     if(edge.id == edgeID){
       edge.label = userInput;
+      if( userInput == " " || userInput == "" ){
+        userInput = "ϵ";
+      }
       // console.log("changed!");
       // console.log(edge.label)
       edgesDS.update([{id:edge.id,label: userInput,}]) ; 
