@@ -75,7 +75,7 @@ function Run(props){
 
  
  
-    });
+    }); 
 
     let input_val = "default";
     let toBePushed = [];
@@ -100,8 +100,9 @@ function Run(props){
             to = edgeObj.to;
             if(edgeObj.label == undefined && packet_to_misha_the_microsoft_engineer.determinism){
                 error_object.no_label_on_dfa = true;
-                return;
+
             };
+            if(edgeObj.label == undefined) return;
             label = edgeObj.label.trim();
             if(label.length > 1 && (from == to) ){
                 let sub_string_collection = label.split(",");
@@ -130,7 +131,30 @@ function Run(props){
             }
             else{
                 let from_label,to_label;
+                if(edgeObj.label.includes(",")){
+                    let sub_string_collection = edgeObj.label.split(",");
+                    transition_triple = [];
+                    nodeObj.forEach((nodeObj)=>{
+                        if(nodeObj.id == from){
+                            from_label = nodeObj.label.trim();
+                        }
+                        if(nodeObj.id == to){
+                            to_label = nodeObj.label.trim();
+                        }
+    
+                    });
+                    sub_string_collection.forEach((transition_alpha)=>{
+                    transition_triple.push(from_label);
+                    transition_triple.push(transition_alpha);
+                    transition_alpha.push(to_label);
+                    packet_to_misha_the_microsoft_engineer.transition_function.push(transition_triple);
+
+                    });
+                
+                }
+                else{
                 nodeObj.forEach( (nodeObj)=>{
+                    
                     if(nodeObj.id == from){
                         from_label = nodeObj.label.trim();
                     }
@@ -139,20 +163,32 @@ function Run(props){
                     }
 
                 });
-                transition_triple.push( from_label);
-
-            //processing self-loops
-          
+            transition_triple.push( from_label);          
             transition_triple.push(label);
             transition_triple.push(to_label);
 
             toBePushed.push(label_to_add.toString(10));
             packet_to_misha_the_microsoft_engineer.transition_function.push(transition_triple);
             }
+        }
 
         });
+        let alphabet_processed = [];
+        console.log("-----");
+        [...new Set(toBePushed)].forEach( (entry,id) =>{
+            entry.split(",").forEach( (char)=>{
+                    alphabet_processed.push(char);
+                
+            })
+            
 
-        packet_to_misha_the_microsoft_engineer.alphabet = [...new Set(toBePushed)];
+        } );
+        console.log("-----");
+        console.log("FINAL ALPHABET:");
+        console.log(alphabet_processed);
+        console.log("FINAL ALPHABET:");
+
+        packet_to_misha_the_microsoft_engineer.alphabet = alphabet_processed;
         // console.log(edgeObj);
         // console.log("end of edgeProcess");
     }
@@ -263,16 +299,16 @@ async function postToRustApi(){
             epsilon_on_DFA: false
         }
     }
-    if(error_object.no_label_transition){
-        alert("\t\tUnlabeled Transition!");
-        error_object = {
-            multiple_initial_states :false,
-            no_label_transition: false,
-            no_initial_state:false,
-            epsilon_on_DFA: false
-        }
-        return null;
-    }
+    // if(error_object.no_label_transition){
+    //     alert("\t\tUnlabeled Transition!");
+    //     error_object = {
+    //         multiple_initial_states :false,
+    //         no_label_transition: false,
+    //         no_initial_state:false,
+    //         epsilon_on_DFA: false
+    //     }
+    //     return null;
+    // }
     if(error_object.no_initial_state){
         alert("\tNo Initial State!");
         error_object = {
@@ -287,7 +323,7 @@ async function postToRustApi(){
     }
     if(error_object.no_label_on_dfa){
 
-        alert("\tUnlabelled Transition!");
+        alert("\tUnlabelled Transition!!");
 
         error_object = {
             multiple_initial_states :false,
