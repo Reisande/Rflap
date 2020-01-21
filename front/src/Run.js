@@ -298,6 +298,7 @@ async function postToRustApi(){
             no_initial_state:false,
             epsilon_on_DFA: false
         }
+      return null;
     }
     // if(error_object.no_label_transition){
     //     alert("\t\tUnlabeled Transition!");
@@ -317,7 +318,6 @@ async function postToRustApi(){
             no_initial_state:false,
             epsilon_on_DFA: false,
             no_label_on_dfa: false
-
         }
         return null;
     }
@@ -331,6 +331,7 @@ async function postToRustApi(){
             no_initial_state:false,
             epsilon_on_DFA: false,
             no_label_on_dfa: false
+
         }
 
         return null;
