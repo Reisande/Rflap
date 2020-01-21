@@ -24,7 +24,9 @@ const import_error = "Importation Errror!";
 let error_object = {
     multiple_initial_states: false,
     no_label_transition:false,
-    no_initial_state:false
+    no_initial_state:false,
+    epsilon_on_DFA: false,
+    no_label_on_dfa: false
 
 
 }
@@ -87,24 +89,22 @@ function Run(props){
         edgeObj.forEach( (edgeObj) =>{
 
             transition_triple = [];
-            if(edgeObj.label == undefined){
-                // console.log()
-                error_object.no_label_transition = true;
-                return undefined;
-            }
-            let label_to_add = edgeObj.label == undefined ? " ":  edgeObj.label.trim();
+            // if(edgeObj.label == undefined){
+            //     // console.log()
+            //     error_object.no_label_transition = true;
+            //     return undefined;
+            // }
+            let label_to_add = (edgeObj.label == undefined || edgeObj.label== " ") ? "null":  edgeObj.label.trim();
             let from,to,label;
             from = edgeObj.from;
             to = edgeObj.to;
+            if(edgeObj.label == undefined && packet_to_misha_the_microsoft_engineer.determinism){
+                error_object.no_label_on_dfa = true;
+                return;
+            };
             label = edgeObj.label.trim();
             if(label.length > 1 && (from == to) ){
-                // console.log("double-self loop detected---beginning")
-                // console.log("subarray-creation:");
                 let sub_string_collection = label.split(",");
-                // console.log(sub_string_collection);
-                // console.log("subarray-ending");
-
-                // console.log("double-self loop detected---ending")
                 
                 for(let i = 0 ; i  < sub_string_collection.length;i++){
                     let from_label,to_label
@@ -121,7 +121,9 @@ function Run(props){
                     transition_triple.push( from_label.trim());
                     transition_triple.push(sub_string_collection[i].toString(10));
                     transition_triple.push(to_label.trim());
-                    
+                    if(packet_to_misha_the_microsoft_engineer.determinism && transition_triple[1] == "ϵ"){
+                        error_object.epsilon_on_DFA = true;
+                    }
                     packet_to_misha_the_microsoft_engineer.transition_function.push(transition_triple);
                 };
                 
@@ -213,16 +215,10 @@ function Run(props){
         }  );
     }
     const preprocess = () =>{
-        // console.log("PREPROCESSOR")
-        // console.log(master_context.graphobj.nodes.get());
-        // console.log(master_context.graphobj.edges.get());
+     
         nodeProcess(master_context.graphobj.nodes.get());
-        edgeProcess(master_context.graphobj.edges.get(),master_context.graphobj.nodes.get()   );
+        edgeProcess(master_context.graphobj.edges.get(),master_context.graphobj.nodes.get());
 
-        // console.log("After node and edge processing: ");
-
-        // console.log(packet_to_misha_the_microsoft_engineer);
-        // console.log("PREPROCESSOR")
 
     }
 
@@ -258,12 +254,22 @@ async function postToRustApi(){
         }
         return null;
     }
+    if(error_object.epsilon_on_DFA){
+        alert("Illegal Epsilon While in DFA-Mode");
+        error_object = {
+            multiple_initial_states :false,
+            no_label_transition: false,
+            no_initial_state:false,
+            epsilon_on_DFA: false
+        }
+    }
     if(error_object.no_label_transition){
         alert("\t\tUnlabeled Transition!");
         error_object = {
             multiple_initial_states :false,
             no_label_transition: false,
-            no_initial_state:false
+            no_initial_state:false,
+            epsilon_on_DFA: false
         }
         return null;
     }
@@ -272,10 +278,28 @@ async function postToRustApi(){
         error_object = {
             multiple_initial_states :false,
             no_label_transition: false,
-            no_initial_state:false
+            no_initial_state:false,
+            epsilon_on_DFA: false,
+            no_label_on_dfa: false
+
         }
         return null;
     }
+    if(error_object.no_label_on_dfa){
+
+        alert("\tUnlabelled Transition!");
+
+        error_object = {
+            multiple_initial_states :false,
+            no_label_transition: false,
+            no_initial_state:false,
+            epsilon_on_DFA: false,
+            no_label_on_dfa: false
+        }
+
+        return null;
+    }
+
     
     let Algorithms_are_the_computational_content_of_proofs = await fetch(url,postingObject);
     
@@ -283,7 +307,8 @@ async function postToRustApi(){
     error_object = {
         multiple_initial_states :false,
         no_label_transition: false,
-        no_initial_state:false
+        no_initial_state:false,
+        epsilon_on_DFA:false
     }
     
     return   await Algorithms_are_the_computational_content_of_proofs.json();
@@ -296,6 +321,8 @@ async function postToRustApi(){
     console.log("-");
     console.log(listOfStringsCallback);
     console.log("-");
+    console.log(listOfStringsCallback);
+    console.log(single_entry);
     if(master_context['mode'] == "Determinstic Finite Automata"){
 
         if(single_entry == true){
@@ -330,8 +357,10 @@ async function postToRustApi(){
         packet_to_misha_the_microsoft_engineer.input_strings = [];
         // let process_empty_strings_array = [...row_entry_array];
        user_input_row_collection.forEach((_,id)=>{
+        // (_ == "" ) ? packet_to_misha_the_microsoft_engineer.input_strings.push("null")  : packet_to_misha_the_microsoft_engineer.push(_);
 
-        (_=="") ? empty_string = true : packet_to_misha_the_microsoft_engineer.input_strings.push(_);
+        packet_to_misha_the_microsoft_engineer.input_strings.push(_);
+        // (_=="") ? empty_string = true : packet_to_misha_the_microsoft_engineer.input_strings.push(_);
         // (empty_string) ?  process_empty_strings_array[id] = 1 : dump_var = 2;
        });
     //    console.log(process_empty_strings_array);
@@ -351,7 +380,7 @@ async function postToRustApi(){
                 return;
             }
 
-        if( (checkForProperDetermnism(callback['list_of_strings'],row_entry_array.length == 1 ? true : false) || callback["hint"] != "") && master_context.mode == "Determinstic Finite Automata" ){
+        if(  callback["hint"] != "" && master_context.mode == "Determinstic Finite Automata" ){
             alert("Invalid determinism!\n" + callback["hint"]);
             let mounting_array = [];
             for(let i = 0 ; i < row_entry_array.length ;i++){
@@ -368,7 +397,7 @@ async function postToRustApi(){
 
         if(row_entry_array.length == 1){
             console.log("row_entry = 1");
-            callback.list_of_strings[0][0] ? new_array = [2] : new_array = [0];
+            callback.list_of_strings[0][1] ? new_array = [2] : new_array = [0];
             console.log(callback.list_of_strings[0][0])
             set_row_entries([...new_array]);
             // console.log("SINGLE row entry api call: ");
@@ -486,9 +515,9 @@ async function postToRustApi(){
         <div id = "inside-div-scrollbar"> 
         <Navbar className="bg-dark justify-content-between" id ='nav-header' >
         <input ref= {file_dialog} id="import_json_button_run" accept= ".json" type = "file" style={{display:"none"}}/>
-        <Button id="import_json" onClick={ (event) => import_json(event)} variant="info">
+        {/* <Button id="import_json" onClick={ (event) => import_json(event)} variant="info">
            Import
-        </Button>
+        </Button> */}
 
         <Button id="export_xmljson" onClick={ (event)=>{export_click_handler(event)}} variant="info">
            Export
