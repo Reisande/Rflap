@@ -21,16 +21,24 @@ var util = require('util')
 let bool_check = false;
 const not_dfa = "Not a valid DFA!";
 const import_error = "Importation Errror!";
+let error_object = {
+    multiple_initial_states: false,
+    no_label_transition:false,
+    no_initial_state:false,
+    epsilon_on_DFA: false,
+    no_label_on_dfa: false
 
+
+}
 function Run(props){
     const master_context = useContext(AutomataContext);
-
+    
     let user_input_row_collection = []
     const [s_or_e,set_image] = useState([error_image,success_image]);
     const [succeded_failed,set_succeded_failed] = useState(0);
     const [determinism_tf,set_determinism_tf] = useState(false);
     const [importation_error,set_import_status] = useState(false);
-    let image_collection = [error_image,idle_svg,add_perfect];
+    let image_collection = [error_image,idle_svg,success_image];
 
     const [row_entry_array,set_row_entries] = useState([1]);
    
@@ -43,7 +51,7 @@ function Run(props){
     let entry_amount = 30;
     let array_of_row_refs = []
 
-    console.log(row_entry_array);
+    // console.log(row_entry_array);
     let packet_to_misha_the_microsoft_engineer = {
             alphabet:[],
             start_state:"",
@@ -62,37 +70,42 @@ function Run(props){
     useEffect( ()=>{
         document.querySelector("#import_json_button_run").addEventListener("change",(e)=>{
 
-            console.log(e.target.files[0]);
+            // console.log(e.target.files[0]);
         });
 
  
  
-    });
+    }); 
 
     let input_val = "default";
     let toBePushed = [];
+    // error_object =
     const edgeProcess = (edgeObj,nodeObj) =>{
-        console.log("edge process");
-        console.log(edgeObj);
+        // console.log("edge process");
+        // console.log(edgeObj);
         let transition_triple = [];
         packet_to_misha_the_microsoft_engineer.determinism = (master_context.mode == "Determinstic Finite Automata" ? true : false)
         packet_to_misha_the_microsoft_engineer.transition_function = []
         edgeObj.forEach( (edgeObj) =>{
 
             transition_triple = [];
-            let label_to_add = edgeObj.label.trim();
+            // if(edgeObj.label == undefined){
+            //     // console.log()
+            //     error_object.no_label_transition = true;
+            //     return undefined;
+            // }
+            let label_to_add = (edgeObj.label == undefined || edgeObj.label== " ") ? "null":  edgeObj.label.trim();
             let from,to,label;
             from = edgeObj.from;
             to = edgeObj.to;
+            if(edgeObj.label == undefined && packet_to_misha_the_microsoft_engineer.determinism){
+                error_object.no_label_on_dfa = true;
+
+            };
+            if(edgeObj.label == undefined) return;
             label = edgeObj.label.trim();
             if(label.length > 1 && (from == to) ){
-                console.log("double-self loop detected---beginning")
-                console.log("subarray-creation:");
                 let sub_string_collection = label.split(",");
-                console.log(sub_string_collection);
-                console.log("subarray-ending");
-
-                console.log("double-self loop detected---ending")
                 
                 for(let i = 0 ; i  < sub_string_collection.length;i++){
                     let from_label,to_label
@@ -109,14 +122,39 @@ function Run(props){
                     transition_triple.push( from_label.trim());
                     transition_triple.push(sub_string_collection[i].toString(10));
                     transition_triple.push(to_label.trim());
-                    
+                    if(packet_to_misha_the_microsoft_engineer.determinism && transition_triple[1] == "ϵ"){
+                        error_object.epsilon_on_DFA = true;
+                    }
                     packet_to_misha_the_microsoft_engineer.transition_function.push(transition_triple);
                 };
                 
             }
             else{
                 let from_label,to_label;
+                if(edgeObj.label.includes(",")){
+                    let sub_string_collection = edgeObj.label.split(",");
+                    transition_triple = [];
+                    nodeObj.forEach((nodeObj)=>{
+                        if(nodeObj.id == from){
+                            from_label = nodeObj.label.trim();
+                        }
+                        if(nodeObj.id == to){
+                            to_label = nodeObj.label.trim();
+                        }
+    
+                    });
+                    sub_string_collection.forEach((transition_alpha)=>{
+                    transition_triple.push(from_label);
+                    transition_triple.push(transition_alpha);
+                    transition_alpha.push(to_label);
+                    packet_to_misha_the_microsoft_engineer.transition_function.push(transition_triple);
+
+                    });
+                
+                }
+                else{
                 nodeObj.forEach( (nodeObj)=>{
+                    
                     if(nodeObj.id == from){
                         from_label = nodeObj.label.trim();
                     }
@@ -125,64 +163,82 @@ function Run(props){
                     }
 
                 });
-                transition_triple.push( from_label);
-
-            //processing self-loops
-          
+            transition_triple.push( from_label);          
             transition_triple.push(label);
             transition_triple.push(to_label);
 
             toBePushed.push(label_to_add.toString(10));
             packet_to_misha_the_microsoft_engineer.transition_function.push(transition_triple);
             }
+        }
 
         });
+        let alphabet_processed = [];
+        console.log("-----");
+        [...new Set(toBePushed)].forEach( (entry,id) =>{
+            entry.split(",").forEach( (char)=>{
+                    alphabet_processed.push(char);
+                
+            })
+            
 
-        packet_to_misha_the_microsoft_engineer.alphabet = [...new Set(toBePushed)];
-        console.log(edgeObj);
-        console.log("end of edgeProcess");
+        } );
+        console.log("-----");
+        console.log("FINAL ALPHABET:");
+        console.log(alphabet_processed);
+        console.log("FINAL ALPHABET:");
+
+        packet_to_misha_the_microsoft_engineer.alphabet = alphabet_processed;
+        // console.log(edgeObj);
+        // console.log("end of edgeProcess");
     }
     const nodeProcess = (nodeObj) =>{
-        console.log("node process");
-        console.log(nodeObj);
+        // console.log("node process");
+        // console.log(nodeObj);
         let start_state = "";
         let accepting_states = [];
         let states = [];
+        let multiple_initial_states_check = false;
         //get complete object:
 
         // accepting: #FF8632
         // intial: #00bfff
         let sState = "";
+        console.log("LINEAR SEARCH:")
         nodeObj.forEach((node)=>{
-        
+
+            console.log(node);
             //Accumulates all states
             if( !(states.includes(node.label)) ){
                 states.push( ""+node.label.trim());
             }
             //Getting the start state
-            console.log("NODECOLOR")
-            console.log(node.color)
-            console.log("NODECOLOR")
             if(node.init){
-                
+                if(multiple_initial_states_check){
+                    error_object.multiple_initial_states = true;
+                    return;
+                }
                 sState = node.label.trim();
-
+                multiple_initial_states_check = true;
             }
-            if(node.color == "#FF8632"){
+            if(node.shape == "triangle"){
                 start_state = node.label.trim();
-                console.log("SETTING START_STATE" + start_state);
+
+                // console.log("SETTING START_STATE" + start_state);
             }
             //Accumulates the accepting states.
-             if(node.color == "#000000"){
+             if(node.borderWidth == 3){
                 if(!(accepting_states.includes(node.label)))  {
 
                 accepting_states.push(node.label.trim());
                 }
             }
-
-            
         });
-
+        console.log(multiple_initial_states_check);
+        if(multiple_initial_states_check == false){
+            error_object.no_initial_state = true;
+            return;
+        }
         packet_to_misha_the_microsoft_engineer.start_state = sState;
         //boolean for accepting
         states.forEach( (label)=>{
@@ -195,21 +251,15 @@ function Run(props){
         }  );
     }
     const preprocess = () =>{
-        console.log("PREPROCESSOR")
-        console.log(master_context.graphobj.nodes.get());
-        console.log(master_context.graphobj.edges.get());
+     
         nodeProcess(master_context.graphobj.nodes.get());
-        edgeProcess(master_context.graphobj.edges.get(),master_context.graphobj.nodes.get()   );
+        edgeProcess(master_context.graphobj.edges.get(),master_context.graphobj.nodes.get());
 
-        console.log("After node and edge processing: ");
-
-        console.log(packet_to_misha_the_microsoft_engineer);
-        console.log("PREPROCESSOR")
 
     }
 
 async function postToRustApi(){
-    let url = `${window.location.origin}/api`;
+    let url = `http://localhost:8080/api`;
 
     let postingObject = {
         method: "POST",
@@ -223,96 +273,223 @@ async function postToRustApi(){
         // referrer: "no-referrer",
         body: JSON.stringify(packet_to_misha_the_microsoft_engineer)
     }
-    console.log("callback")
-    
-    
     console.log(JSON.stringify(packet_to_misha_the_microsoft_engineer));
+    // console.log("callback")
+    
+    
+    // console.log((packet_to_misha_the_microsoft_engineer));
+    //Check for Errors via the error_object
+    if(error_object.multiple_initial_states){
+        alert("\tMultiple Initial States!");
+        //reset object for next API request
+        error_object = {
+            no_label_transition: false,
+            multiple_initial_states: false,
+            no_initial_state:false
+
+        }
+        return null;
+    }
+    if(error_object.epsilon_on_DFA){
+        alert("Illegal Epsilon While in DFA-Mode");
+        error_object = {
+            multiple_initial_states :false,
+            no_label_transition: false,
+            no_initial_state:false,
+            epsilon_on_DFA: false
+        }
+      return null;
+    }
+    // if(error_object.no_label_transition){
+    //     alert("\t\tUnlabeled Transition!");
+    //     error_object = {
+    //         multiple_initial_states :false,
+    //         no_label_transition: false,
+    //         no_initial_state:false,
+    //         epsilon_on_DFA: false
+    //     }
+    //     return null;
+    // }
+    if(error_object.no_initial_state){
+        alert("\tNo Initial State!");
+        error_object = {
+            multiple_initial_states :false,
+            no_label_transition: false,
+            no_initial_state:false,
+            epsilon_on_DFA: false,
+            no_label_on_dfa: false
+        }
+        return null;
+    }
+    if(error_object.no_label_on_dfa){
+
+        alert("\tUnlabelled Transition!!");
+
+        error_object = {
+            multiple_initial_states :false,
+            no_label_transition: false,
+            no_initial_state:false,
+            epsilon_on_DFA: false,
+            no_label_on_dfa: false
+
+        }
+
+        return null;
+    }
+
+    
     let Algorithms_are_the_computational_content_of_proofs = await fetch(url,postingObject);
-    console.log("POST_TO_RUST_API: callback")
-    console.log(JSON.parse(JSON.stringify(Algorithms_are_the_computational_content_of_proofs)));
-    // console.log(Algorithms_are_the_computational_content_of_proofs.json())
-    console.log("POST_TO_RUST_API: calllback")
-    // console.log( await Algorithms_are_the_computational_content_of_proofs.json());
-    // Algorithms_are_the_computational_content_of_proofs.json((items)=>{
-
-    //     console.log(items);
-    // }  ) 
-    console.log(JSON.stringify(Algorithms_are_the_computational_content_of_proofs));
-
+    
+    //reset error_object
+    error_object = {
+        multiple_initial_states :false,
+        no_label_transition: false,
+        no_initial_state:false,
+        epsilon_on_DFA:false
+    }
+    
     return   await Algorithms_are_the_computational_content_of_proofs.json();
     
 };
+   const checkForProperDetermnism = (listOfStringsCallback,single_entry) => {
+    let determinism_callback = listOfStringsCallback[1];
+    let determinism_index = 1;
+    let bool_check_for_determinism = false;
+    console.log("-");
+    console.log(listOfStringsCallback);
+    console.log("-");
+    console.log(listOfStringsCallback);
+    console.log(single_entry);
+    if(master_context['mode'] == "Determinstic Finite Automata"){
 
+        if(single_entry == true){
+            console.log(listOfStringsCallback[0][1]);
+            console.log("First");
+            console.log(!listOfStringsCallback[0][1]);
+            return !listOfStringsCallback[0][1];
+        }
+        else{
+            console.log("Second");
+
+            listOfStringsCallback.forEach((_,id)=>{
+                if(!_[determinism_index]){
+                    // console.log(_);
+                    // console.log(_[determinism_index]);
+                    bool_check_for_determinism = true;
+                }
+            });
+            return bool_check_for_determinism;
+        }
+    }
+
+
+   }
+
+  
    async function onClickPingToApi(){
     //    event.preventDefault();
-       input_val = user_input_row_collection;
-       packet_to_misha_the_microsoft_engineer.input_strings = input_val;
-       console.log("MODE");
-       console.log(master_context['mode']);
-       console.log("MODE");
+    //lines 325 to 340 are for caching results of api requests, currently does nothin
+        let empty_string = false;
+        // let dump_var;
+        packet_to_misha_the_microsoft_engineer.input_strings = [];
+        // let process_empty_strings_array = [...row_entry_array];
+       user_input_row_collection.forEach((_,id)=>{
+        // (_ == "" ) ? packet_to_misha_the_microsoft_engineer.input_strings.push("null")  : packet_to_misha_the_microsoft_engineer.push(_);
 
-
-       console.log("State info:" );
+        packet_to_misha_the_microsoft_engineer.input_strings.push(_);
+        // (_=="") ? empty_string = true : packet_to_misha_the_microsoft_engineer.input_strings.push(_);
+        // (empty_string) ?  process_empty_strings_array[id] = 1 : dump_var = 2;
+       });
+    //    console.log(process_empty_strings_array);
+    //    set_row_entries([...process_empty_strings_array]);
+    
+       console.log("USER INPUT STRINGS:" + (packet_to_misha_the_microsoft_engineer.input_strings));
+  
         preprocess();
         try{
+            const callback = await postToRustApi();
+            console.log("----")
+            console.log(callback);
+            console.log("----")
+
+            if(callback == null){
+                console.log("EXITING . . .")
+                return;
+            }
+
+        if(  callback["hint"] != "" && master_context.mode == "Determinstic Finite Automata" ){
+            alert("Invalid determinism!\n" + callback["hint"]);
+            let mounting_array = [];
+            for(let i = 0 ; i < row_entry_array.length ;i++){
+              mounting_array.push(1);
+            }
+            set_row_entries([...mounting_array]);
+        }
+        else{
+            console.log("CALBACK")
+            console.log(callback);
+            console.log("CALBACK")
+
+            let new_array;
+
+        if(row_entry_array.length == 1){
+            console.log("row_entry = 1");
+            callback.list_of_strings[0][1] ? new_array = [2] : new_array = [0];
+            console.log(callback.list_of_strings[0][0])
+            set_row_entries([...new_array]);
+            // console.log("SINGLE row entry api call: ");
+            // console.log( callback);
+        }   
+        else{
+            let array_to_mount = [];
+            console.log("YOLO")
+            // console.log("ENSEMBLE row entries api call");
+            // console.log(callback);
+            //iterate through each array for each row index and declare it either rejected or accepted
+            console.log("---")
             
-        const callback = await postToRustApi();
-        console.log("COMPLETE CALLBACK:")
-        console.log(callback);
-        console.log("COMPLETE CALLBACK:")
-
-            if(callback[0]){
-                // Check for valid DFA
-                if(callback[1] == false && master_context.mode == "Determinstic Finite Automata"){
-                    alert("Not a valid DFA!");
-
-                }
-                else{
-
-                bool_check = true;
-                //to add when finally getting callback:
-                // iterate through the callback, make a new array with each index updated to whether it succeeded or not.
-                // then rerender component via:
-                // set_row_entries([... new_array_with_callback_info])
+                    for(let i = 0 ; i < row_entry_array.length ;i++){
+                        // console.log(callback.list_of_strings[i][1]);
+                        if(  callback.list_of_strings[i][1]){
+                            array_to_mount.push(2);
+                        }
+                        else{
+                            array_to_mount.push(0);
+                        }
+                    }
+                    console.log("---")
+                    console.log(array_to_mount);
+                    set_row_entries([...array_to_mount]);
                 
-                set_succeded_failed(1);
-
-                console.log("SUCCESS");
-                console.log(master_context.graphobj.nodes);
-            }
-            }
-            else{
-                bool_check = false;
-                set_succeded_failed(0);
-                console.log("ERROR");
+                
+                }
             }
         }
-        catch(error){
-            console.error(error);
+        catch(e){
+            // console.log(e);
         }
-
    };
    const HTMLCol_to_array = (html_collection) => Array.prototype.slice.call(html_collection);
 
    const process_userinput = (row_table_DOM_node,id) =>{
-    console.log("PROCESSING")
-    console.log(id);
+    // console.log("PROCESSING")
+    // console.log(id);
     user_input_row_collection[id] = (HTMLCol_to_array(row_table_DOM_node.children)[0]).value;
-    console.log("PROCESSING")
+    // console.log("PROCESSING")
    }
 
    function on_click_test_api(event){
     //reset list for each click to api with amount of rows
     //array that contains all the input strings from the user
     user_input_row_collection = [...Array(HTMLCol_to_array(row_ref_container.current.children).length)];
-    console.log("ON_CLICK_API_TEST")
+    // console.log("ON_CLICK_API_TEST")
     event.preventDefault();
-    console.log(event);
+    // console.log(event);
     HTMLCol_to_array(row_ref_container.current.children).map(process_userinput);
-    console.log(user_input_row_collection);
+    // console.log(user_input_row_collection);
     // collection of all the 
     // row_ref_container.current.childNodes().map( (DOM_node,id)=>process_row_for_userinput(DOM_node,id));
-    console.log("ON_CLICK_API_TEST")
+    // console.log("ON_CLICK_API_TEST")
     onClickPingToApi();
 
    }
@@ -340,13 +517,13 @@ async function postToRustApi(){
    }
    
    function export_click_handler(event){
-      console.log("EXPORT_BUTTON");
+    //   console.log("EXPORT_BUTTON");
        preprocess();
-       console.log(packet_to_misha_the_microsoft_engineer)
+    //    console.log(packet_to_misha_the_microsoft_engineer)
        downloadObjectAsJson(packet_to_misha_the_microsoft_engineer,"RFLAP + " + Math.random() * (100));
     //    window.location.href = "http:locahost:8000/packet.json"
 
-        console.log("EXPORT_BUTTON");
+        // console.log("EXPORT_BUTTON");
 
    }
 
@@ -365,7 +542,7 @@ async function postToRustApi(){
     console.log("import_json");
     // console.log(file_dialog.click());
     const dialog_box = document.querySelector('#import_json_button_run');
-     dialog_box.click( (file)=>{console.log(file.target);}  );
+    dialog_box.click( (file)=>{console.log(file.target);}  );
 
     console.log("import_json");
 
@@ -375,9 +552,9 @@ async function postToRustApi(){
         <div id = "inside-div-scrollbar"> 
         <Navbar className="bg-dark justify-content-between" id ='nav-header' >
         <input ref= {file_dialog} id="import_json_button_run" accept= ".json" type = "file" style={{display:"none"}}/>
-        <Button id="import_json" onClick={ (event) => import_json(event)} variant="info">
+        {/* <Button id="import_json" onClick={ (event) => import_json(event)} variant="info">
            Import
-        </Button>
+        </Button> */}
 
         <Button id="export_xmljson" onClick={ (event)=>{export_click_handler(event)}} variant="info">
            Export
@@ -410,6 +587,6 @@ async function postToRustApi(){
     </div>
     );
     
-}
 
+    }
 export default Run;
