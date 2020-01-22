@@ -8,12 +8,14 @@ use serde_json::Result;
 
 use wasm_bindgen::prelude::*;
 
+use serde_wasm_bindgen;
+
 #[cfg(feature = "wee_alloc")]
 #[global_allocator]
 static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
 
-#[wasm_bindgen]
-#[derive(Debug, Deserialize)]
+//#[wasm_bindgen]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct TestsJson {
     alphabet: HashSet<char>,
     length: u8, // longest string
@@ -21,8 +23,8 @@ pub struct TestsJson {
     random: bool,
 }
 
-#[wasm_bindgen]
-#[derive(Debug, Serialize)]
+//#[wasm_bindgen]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct TestsJsonCallback {
     return_vec: Vec<String>,
 }

@@ -15,14 +15,17 @@ mod generate_tests;
 
 use wasm_bindgen::prelude::*;
 
+use serde_wasm_bindgen;
+
 #[cfg(feature = "wee_alloc")]
 #[global_allocator]
 static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
 
 #[wasm_bindgen]
-pub fn api_wrapper() {}
+pub fn api(input_json: &JsValue) -> Result<String> {
+    let input_automaton_json: finite_automaton::FiniteAutomatonJson =
+        serde_wasm_bindgen::from_value(input_json)?;
 
-fn api(input_automaton_json: finite_automaton::FiniteAutomatonJson) -> Result<String> {
     let (input_automaton, input_strings, hint) =
         finite_automaton::FiniteAutomaton::new_from_json(&input_automaton_json);
 
@@ -41,9 +44,6 @@ fn api(input_automaton_json: finite_automaton::FiniteAutomatonJson) -> Result<St
     println!("{}", callback_string);
     Ok("".to_string())
 }
-
-#[wasm_bindgen]
-pub fn tests_wrapper() {}
 
 fn tests(tests: generate_tests::TestsJson) -> Result<String> {
     let callback = generate_tests::generate_tests(tests);

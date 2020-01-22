@@ -12,7 +12,8 @@ use std::iter::FromIterator;
 
 use wasm_bindgen::prelude::*;
 
-#[derive(Debug, Deserialize)]
+//#[wasm_bindgen]
+#[derive(Debug, Deserialize, Serialize)]
 pub struct FiniteAutomatonJson {
     alphabet: HashSet<char>,
     start_state: String,
@@ -22,7 +23,8 @@ pub struct FiniteAutomatonJson {
                                 // of strings, and the post returns a vec of bools
 }
 
-#[derive(Serialize)]
+//#[wasm_bindgen]
+#[derive(Deserialize, Serialize)]
 pub struct FiniteAutomatonCallback {
     pub list_of_strings: Vec<(bool, bool, Vec<(char, String)>, String)>,
     pub hint: String,
