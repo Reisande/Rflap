@@ -6,6 +6,13 @@ use std::convert::TryInto;
 use serde::{Deserialize, Serialize};
 use serde_json::Result;
 
+use wasm_bindgen::prelude::*;
+
+#[cfg(feature = "wee_alloc")]
+#[global_allocator]
+static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
+
+#[wasm_bindgen]
 #[derive(Debug, Deserialize)]
 pub struct TestsJson {
     alphabet: HashSet<char>,
@@ -14,6 +21,7 @@ pub struct TestsJson {
     random: bool,
 }
 
+#[wasm_bindgen]
 #[derive(Debug, Serialize)]
 pub struct TestsJsonCallback {
     return_vec: Vec<String>,

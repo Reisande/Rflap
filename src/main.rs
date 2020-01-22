@@ -5,7 +5,6 @@ use std::collections::HashSet;
 use std::env;
 use std::io;
 
-//use rocket_contrib::json::{Json, JsonValue};
 use serde::{Deserialize, Serialize};
 use serde_json::Result;
 
@@ -13,6 +12,15 @@ use multimap::MultiMap;
 
 mod finite_automaton;
 mod generate_tests;
+
+use wasm_bindgen::prelude::*;
+
+#[cfg(feature = "wee_alloc")]
+#[global_allocator]
+static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
+
+#[wasm_bindgen]
+pub fn api_wrapper() {}
 
 fn api(input_automaton_json: finite_automaton::FiniteAutomatonJson) -> Result<String> {
     let (input_automaton, input_strings, hint) =
@@ -34,17 +42,14 @@ fn api(input_automaton_json: finite_automaton::FiniteAutomatonJson) -> Result<St
     Ok("".to_string())
 }
 
+#[wasm_bindgen]
+pub fn tests_wrapper() {}
+
 fn tests(tests: generate_tests::TestsJson) -> Result<String> {
     let callback = generate_tests::generate_tests(tests);
     let t = serde_json::to_string(&callback)?;
     println!("{}", t);
     Ok("".to_string())
-}
-
-#[derive(Serialize, Deserialize)]
-struct Address {
-    street: String,
-    city: String,
 }
 
 fn main() -> io::Result<()> {

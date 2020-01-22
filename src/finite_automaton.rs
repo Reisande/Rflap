@@ -10,6 +10,8 @@ use std::assert;
 use std::collections::*;
 use std::iter::FromIterator;
 
+use wasm_bindgen::prelude::*;
+
 #[derive(Debug, Deserialize)]
 pub struct FiniteAutomatonJson {
     alphabet: HashSet<char>,
