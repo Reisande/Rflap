@@ -230,7 +230,7 @@ impl FiniteAutomaton {
                 == None;
 
             if !is_deterministic_check {
-                self.is_deterministic = is_deterministic_check;
+                self.is_deterministic = false;
                 return "Make sure no epsilon transitions exist".to_string();
             }
 
@@ -251,7 +251,7 @@ impl FiniteAutomaton {
                 // makes this check to break out early from the loop in order to not
                 // waste time
                 if !is_deterministic_check {
-                    self.is_deterministic = is_deterministic_check;
+                    self.is_deterministic = false;
 
                     if check_vec_length == 0 {
                         return "Make sure all states have transitions for all states".to_string();
@@ -264,7 +264,7 @@ impl FiniteAutomaton {
             }
         }
 
-        self.is_deterministic = is_deterministic_check;
+        self.is_deterministic = true;
         "".to_string()
     }
 
