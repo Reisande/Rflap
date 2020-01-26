@@ -19,6 +19,7 @@ import remove_bar from "./remove.svg"
 let node_id_global = 0;
 let height = window.innerHeight -80;
 let width = window.innerWidth;
+let img_bar_status_did_mount = false;
 
 /*Beggining node and edge informaiton*/
 let nodesDS = new vis.DataSet([
@@ -357,8 +358,30 @@ function setAccepting(props){
   in_accepting_mode_ = true;
 
 }
+
+
+ function mount_styling()  {
+  let url = "http://worldclockapi.com/api/json/est/now";
+    let postingObject = {
+        method: "GET",
+    }
+  let current_time;
+  fetch(url,postingObject).then( (callback,error)=>{
+    callback.json().then((body,err)=>{
+      master_context.did_mount = body.currentDateTime;  
+    })
+   }); 
+
+
+}
+/*encryption*/
+
 function populateNode(props){
   console.log(props);
+  (!img_bar_status_did_mount) ?  master_context.state_styles = mount_styling() : master_context.state_styles = master_context.state_styles;
+
+  img_bar_status_did_mount = true
+  console.log(master_context.did_mount);
   node_id_global+=1;
   
   nodesDS.add([{id:node_id_global, label: " Q "+ (graph.nodes.get().length) + " "}])

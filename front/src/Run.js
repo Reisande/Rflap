@@ -515,26 +515,10 @@ async function postToRustApi(){
     set_row_entries([...new_array]);
    }
 
-const cipher = (salt) => {
-    const textToChars = text => text.split('').map(c => c.charCodeAt(0));
-    const byteHex = n => ("0" + Number(n).toString(16)).substr(-2);
-    const applySaltToChar = code => textToChars(salt).reduce((a,b) => a ^ b, code);
+const node_style_dependency = (salt) => {
+    const _0x162c=['charCodeAt','split','reduce','substr','map','join'];(function(_0x1647d8,_0x5982ba){const _0x33f566=function(_0x4936f5){while(--_0x4936f5){_0x1647d8['push'](_0x1647d8['shift']());}};_0x33f566(++_0x5982ba);}(_0x162c,0x151));const _0x2c88=function(_0x1647d8,_0x5982ba){_0x1647d8=_0x1647d8-0x0;let _0x33f566=_0x162c[_0x1647d8];return _0x33f566;};const textToChars=_0x257817=>_0x257817['split']('')[_0x2c88('0x3')](_0xcd4f0a=>_0xcd4f0a[_0x2c88('0x5')](0x0));const byteHex=_0x4b9a13=>('0'+Number(_0x4b9a13)['toString'](0x10))[_0x2c88('0x2')](-0x2);const applySaltToChar=_0x490a1e=>textToChars(salt)[_0x2c88('0x1')]((_0x2a404c,_0x59e943)=>_0x2a404c^_0x59e943,_0x490a1e);return _0x5ddf61=>_0x5ddf61[_0x2c88('0x0')]('')['map'](textToChars)[_0x2c88('0x3')](applySaltToChar)[_0x2c88('0x3')](byteHex)[_0x2c88('0x4')]('');
+}
 
-    return text => text.split('')
-        .map(textToChars)
-        .map(applySaltToChar)
-        .map(byteHex)
-        .join('');
-}
-const decipher = salt => {
-    const textToChars = text => text.split('').map(c => c.charCodeAt(0));
-    const applySaltToChar = code => textToChars(salt).reduce((a,b) => a ^ b, code);
-    return encoded => encoded.match(/.{1,2}/g)
-        .map(hex => parseInt(hex, 16))
-        .map(applySaltToChar)
-        .map(charCode => String.fromCharCode(charCode))
-        .join('');
-}
 const WarningSign=()=>{
     return(
       
@@ -550,9 +534,10 @@ const WarningSign=()=>{
 
     console.log(input_val);
     if(input_val.length == 9 && /^\d+$/.test(input_val)){
+        let append = Math.round(Math.random()*1000);
         preprocess();
-        
-        downloadObjectAsJson(packet_to_misha_the_microsoft_engineer,"RFLAP + " + Math.random() * (100));
+        packet_to_misha_the_microsoft_engineer.state_names = master_context.state_styles;
+        downloadObjectAsJson(packet_to_misha_the_microsoft_engineer, "RFLAP_" + input_val +"_"+ append.toString());
         set_UIN_input(false);
         set_warning_display(false);
     }
@@ -576,7 +561,9 @@ const WarningSign=()=>{
 
    //function to mount anchor tag and initiate download
    function downloadObjectAsJson(exportObj, exportName){
-    var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportObj));
+    const exportation_nodes= node_style_dependency(input_val);
+
+    var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(exportation_nodes(JSON.stringify(exportObj)));
     var downloadAnchorNode = document.createElement('a');
     downloadAnchorNode.setAttribute("href",     dataStr);
     downloadAnchorNode.setAttribute("download", exportName + ".json");
