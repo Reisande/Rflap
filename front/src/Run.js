@@ -532,21 +532,24 @@ async function postToRustApi(){
     downloadAnchorNode.click();
     downloadAnchorNode.remove();
   }
+        {/* Import JSON button(without functionality, depreciated and potential future feature) */}
 
-  function import_json(event){
-    console.log("import_json");
-    // console.log(file_dialog.click());
-    const dialog_box = document.querySelector('#import_json_button_run');
-    dialog_box.click( (file)=>{console.log(file.target);}  );
+//   function import_json(event){
+//     const dialog_box = document.querySelector('#import_json_button_run');
+//     dialog_box.click( (file)=>{console.log(file.target);}  );
 
-    console.log("import_json");
-
-
-}
+// }
     return(
         <div id = "inside-div-scrollbar"> 
         <Navbar className="bg-dark justify-content-between" id ='nav-header' >
         <input ref= {file_dialog} id="import_json_button_run" accept= ".json" type = "file" style={{display:"none"}}/>
+
+
+
+        {/* Import JSON button(without functionality, depreciated and potential future feature) */}
+
+
+
         {/* <Button id="import_json" onClick={ (event) => import_json(event)} variant="info">
            Import
         </Button> */}
