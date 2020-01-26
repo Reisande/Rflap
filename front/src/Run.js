@@ -642,7 +642,6 @@ const WarningSign=()=>{
                                 {  warning_display ? <WarningSign/> : <React.Fragment></React.Fragment>}
 
                   <InputGroup className="mb-2b" >
-
         
     <Form.Control type="text" onChange={(text) =>{set_text_form(text)}}  />
     <InputGroup.Append >
