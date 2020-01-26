@@ -17,10 +17,6 @@
 
 } */
 
-
-.dropdown-nav-item{
-    color:red !important;
-}
-nav-link{
-    color:red;
+a.nav-link{
+    color:yellow !important;
 }

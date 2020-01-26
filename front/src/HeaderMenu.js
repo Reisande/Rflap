@@ -23,8 +23,7 @@ function HeaderMenu(props){
     useEffect( ()=>{
 
       //edit the colors of the right menu drop down buttons and run button
-     document.querySelector("a.dropdown-toggle.nav-link").style.color = "red";
-     document.querySelector("a.nav-link").style.color = "yellow";
+     document.querySelector("a.dropdown-toggle.nav-link").style.color = "yellow";
       master_context.mode = machine_select;
     }  )  ;
 

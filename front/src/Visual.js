@@ -395,7 +395,7 @@ function deleteNodeOrEdge(props){
       <div id = "trash_button" class = "div-inline-group-below-header">
       <input  id= "trash_button_input" onClick={deleteNodeOrEdge}type="image"  src={remove_bar} width="33" height="33" name="remove_bar"/>
       </div>
-      <div id = "add_button" class = "div-inline-group-below-header">
+      <div id = "add_button_visual" class = "div-inline-group-below-header">
       <input  id= "add_button_image" onClick={populateNode}type="image"  src={add_bar} width="33" height="33" name="add_button"/>
       </div>
       
