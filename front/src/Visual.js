@@ -340,7 +340,7 @@ function toAddNodeMode(props){
   img_status.current.src = add_bar;
   network.enableEditMode();
   network.addNodeMode();
-
+  
   in_add_node_mode = true;
   
 }
@@ -355,6 +355,16 @@ function setAccepting(props){
   deselectAllModes();
   img_status.current.src = accept_bar;
   in_accepting_mode_ = true;
+
+}
+function populateNode(props){
+  console.log(props);
+  node_id_global+=1;
+  
+  nodesDS.add([{id:node_id_global, label: " Q "+ (graph.nodes.get().length) + " "}])
+  network.moveNode(node_id_global, (Math.random()-.6) *400, (Math.random() -.6)*400)
+
+
 
 }
 function deleteNodeOrEdge(props){
@@ -385,11 +395,15 @@ function deleteNodeOrEdge(props){
       <div id = "trash_button" class = "div-inline-group-below-header">
       <input  id= "trash_button_input" onClick={deleteNodeOrEdge}type="image"  src={remove_bar} width="33" height="33" name="remove_bar"/>
       </div>
+      <div id = "add_button" class = "div-inline-group-below-header">
+      <input  id= "add_button_image" onClick={populateNode}type="image"  src={add_bar} width="33" height="33" name="add_button"/>
+      </div>
       
-        <ButtonGroup id = "group-holder" className="mr-2" >
-
+      
+      
+      <ButtonGroup id = "group-holder" className="mr-2" >
       <Button class ="visual-button" variant="secondary" onClick={toEditEdgeMode}> <font color='yellow'>Add Transitions</font></Button>
-      <Button class ="visual-button" variant="secondary" onClick={toAddNodeMode}><font color='yellow'> Add Node</font> </Button>
+      {/* <Button class ="visual-button" variant="secondary" onClick={toAddNodeMode}><font color='yellow'> Add Node</font> </Button> */}
       <Button class="visual-button" variant="secondary" onClick={setInitial}> <font color='yellow'>Mark Initial</font></Button>
       <Button class="visual-button" variant="secondary" onClick={setAccepting}> <font color='yellow'>Mark Accepting </font></Button>
       </ButtonGroup>  

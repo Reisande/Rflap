@@ -65,18 +65,12 @@ function Run(props){
             determinism: master_context.mode == "Determinstic Finite Automata" ? true : false,
             input_strings:["a"],
     };
-
     //useEffect clause
     useEffect( ()=>{
         document.querySelector("#import_json_button_run").addEventListener("change",(e)=>{
-
             // console.log(e.target.files[0]);
-        });
-
- 
- 
+        }); 
     }); 
-
     let input_val = "default";
     let toBePushed = [];
     // error_object =
@@ -87,7 +81,6 @@ function Run(props){
         packet_to_misha_the_microsoft_engineer.determinism = (master_context.mode == "Determinstic Finite Automata" ? true : false)
         packet_to_misha_the_microsoft_engineer.transition_function = []
         edgeObj.forEach( (edgeObj) =>{
-
             transition_triple = [];
             // if(edgeObj.label == undefined){
             //     // console.log()
@@ -260,9 +253,9 @@ function Run(props){
 
 async function postToRustApi(){
 
-    let name_of_window = this.window.location;
-    let url = `${name_of_window}/api`;
-
+    // let name_of_window = this.window.location;
+    let url = "http://localhost:8080/api";
+    console.log('POSTED URL' + url);
     let postingObject = {
         method: "POST",
         mode:"cors",
