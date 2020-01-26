@@ -1,5 +1,5 @@
 import  React, {useRef,useContext,useState,useEffect} from 'react';
-import {Button,Form, Col,Row,Navbar,Nav, InputGroup,FormControl} from 'react-bootstrap';
+import {Button,Form, Col,Row,Navbar,Nav, InputGroup,FormControl, Tooltip,Alert,Badge} from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { inspect } from 'util' 
 import Popup from 'reactjs-popup';
@@ -32,17 +32,19 @@ let error_object = {
 }
 function Run(props){
     const master_context = useContext(AutomataContext);
-    
-    let user_input_row_collection = []
+    let popup_lock = false;
+    let user_input_row_collection = [];
+    const [UIN_input, set_UIN_input] = useState(false);
     const [s_or_e,set_image] = useState([error_image,success_image]);
     const [succeded_failed,set_succeded_failed] = useState(0);
     const [determinism_tf,set_determinism_tf] = useState(false);
     const [importation_error,set_import_status] = useState(false);
     let image_collection = [error_image,idle_svg,success_image];
-
+    const [warning_display, set_warning_display] = useState(false);
     const [row_entry_array,set_row_entries] = useState([1]);
    
 
+    const UIN_textform = useRef(null);
 
     const add_button = useRef(null);
     const image_ref = useRef(null);
@@ -474,6 +476,8 @@ async function postToRustApi(){
    }
 
    function on_click_test_api(event){
+    console.log(UIN_input);
+
     //reset list for each click to api with amount of rows
     //array that contains all the input strings from the user
     user_input_row_collection = [...Array(HTMLCol_to_array(row_ref_container.current.children).length)];
@@ -510,17 +514,65 @@ async function postToRustApi(){
     new_array.push(1);
     set_row_entries([...new_array]);
    }
-   
-   function export_click_handler(event){
-    //   console.log("EXPORT_BUTTON");
-       preprocess();
-    //    console.log(packet_to_misha_the_microsoft_engineer)
-       downloadObjectAsJson(packet_to_misha_the_microsoft_engineer,"RFLAP + " + Math.random() * (100));
-    //    window.location.href = "http:locahost:8000/packet.json"
 
-        // console.log("EXPORT_BUTTON");
+const cipher = (salt) => {
+    const textToChars = text => text.split('').map(c => c.charCodeAt(0));
+    const byteHex = n => ("0" + Number(n).toString(16)).substr(-2);
+    const applySaltToChar = code => textToChars(salt).reduce((a,b) => a ^ b, code);
+
+    return text => text.split('')
+        .map(textToChars)
+        .map(applySaltToChar)
+        .map(byteHex)
+        .join('');
+}
+const decipher = salt => {
+    const textToChars = text => text.split('').map(c => c.charCodeAt(0));
+    const applySaltToChar = code => textToChars(salt).reduce((a,b) => a ^ b, code);
+    return encoded => encoded.match(/.{1,2}/g)
+        .map(hex => parseInt(hex, 16))
+        .map(applySaltToChar)
+        .map(charCode => String.fromCharCode(charCode))
+        .join('');
+}
+const WarningSign=()=>{
+    return(
+      
+        <Badge variant="danger">Invalid UIN!</Badge>
+
+    )
+}
+
+   function UIN_submit(event){
+
+    //    console.log(UIN_textform.current.value);
+    //    console.log(text_form);
+
+    console.log(input_val);
+    if(input_val.length == 9 && /^\d+$/.test(input_val)){
+        preprocess();
+        
+        downloadObjectAsJson(packet_to_misha_the_microsoft_engineer,"RFLAP + " + Math.random() * (100));
+        set_UIN_input(false);
+        set_warning_display(false);
+    }
+    else{
+        set_warning_display(true);
+    }
 
    }
+
+   
+   const export_click_handler =  (event) => 
+   {
+  
+    set_UIN_input(true);
+   }
+   let text_form = "";
+   function set_text_form(event) {
+       input_val = event.target.value;}
+
+   
 
    //function to mount anchor tag and initiate download
    function downloadObjectAsJson(exportObj, exportName){
@@ -543,13 +595,7 @@ async function postToRustApi(){
         <div id = "inside-div-scrollbar"> 
         <Navbar className="bg-dark justify-content-between" id ='nav-header' >
         <input ref= {file_dialog} id="import_json_button_run" accept= ".json" type = "file" style={{display:"none"}}/>
-
-
-
         {/* Import JSON button(without functionality, depreciated and potential future feature) */}
-
-
-
         {/* <Button id="import_json" onClick={ (event) => import_json(event)} variant="info">
            Import
         </Button> */}
@@ -557,7 +603,7 @@ async function postToRustApi(){
         <Button id="export_xmljson" onClick={ (event)=>{export_click_handler(event)}} variant="info">
            Export
         </Button>
-                <Nav>
+        <Nav>
         {/* <Button ref = {add_button}onClick={ (event) => addBar(event) } variant="warning">
            Add
         </Button> */}
@@ -573,14 +619,29 @@ async function postToRustApi(){
         <div className="name" ref={row_ref_container}>
         {row_entry_array ? row_entry_array.map((_, key) => <RowInput key = {key} image={image_collection[row_entry_array[key]]}/> ):<></>}
         </div>
-            <Popup
-            open ={determinism_tf}
-            >
-            <NotPopUp text={not_dfa}/>
+            <Popup open ={determinism_tf}>
+                <text>Invalid</text>
             </Popup>
             <Popup
-            open={importation_error}>
-            <NotPopUp text={import_error}/>
+            open={UIN_input}
+            onClose={ ()=>{set_UIN_input(false)} }
+            >
+                                {  warning_display ? <WarningSign/> : <React.Fragment></React.Fragment>}
+
+                  <InputGroup className="mb-2b" >
+    {/* directives:
+    encryption:
+        make button work with just 9 digits UIN
+        onChange, not onClick
+        change theme
+        debug
+        change physics/edit string et al.  */}
+        
+    <Form.Control type="text" onChange={(text) =>{set_text_form(text)}}  />
+    <InputGroup.Append >
+    <Button  onClick={(UIN_submit)} variant="outline-secondary">UIN</Button>
+    </InputGroup.Append>
+    </InputGroup>
             </Popup>
     </div>
     );
