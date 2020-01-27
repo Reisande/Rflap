@@ -294,13 +294,13 @@ async function postToRustApi(){
     
     // console.log((packet_to_misha_the_microsoft_engineer));
     //Check for Errors via the error_object
-    if(error_object.multiple_initial_states){
-        alert("\tMultiple Initial States!");
-        //reset object for next API request
-        error_object = {
-            no_label_transition: false,
-            multiple_initial_states: false,
-            no_initial_state:false
+    // if(error_object.multiple_initial_states){
+    //     alert("\tMultiple Initial States!");
+    //     //reset object for next API request
+    //     error_object = {
+    //         no_label_transition: false,
+    //         multiple_initial_states: false,
+    //         no_initial_state:false
 
         }
         return null;
@@ -321,7 +321,8 @@ async function postToRustApi(){
     //         multiple_initial_states :false,
     //         no_label_transition: false,
     //         no_initial_state:false,
-    //         epsilon_on_DFA: false
+    //         epsilon_on_DFA: false,
+    //         no_label_on_dfa: false
     //     }
     //     return null;
     // }
