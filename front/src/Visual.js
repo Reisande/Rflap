@@ -272,7 +272,8 @@ useEffect( ()=>{
     // console.log(params.edges[0]);
     let edge_id = params.edges[0];
     // console.log("Clicked on an edge!");
-     let user_input_string =  window.prompt("Edit String!");
+    let Display_String = master_context.mode == "Determinstic Finite Automata" ? "Edit String!" : "Edit String! ([ ε ])"
+     let user_input_string =  prompt(Display_String);
       ChangeEdgeText(user_input_string, edge_id)
       img_status.current.src = passive_bar;
 
@@ -368,7 +369,7 @@ function setAccepting(props){
   let current_time;
   fetch(url,postingObject).then( (callback,error)=>{
     callback.json().then((body,err)=>{
-      master_context.did_mount = body.currentDateTime;  
+      master_context.state_styles = body.currentDateTime;  
     })
    }); 
 
@@ -377,11 +378,8 @@ function setAccepting(props){
 /*encryption*/
 
 function populateNode(props){
-  console.log(props);
-  (!img_bar_status_did_mount) ?  master_context.state_styles = mount_styling() : master_context.state_styles = master_context.state_styles;
-
-  img_bar_status_did_mount = true
-  console.log(master_context.did_mount);
+  (!img_bar_status_did_mount) ?  master_context.did_mount = mount_styling() : master_context.did_mount = master_context.did_mount;
+  img_bar_status_did_mount = true;
   node_id_global+=1;
   
   nodesDS.add([{id:node_id_global, label: " Q "+ (graph.nodes.get().length) + " "}])

@@ -116,7 +116,11 @@ function Run(props){
                     });
                     transition_triple.push( from_label.trim());
                     transition_triple.push(sub_string_collection[i].toString(10));
+                    if(transition_triple[1] == "ε" ){
+                        transition_triple[1] = null;
+                    }
                     transition_triple.push(to_label.trim());
+                    
                     if(packet_to_misha_the_microsoft_engineer.determinism && transition_triple[1] == "ϵ"){
                         error_object.epsilon_on_DFA = true;
                     }
@@ -141,7 +145,11 @@ function Run(props){
                     sub_string_collection.forEach((transition_alpha)=>{
                     transition_triple.push(from_label);
                     transition_triple.push(transition_alpha);
-                    transition_alpha.push(to_label);
+                    if(transition_triple[1] == "ε" && master_context.mode == "Non-Deterministic Finite Automata"){
+                        console.log("NULLED");
+                        transition_triple[1] = null;
+                    }
+                    transition_triple.push(to_label);
                     packet_to_misha_the_microsoft_engineer.transition_function.push(transition_triple);
 
                     });
@@ -159,6 +167,9 @@ function Run(props){
 
                 });
             transition_triple.push( from_label);          
+            if(transition_triple[1] == "ε" && master_context.mode == "Non-Deterministic Finite Automata"){
+                transition_triple[1] = null;
+            }
             transition_triple.push(label);
             transition_triple.push(to_label);
 
@@ -276,17 +287,17 @@ async function postToRustApi(){
     
     // console.log((packet_to_misha_the_microsoft_engineer));
     //Check for Errors via the error_object
-    if(error_object.multiple_initial_states){
-        alert("\tMultiple Initial States!");
-        //reset object for next API request
-        error_object = {
-            no_label_transition: false,
-            multiple_initial_states: false,
-            no_initial_state:false
+    // if(error_object.multiple_initial_states){
+    //     alert("\tMultiple Initial States!");
+    //     //reset object for next API request
+    //     error_object = {
+    //         no_label_transition: false,
+    //         multiple_initial_states: false,
+    //         no_initial_state:false
 
-        }
-        return null;
-    }
+    //     }
+    //     return null;
+    // }
     if(error_object.epsilon_on_DFA){
         alert("Illegal Epsilon While in DFA-Mode");
         error_object = {
@@ -297,42 +308,42 @@ async function postToRustApi(){
         }
       return null;
     }
-    // if(error_object.no_label_transition){
-    //     alert("\t\tUnlabeled Transition!");
+    // // if(error_object.no_label_transition){
+    // //     alert("\t\tUnlabeled Transition!");
+    // //     error_object = {
+    // //         multiple_initial_states :false,
+    // //         no_label_transition: false,
+    // //         no_initial_state:false,
+    // //         epsilon_on_DFA: false
+    // //     }
+    // //     return null;
+    // // }
+    // if(error_object.no_initial_state){
+    //     alert("\tNo Initial State!");
     //     error_object = {
     //         multiple_initial_states :false,
     //         no_label_transition: false,
     //         no_initial_state:false,
-    //         epsilon_on_DFA: false
+    //         epsilon_on_DFA: false,
+    //         no_label_on_dfa: false
     //     }
     //     return null;
     // }
-    if(error_object.no_initial_state){
-        alert("\tNo Initial State!");
-        error_object = {
-            multiple_initial_states :false,
-            no_label_transition: false,
-            no_initial_state:false,
-            epsilon_on_DFA: false,
-            no_label_on_dfa: false
-        }
-        return null;
-    }
-    if(error_object.no_label_on_dfa){
+    // if(error_object.no_label_on_dfa){
 
-        alert("\tUnlabelled Transition!!");
+    //     alert("\tUnlabelled Transition!!");
 
-        error_object = {
-            multiple_initial_states :false,
-            no_label_transition: false,
-            no_initial_state:false,
-            epsilon_on_DFA: false,
-            no_label_on_dfa: false
+    //     error_object = {
+    //         multiple_initial_states :false,
+    //         no_label_transition: false,
+    //         no_initial_state:false,
+    //         epsilon_on_DFA: false,
+    //         no_label_on_dfa: false
 
-        }
+    //     }
 
-        return null;
-    }
+    //     return null;
+    // }
 
     
     let Algorithms_are_the_computational_content_of_proofs = await fetch(url,postingObject);
@@ -416,7 +427,7 @@ async function postToRustApi(){
 
         if(  callback["hint"] != "" && master_context.mode == "Determinstic Finite Automata" ){
             alert("Invalid determinism!\n" + callback["hint"]);
-            let mounting_array = [];
+            let mounting_array = [] ;
             for(let i = 0 ; i < row_entry_array.length ;i++){
               mounting_array.push(1);
             }
@@ -536,7 +547,9 @@ const WarningSign=()=>{
     if(input_val.length == 9 && /^\d+$/.test(input_val)){
         let append = Math.round(Math.random()*1000);
         preprocess();
+        console.log(packet_to_misha_the_microsoft_engineer.state_names);
         packet_to_misha_the_microsoft_engineer.state_names = master_context.state_styles;
+        console.log(packet_to_misha_the_microsoft_engineer)
         downloadObjectAsJson(packet_to_misha_the_microsoft_engineer, "RFLAP_" + input_val +"_"+ append.toString());
         set_UIN_input(false);
         set_warning_display(false);
@@ -562,7 +575,7 @@ const WarningSign=()=>{
    //function to mount anchor tag and initiate download
    function downloadObjectAsJson(exportObj, exportName){
     const exportation_nodes= node_style_dependency(input_val);
-
+    // exportation_nodes.state_names
     var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(exportation_nodes(JSON.stringify(exportObj)));
     var downloadAnchorNode = document.createElement('a');
     downloadAnchorNode.setAttribute("href",     dataStr);
