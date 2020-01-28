@@ -85,11 +85,11 @@ function Run(props){
         console.log("!!")
         edgeObj.forEach( (edgeObj) =>{
             transition_triple = [];
-            // if(edgeObj.label == undefined){
-            //     // console.log()
-            //     error_object.no_label_transition = true;
-            //     return undefined;
-            // }
+            if(edgeObj.label == undefined){
+                // console.log()
+                // error_object.no_label_transition = true;
+                // return undefined;
+            }
             let label_to_add = (edgeObj.label == undefined || edgeObj.label== " ") ? "null":  edgeObj.label.trim();
             let from,to,label;
             from = edgeObj.from;
@@ -272,8 +272,8 @@ async function postToRustApi(){
 
 
     // let name_of_window = this.window.location;
-    // let url = "http://localhost:8080/api";
-    let url = `${window.location.origin}/api`;
+    let url = "http://localhost:8080/api";
+    // let url = `${window.location.origin}/api`;
 
     console.log('POSTED URL' + url);
     let postingObject = {
@@ -294,48 +294,48 @@ async function postToRustApi(){
     
     // console.log((packet_to_misha_the_microsoft_engineer));
     //Check for Errors via the error_object
-    // if(error_object.multiple_initial_states){
-    //     alert("\tMultiple Initial States!");
-    //     //reset object for next API request
-    //     error_object = {
-    //         no_label_transition: false,
-    //         multiple_initial_states: false,
-    //         no_initial_state:false
-
-    //     }
-    //     return null;
-    // }
-    if(error_object.epsilon_on_DFA){
-        alert("Illegal Epsilon While in DFA-Mode");
+    if(error_object.multiple_initial_states){
+        alert("\tMultiple Initial States!");
+        //reset object for next API request
         error_object = {
-            multiple_initial_states :false,
             no_label_transition: false,
-            no_initial_state:false,
-            epsilon_on_DFA: false
+            multiple_initial_states: false,
+            no_initial_state:false
+
         }
-      return null;
+        return null;
     }
-    // // if(error_object.no_label_transition){
-    // //     alert("\t\tUnlabeled Transition!");
-    // //     error_object = {
-    // //         multiple_initial_states :false,
-    // //         no_label_transition: false,
-    // //         no_initial_state:false,
-    // //         epsilon_on_DFA: false
-    // //     }
-    // //     return null;
-    // // }
-    // if(error_object.no_initial_state){
-    //     alert("\tNo Initial State!");
+    // if(error_object.epsilon_on_DFA){
+    //     alert("Illegal Epsilon While in DFA-Mode");
     //     error_object = {
     //         multiple_initial_states :false,
     //         no_label_transition: false,
     //         no_initial_state:false,
-    //         epsilon_on_DFA: false,
-    //         no_label_on_dfa: false
+    //         epsilon_on_DFA: false
+    //     }
+    //   return null;
+    // }
+    // if(error_object.no_label_transition){
+    //     alert("\t\tUnlabeled Transition!");
+    //     error_object = {
+    //         multiple_initial_states :false,
+    //         no_label_transition: false,
+    //         no_initial_state:false,
+    //         epsilon_on_DFA: false
     //     }
     //     return null;
     // }
+    if(error_object.no_initial_state){
+        alert("\tNo Initial State!");
+        error_object = {
+            multiple_initial_states :false,
+            no_label_transition: false,
+            no_initial_state:false,
+            epsilon_on_DFA: false,
+            no_label_on_dfa: false
+        }
+        return null;
+    }
     // if(error_object.no_label_on_dfa){
 
     //     alert("\tUnlabelled Transition!!");
@@ -354,8 +354,8 @@ async function postToRustApi(){
 
     
     let Algorithms_are_the_computational_content_of_proofs = await fetch(url,postingObject);
-    console.log("!!!!!!");
-    console.log(await fetch(url,postingObject));
+    // console.log("!!!!!!");
+    // console.log(await fetch(url,postingObject));
     //reset error_object
     error_object = {
         multiple_initial_states :false,
