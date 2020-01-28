@@ -82,6 +82,7 @@ function Run(props){
         let transition_triple = [];
         packet_to_misha_the_microsoft_engineer.determinism = (master_context.mode == "Determinstic Finite Automata" ? true : false)
         packet_to_misha_the_microsoft_engineer.transition_function = []
+        console.log("!!")
         edgeObj.forEach( (edgeObj) =>{
             transition_triple = [];
             // if(edgeObj.label == undefined){
@@ -143,6 +144,7 @@ function Run(props){
     
                     });
                     sub_string_collection.forEach((transition_alpha)=>{
+                    transition_triple = [];
                     transition_triple.push(from_label);
                     transition_triple.push(transition_alpha);
                     if(transition_triple[1] == "ε" && master_context.mode == "Non-Deterministic Finite Automata"){
@@ -166,6 +168,7 @@ function Run(props){
                     }
 
                 });
+            transition_triple = [];
             transition_triple.push( from_label);          
             if(transition_triple[1] == "ε" && master_context.mode == "Non-Deterministic Finite Automata"){
                 transition_triple[1] = null;
@@ -266,7 +269,7 @@ function Run(props){
 
 async function postToRustApi(){
 
-    let name_of_window = this.window.location;
+
 
     // let name_of_window = this.window.location;
     // let url = "http://localhost:8080/api";
@@ -351,7 +354,8 @@ async function postToRustApi(){
 
     
     let Algorithms_are_the_computational_content_of_proofs = await fetch(url,postingObject);
-    
+    console.log("!!!!!!");
+    console.log(await fetch(url,postingObject));
     //reset error_object
     error_object = {
         multiple_initial_states :false,
@@ -419,6 +423,7 @@ async function postToRustApi(){
   
         preprocess();
         try{
+            console.log("Post")
             const callback = await postToRustApi();
             console.log("----")
             console.log(callback);
@@ -547,6 +552,7 @@ const WarningSign=()=>{
     //    console.log(UIN_textform.current.value);
     //    console.log(text_form);
 
+
     console.log(input_val);
     if(input_val.length == 9 && /^\d+$/.test(input_val)){
         let append = Math.round(Math.random()*1000);
@@ -563,6 +569,10 @@ const WarningSign=()=>{
     }
 
    }
+
+   
+  
+   
 
    
    const export_click_handler =  (event) => 
@@ -633,13 +643,7 @@ const WarningSign=()=>{
                                 {  warning_display ? <WarningSign/> : <React.Fragment></React.Fragment>}
 
                   <InputGroup className="mb-2b" >
-    {/* directives:
-    encryption:
-        make button work with just 9 digits UIN
-        onChange, not onClick
-        change theme
-        debug
-        change physics/edit string et al.  */}
+
         
     <Form.Control type="text" onChange={(text) =>{set_text_form(text)}}  />
     <InputGroup.Append >

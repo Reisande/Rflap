@@ -89,7 +89,7 @@ let graph = {nodes: nodesDS,
         bold:{
           face:"sans serif",
           size: 20,
-          strokeWidth: 3
+
 
         }
       },
