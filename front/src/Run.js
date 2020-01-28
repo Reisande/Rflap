@@ -271,8 +271,8 @@ async function postToRustApi(){
 
 
     // let name_of_window = this.window.location;
-    // let url = "http://localhost:8080/api";
-    let url = `${window.location.origin}/api`;
+    let url = "http://localhost:8080/api";
+    // let url = `${window.location.origin}/api`;
 
     console.log('POSTED URL' + url);
     let postingObject = {
@@ -320,8 +320,17 @@ async function postToRustApi(){
     //         multiple_initial_states :false,
     //         no_label_transition: false,
     //         no_initial_state:false,
-    //         epsilon_on_DFA: false,
-    //         no_label_on_dfa: false
+    //         epsilon_on_DFA: false
+    //     }
+    //   return null;
+    // }
+    // if(error_object.no_label_transition){
+    //     alert("\t\tUnlabeled Transition!");
+    //     error_object = {
+    //         multiple_initial_states :false,
+    //         no_label_transition: false,
+    //         no_initial_state:false,
+    //         epsilon_on_DFA: false
     //     }
     //     return null;
     // }
