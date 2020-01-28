@@ -47,10 +47,10 @@ let graph = {nodes: nodesDS,
     width: window.innerWidth.toString(),
     locale: 'en',
     physics:{
-      enabled: false,
+      enabled: true,
       repulsion:{
-        springConstant: .001,
-        centralGravity:   10,
+        springConstant: 1000,
+        centralGravity:   .1,
       },
     },
     nodes:{
@@ -66,27 +66,31 @@ let graph = {nodes: nodesDS,
         }
       },
       color:{
-        border: "yellow",
-        background: "#576672",
+        border: "#64778D",
+        background: "#E25B4B",
         highlight:{
-          border:"yellow",
-          background: 'grey'	,
+          border:"#64778D",
+          background: '#B22222'	,
           
         },
         hover:{
-          border:"yellow",
-          background: 'grey'	,
+          border:"#64778D",
+          background: '#B22222'	,
           
         }
 
       },
       font:{
-        color: "yellow",
+        color: "#DCDCDC",
         face:"sans serif",
+        
+        
         size: 20,
         bold:{
           face:"sans serif",
-          size: 8,
+          size: 20,
+          strokeWidth: 3
+
         }
       },
       // shadow:{
@@ -97,8 +101,8 @@ let graph = {nodes: nodesDS,
     edges:{
       // font: '12px arial #ff0000',
       // smooth:true,
-      color:"black",
-      length: 200,
+      color:"skyblue",
+      length: 250,
       scaling:{
         label:true,
       },
@@ -155,6 +159,11 @@ let network;
 
 useEffect( ()=>{
     img_status.current.src = passive_bar;
+    const HTMLCol_to_array = (html_collection) => Array.prototype.slice.call(html_collection);
+
+        // let yager = HTMLCol_to_array(wrapper.current.childNodes);
+        // console.log(HTMLCol_to_array(wrapper.current.childNodes));
+        // console.log(yager)
   network = new vis.Network(wrapper.current,graph,options);
   // console.log("Event: " + network);
   //context-click for graph
@@ -422,11 +431,11 @@ function deleteNodeOrEdge(props){
       
       
       
-      <ButtonGroup id = "group-holder" className="mr-2" >
-      <Button class ="visual-button" variant="secondary" onClick={toEditEdgeMode}> <font color='yellow'>Add Transitions</font></Button>
+      <ButtonGroup id = "group-holder" className="mr-2"  >
+      <Button class ="visual-button" variant="info" onClick={toEditEdgeMode}> <font color='white'>Add Transitions</font></Button>
       {/* <Button class ="visual-button" variant="secondary" onClick={toAddNodeMode}><font color='yellow'> Add Node</font> </Button> */}
-      <Button class="visual-button" variant="secondary" onClick={setInitial}> <font color='yellow'>Mark Initial</font></Button>
-      <Button class="visual-button" variant="secondary" onClick={setAccepting}> <font color='yellow'>Mark Accepting </font></Button>
+      <Button class="visual-button" variant="info" onClick={setInitial}> <font color='white'>Mark Initial</font></Button>
+      <Button class="visual-button" variant="info" onClick={setAccepting}> <font color='white'>Mark Accepting </font></Button>
       </ButtonGroup>  
       <img id="bar" ref={img_status}src={img_array[img_index]}  height="34" width="34"></img>
 

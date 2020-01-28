@@ -610,7 +610,7 @@ const WarningSign=()=>{
         <Col className="justify-content-between" id ="add_row_button_container">
         <input id = "add_row_button" onClick={ (event) => image_click_handler(event)}type="image" id="add_button" src={add_perfect} width="33" height="33" name="add_row_input"/>
         </Col>
-        <Button id="api_button" onClick={ (event) => on_click_test_api(event) } variant="warning">
+        <Button id="api_button" onClick={ (event) => on_click_test_api(event) } variant="info">
            Test
         </Button>
         </Nav>

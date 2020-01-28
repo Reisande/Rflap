@@ -1,8 +1,10 @@
 #nav-header{
     font-weight: bold !important;
-    color:#FFD700 !important;
+    /* color:#FFD700 !important; */
     border-bottom-style: solid;
     border-width: 5px;
+    color: #e25b4b  !important;
+    background-color: #ecfdff !important;
 
 }
 .nav-dropdown-text{
@@ -18,5 +20,5 @@
 } */
 
 a.nav-link{
-    color:yellow !important;
+    color: #e25b4b !important;
 }

@@ -7,16 +7,17 @@
 }
 
 #graph-display{
-    
+        
     outline:none;
     border:black !important;
 }
-#graph-display > {border:blue;outline:none};
+#graph-display > {outline:none};
 
 
 canvas{
     outline:black;
     border:black;
+
 }
 .vis-network{
 
