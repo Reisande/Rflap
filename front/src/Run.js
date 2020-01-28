@@ -144,6 +144,7 @@ function Run(props){
     
                     });
                     sub_string_collection.forEach((transition_alpha)=>{
+                    transition_triple = [];
                     transition_triple.push(from_label);
                     transition_triple.push(transition_alpha);
                     if(transition_triple[1] == "ε" && master_context.mode == "Non-Deterministic Finite Automata"){
@@ -167,6 +168,7 @@ function Run(props){
                     }
 
                 });
+            transition_triple = [];
             transition_triple.push( from_label);          
             if(transition_triple[1] == "ε" && master_context.mode == "Non-Deterministic Finite Automata"){
                 transition_triple[1] = null;
