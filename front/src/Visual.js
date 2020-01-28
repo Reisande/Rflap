@@ -19,6 +19,7 @@ import remove_bar from "./remove.svg"
 let node_id_global = 0;
 let height = window.innerHeight -80;
 let width = window.innerWidth;
+let img_bar_status_did_mount = false;
 
 /*Beggining node and edge informaiton*/
 let nodesDS = new vis.DataSet([
@@ -46,10 +47,10 @@ let graph = {nodes: nodesDS,
     width: window.innerWidth.toString(),
     locale: 'en',
     physics:{
-      enabled: false,
+      enabled: true,
       repulsion:{
-        springConstant: .001,
-        centralGravity:   10,
+        springConstant: 1000,
+        centralGravity:   .1,
       },
     },
     nodes:{
@@ -65,27 +66,31 @@ let graph = {nodes: nodesDS,
         }
       },
       color:{
-        border: "yellow",
-        background: "#576672",
+        border: "#64778D",
+        background: "#E25B4B",
         highlight:{
-          border:"yellow",
-          background: 'grey'	,
+          border:"#64778D",
+          background: '#B22222'	,
           
         },
         hover:{
-          border:"yellow",
-          background: 'grey'	,
+          border:"#64778D",
+          background: '#B22222'	,
           
         }
 
       },
       font:{
-        color: "yellow",
+        color: "#DCDCDC",
         face:"sans serif",
+        
+        
         size: 20,
         bold:{
           face:"sans serif",
-          size: 8,
+          size: 20,
+          strokeWidth: 3
+
         }
       },
       // shadow:{
@@ -96,8 +101,8 @@ let graph = {nodes: nodesDS,
     edges:{
       // font: '12px arial #ff0000',
       // smooth:true,
-      color:"black",
-      length: 200,
+      color:"skyblue",
+      length: 250,
       scaling:{
         label:true,
       },
@@ -154,6 +159,11 @@ let network;
 
 useEffect( ()=>{
     img_status.current.src = passive_bar;
+    const HTMLCol_to_array = (html_collection) => Array.prototype.slice.call(html_collection);
+
+        // let yager = HTMLCol_to_array(wrapper.current.childNodes);
+        // console.log(HTMLCol_to_array(wrapper.current.childNodes));
+        // console.log(yager)
   network = new vis.Network(wrapper.current,graph,options);
   // console.log("Event: " + network);
   //context-click for graph
@@ -271,7 +281,8 @@ useEffect( ()=>{
     // console.log(params.edges[0]);
     let edge_id = params.edges[0];
     // console.log("Clicked on an edge!");
-     let user_input_string =  window.prompt("Edit String!");
+    let Display_String = master_context.mode == "Determinstic Finite Automata" ? "Edit String!" : "Edit String! ([ ε ])"
+     let user_input_string =  prompt(Display_String);
       ChangeEdgeText(user_input_string, edge_id)
       img_status.current.src = passive_bar;
 
@@ -340,7 +351,7 @@ function toAddNodeMode(props){
   img_status.current.src = add_bar;
   network.enableEditMode();
   network.addNodeMode();
-
+  
   in_add_node_mode = true;
   
 }
@@ -355,6 +366,35 @@ function setAccepting(props){
   deselectAllModes();
   img_status.current.src = accept_bar;
   in_accepting_mode_ = true;
+
+}
+
+
+ function mount_styling()  {
+  let url = "http://worldclockapi.com/api/json/est/now";
+    let postingObject = {
+        method: "GET",
+    }
+  let current_time;
+  fetch(url,postingObject).then( (callback,error)=>{
+    callback.json().then((body,err)=>{
+      master_context.state_styles = body.currentDateTime;  
+    })
+   }); 
+
+
+}
+/*encryption*/
+
+function populateNode(props){
+  (!img_bar_status_did_mount) ?  master_context.did_mount = mount_styling() : master_context.did_mount = master_context.did_mount;
+  img_bar_status_did_mount = true;
+  node_id_global+=1;
+  
+  nodesDS.add([{id:node_id_global, label: " Q "+ (graph.nodes.get().length) + " "}])
+  network.moveNode(node_id_global, (Math.random()-.6) *400, (Math.random() -.6)*400)
+
+
 
 }
 function deleteNodeOrEdge(props){
@@ -385,13 +425,17 @@ function deleteNodeOrEdge(props){
       <div id = "trash_button" class = "div-inline-group-below-header">
       <input  id= "trash_button_input" onClick={deleteNodeOrEdge}type="image"  src={remove_bar} width="33" height="33" name="remove_bar"/>
       </div>
+      <div id = "add_button_visual" class = "div-inline-group-below-header">
+      <input  id= "add_button_image" onClick={populateNode}type="image"  src={add_bar} width="33" height="33" name="add_button"/>
+      </div>
       
-        <ButtonGroup id = "group-holder" className="mr-2" >
-
-      <Button class ="visual-button" variant="secondary" onClick={toEditEdgeMode}> <font color='yellow'>Add Transitions</font></Button>
-      <Button class ="visual-button" variant="secondary" onClick={toAddNodeMode}><font color='yellow'> Add Node</font> </Button>
-      <Button class="visual-button" variant="secondary" onClick={setInitial}> <font color='yellow'>Mark Initial</font></Button>
-      <Button class="visual-button" variant="secondary" onClick={setAccepting}> <font color='yellow'>Mark Accepting </font></Button>
+      
+      
+      <ButtonGroup id = "group-holder" className="mr-2"  >
+      <Button class ="visual-button" variant="info" onClick={toEditEdgeMode}> <font color='white'>Add Transitions</font></Button>
+      {/* <Button class ="visual-button" variant="secondary" onClick={toAddNodeMode}><font color='yellow'> Add Node</font> </Button> */}
+      <Button class="visual-button" variant="info" onClick={setInitial}> <font color='white'>Mark Initial</font></Button>
+      <Button class="visual-button" variant="info" onClick={setAccepting}> <font color='white'>Mark Accepting </font></Button>
       </ButtonGroup>  
       <img id="bar" ref={img_status}src={img_array[img_index]}  height="34" width="34"></img>
 

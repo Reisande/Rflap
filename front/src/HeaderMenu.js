@@ -21,6 +21,9 @@ function HeaderMenu(props){
     const REG = useRef();
     
     useEffect( ()=>{
+
+      //edit the colors of the right menu drop down buttons and run button
+     document.querySelector("a.dropdown-toggle.nav-link").style.color = "#e25b4b";
       master_context.mode = machine_select;
     }  )  ;
 
@@ -50,7 +53,7 @@ return(
        </Col>
     </Col>     
     <Col>
-    <Navbar.Brand id="logo_text" ><b> <font size = "5" color="#835C3B">R </font>  <font size="5" color="#FFD700">FLAP</font></b></Navbar.Brand>
+    <Navbar.Brand id="logo_text" ><b> <font size = "5" color="#2f9399">R </font>  <font size="5" color="#E25B4B">FLAP</font></b></Navbar.Brand>
     </Col>
     {/* <Navbar.Brand> <img
       src={not_ferris}
@@ -74,12 +77,12 @@ return(
       <NavDropdown class = "nav-dropdown-text" title="Machines"id="collasible-nav-dropdown" >
       
         
-        <NavDropdown.Item onClick={(event) => propagateEvent(event,DFA)} ref= {DFA}  href="">Determinstic Finite Automata</NavDropdown.Item>
-        <NavDropdown.Item onClick={(event) => propagateEvent(event,NFA)} ref= {NFA} href="">Non-Determinstic Finite Automata</NavDropdown.Item>
-        <NavDropdown.Item onClick={(event) => propagateEvent(event,TM)} ref= {TM}href="">Turing Machine</NavDropdown.Item>
+        <NavDropdown.Item onClick={(event) => propagateEvent(event,DFA)} ref= {DFA}  href="">Deterministic Finite Automata </NavDropdown.Item>
+        <NavDropdown.Item onClick={(event) => propagateEvent(event,NFA)} ref= {NFA} href=""> Non-Deterministic Finite Automata </NavDropdown.Item>
+        {/* <NavDropdown.Item onClick={(event) => propagateEvent(event,TM)} ref= {TM}href="">Turing Machine</NavDropdown.Item>
         <NavDropdown.Item onClick={(event) => propagateEvent(event,PDA)} ref= {PDA}href="">Push-down Automata</NavDropdown.Item>
         <NavDropdown.Item onClick={(event) => propagateEvent(event,CFG)} ref= {CFG}href="">Context-free Grammar</NavDropdown.Item>
-        <NavDropdown.Item onClick={(event) => propagateEvent(event,REG)} ref= {REG} href="">Regular Expression</NavDropdown.Item>
+        <NavDropdown.Item onClick={(event) => propagateEvent(event,REG)} ref= {REG} href="">Regular Expression</NavDropdown.Item> */}
       </NavDropdown>
       <Col></Col>
       <Nav>
