@@ -270,7 +270,6 @@ function Run(props){
 async function postToRustApi(){
 
 
-
     // let name_of_window = this.window.location;
     // let url = "http://localhost:8080/api";
     let url = `${window.location.origin}/api`;
