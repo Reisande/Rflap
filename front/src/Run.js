@@ -571,15 +571,7 @@ const WarningSign=()=>{
    }
 
    
-   const export_click_handler =  (event) => 
-   {
   
-    set_UIN_input(true);
-   }
-   let text_form = "";
-   function set_text_form(event) {
-       input_val = event.target.value;}
-
    
 
    
