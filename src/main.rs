@@ -5,7 +5,6 @@ use std::collections::HashSet;
 use std::env;
 use std::io;
 
-//use rocket_contrib::json::{Json, JsonValue};
 use serde::{Deserialize, Serialize};
 use serde_json::Result;
 
@@ -41,16 +40,123 @@ fn tests(tests: generate_tests::TestsJson) -> Result<String> {
     Ok("".to_string())
 }
 
+// return is a tuple of number of passed test cases vs total cases
+fn grade(
+    source: finite_automaton::FiniteAutomatonJson,
+    target: finite_automaton::FiniteAutomatonJson,
+    num_tests: u16,
+) -> (u16, u16, Vec<String>, Vec<u8>, Vec<String>, Vec<u8>) {
+    // generate TestsJson array
+
+    let test_strings_deterministic = generate_tests::generate_tests(generate_tests::TestsJson {
+        alphabet: target.alphabet.to_owned(),
+        size: num_tests / 2, // how many strings for non deterministic, ignored for deterministic
+        length: 10,          // longest string
+        random: false,
+    })
+    .return_vec;
+    // then take out the first num_tests/2 elements from the vector
+
+    let test_strings_nondeterministic = generate_tests::generate_tests(generate_tests::TestsJson {
+        alphabet: target.alphabet.to_owned(),
+        size: num_tests / 2, // how many strings for non deterministic, ignored for deterministic
+        length: 10,          // longest string
+        random: true,
+    })
+    .return_vec;
+    // run tests on source and target, check that the result is equal
+
+    let source = finite_automaton::FiniteAutomaton::new_from_json(&source).0;
+    let target = finite_automaton::FiniteAutomaton::new_from_json(&target).0;
+
+    let mut deterministic_scores: Vec<u8> = Vec::new();
+    let mut nondeterministic_scores: Vec<u8> = Vec::new();
+
+    let mut passed: u16 = 0;
+
+    for test in &test_strings_deterministic {
+        let (_, accepted_source, _, _) = source.validate_string(test.to_string());
+        let (_, accepted_target, _, _) = target.validate_string(test.to_string());
+
+        if accepted_source == accepted_target {
+            passed += 1;
+        }
+
+        deterministic_scores.push((accepted_source == accepted_target) as u8);
+    }
+
+    for test in &test_strings_nondeterministic {
+        let (_, accepted_source, _, _) = source.validate_string(test.to_string());
+        let (_, accepted_target, _, _) = target.validate_string(test.to_string());
+
+        if accepted_source == accepted_target {
+            passed += 1;
+        }
+
+        nondeterministic_scores.push((accepted_source == accepted_target) as u8);
+    }
+
+    (
+        passed,
+        num_tests,
+        test_strings_deterministic,
+        deterministic_scores,
+        test_strings_nondeterministic,
+        nondeterministic_scores,
+    )
+}
+
 #[derive(Serialize, Deserialize)]
-struct Address {
-    street: String,
-    city: String,
+struct Tests {
+    score: f32,
+    name: String,
+    visibility: String,
+}
+
+#[derive(Serialize, Deserialize)]
+struct GradingResults {
+    score: f32,
+    tests: Vec<Tests>,
+}
+
+impl GradingResults {
+    pub fn new(
+        public_tests: (u16, u16, Vec<String>, Vec<u8>, Vec<String>, Vec<u8>),
+        private_tests: (u16, u16, Vec<String>, Vec<u8>, Vec<String>, Vec<u8>),
+    ) -> GradingResults {
+        let final_score: f32 = ((public_tests.0 + private_tests.0) as f32)
+            / ((public_tests.1 + private_tests.1) as f32);
+
+        let mut tests: Vec<Tests> = Vec::new();
+
+        for test in (0..public_tests.2.len()) {
+            tests.push(Tests {
+                score: public_tests.3[test] as f32,
+                name: public_tests.2[test].to_owned(),
+                visibility: "visible".to_string(),
+            });
+        }
+
+        for test in (0..private_tests.4.len()) {
+            tests.push(Tests {
+                score: public_tests.3[test] as f32,
+                name: public_tests.2[test].to_owned(),
+                visibility: "hidden".to_string(),
+            });
+        }
+
+        GradingResults {
+            score: final_score,
+            tests: tests,
+        }
+    }
 }
 
 fn main() -> io::Result<()> {
     use std::io::Read;
 
     let mut buffer = String::new();
+    // student input
     io::stdin().read_to_string(&mut buffer)?;
 
     let args: Vec<String> = env::args().collect();
@@ -59,6 +165,32 @@ fn main() -> io::Result<()> {
         api(serde_json::de::from_str::<finite_automaton::FiniteAutomatonJson>(&buffer).unwrap());
     } else if &args[1] == "tests" {
         tests(serde_json::de::from_str::<generate_tests::TestsJson>(&buffer).unwrap());
+    } else if &args[1] == "grading" {
+        let mut buffer_answer = String::new();
+
+        // instructor input
+        io::stdin().read_to_string(&mut buffer_answer)?;
+
+        // for the actual grading, we should show like 20 shorter strings and hide 80,
+        let public_tests = grade(
+            serde_json::de::from_str::<finite_automaton::FiniteAutomatonJson>(&buffer).unwrap(),
+            serde_json::de::from_str::<finite_automaton::FiniteAutomatonJson>(&buffer_answer)
+                .unwrap(),
+            10,
+        );
+        let hidden_tests = grade(
+            serde_json::de::from_str::<finite_automaton::FiniteAutomatonJson>(&buffer).unwrap(),
+            serde_json::de::from_str::<finite_automaton::FiniteAutomatonJson>(&buffer_answer)
+                .unwrap(),
+            90,
+        );
+
+        // then initialize a data structure which follows the output of results.json
+        // the only members out of results.json which matter are score and tests
+        // the only members of tests which we care about are
+
+        // then serialize and write to a file like ./results.json
+        // can we make multiple results.json, without having to merge them together?
     }
 
     Ok(())

@@ -12,7 +12,7 @@ use std::iter::FromIterator;
 
 #[derive(Debug, Deserialize)]
 pub struct FiniteAutomatonJson {
-    alphabet: HashSet<char>,
+    pub alphabet: HashSet<char>,
     start_state: String,
     states: HashMap<String, bool>,
     transition_function: Vec<(String, Option<char>, String)>,
@@ -191,7 +191,7 @@ impl FiniteAutomaton {
     // this function assumes that the validation that the string is valid for the
     // alphabet occurs on the client side
 
-    // return API dictates: (is_deterministic, accepted, path)
+    // return API dictates: (is_deterministic, accepted, path, hint)
     // string is any possible hint in creation
     pub fn validate_string(
         &self,
