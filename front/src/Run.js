@@ -354,8 +354,7 @@ async function postToRustApi(){
 
     
     let Algorithms_are_the_computational_content_of_proofs = await fetch(url,postingObject);
-    // console.log("!!!!!!");
-    // console.log(await fetch(url,postingObject));
+
     //reset error_object
     error_object = {
         multiple_initial_states :false,
