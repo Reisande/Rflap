@@ -271,8 +271,8 @@ async function postToRustApi(){
 
 
     // let name_of_window = this.window.location;
-    // let url = "http://localhost:8080/api";
-    let url = `${window.location.origin}/api`;
+    let url = "http://localhost:8080/api";
+    // let url = `${window.location.origin}/api`;
 
     console.log('POSTED URL' + url);
     let postingObject = {
@@ -354,7 +354,6 @@ async function postToRustApi(){
 
     
     let Algorithms_are_the_computational_content_of_proofs = await fetch(url,postingObject);
-
     //reset error_object
     error_object = {
         multiple_initial_states :false,
@@ -633,7 +632,7 @@ const WarningSign=()=>{
         {row_entry_array ? row_entry_array.map((_, key) => <RowInput key = {key} image={image_collection[row_entry_array[key]]}/> ):<></>}
         </div>
             <Popup open ={determinism_tf}>
-                <text>Invalid</text>
+                {/* <text>Invalid</text> */}
             </Popup>
             <Popup
             open={UIN_input}
