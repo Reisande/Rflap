@@ -268,6 +268,7 @@ function Run(props){
 async function postToRustApi(){
 
 
+
     // let name_of_window = this.window.location;
     // let url = "http://localhost:8080/api";
     let url = `${window.location.origin}/api`;
@@ -549,6 +550,7 @@ const WarningSign=()=>{
     //    console.log(UIN_textform.current.value);
     //    console.log(text_form);
 
+
     console.log(input_val);
     if(input_val.length == 9 && /^\d+$/.test(input_val)){
         let append = Math.round(Math.random()*1000);
@@ -565,6 +567,18 @@ const WarningSign=()=>{
     }
 
    }
+
+   
+   const export_click_handler =  (event) => 
+   {
+  
+    set_UIN_input(true);
+   }
+   let text_form = "";
+   function set_text_form(event) {
+       input_val = event.target.value;}
+
+   
 
    
    const export_click_handler =  (event) => 
@@ -626,7 +640,7 @@ const WarningSign=()=>{
         {row_entry_array ? row_entry_array.map((_, key) => <RowInput key = {key} image={image_collection[row_entry_array[key]]}/> ):<></>}
         </div>
             <Popup open ={determinism_tf}>
-                {/* <text>Invalid</text> */}
+                <text>Invalid</text>
             </Popup>
             <Popup
             open={UIN_input}
@@ -635,7 +649,7 @@ const WarningSign=()=>{
                                 {  warning_display ? <WarningSign/> : <React.Fragment></React.Fragment>}
 
                   <InputGroup className="mb-2b" >
-  
+
         
     <Form.Control type="text" onChange={(text) =>{set_text_form(text)}}  />
     <InputGroup.Append >
