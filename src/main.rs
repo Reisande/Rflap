@@ -5,7 +5,6 @@ use std::collections::HashSet;
 use std::env;
 use std::io;
 
-//use rocket_contrib::json::{Json, JsonValue};
 use serde::{Deserialize, Serialize};
 use serde_json::Result;
 
@@ -39,12 +38,6 @@ fn tests(tests: generate_tests::TestsJson) -> Result<String> {
     let t = serde_json::to_string(&callback)?;
     println!("{}", t);
     Ok("".to_string())
-}
-
-#[derive(Serialize, Deserialize)]
-struct Address {
-    street: String,
-    city: String,
 }
 
 fn main() -> io::Result<()> {
