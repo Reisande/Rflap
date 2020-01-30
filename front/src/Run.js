@@ -261,14 +261,14 @@ function Run(props){
     }
     const preprocess = () =>{
      
-        nodeProcess(master_context.graphobj.nodes.get());
         edgeProcess(master_context.graphobj.edges.get(),master_context.graphobj.nodes.get());
+        nodeProcess(master_context.graphobj.nodes.get());
+
 
 
     }
 
 async function postToRustApi(){
-
 
 
     // let name_of_window = this.window.location;
@@ -294,19 +294,28 @@ async function postToRustApi(){
     
     // console.log((packet_to_misha_the_microsoft_engineer));
     //Check for Errors via the error_object
-    if(error_object.multiple_initial_states){
-        alert("\tMultiple Initial States!");
-        //reset object for next API request
-        error_object = {
-            no_label_transition: false,
-            multiple_initial_states: false,
-            no_initial_state:false
+    // if(error_object.multiple_initial_states){
+    //     alert("\tMultiple Initial States!");
+    //     //reset object for next API request
+    //     error_object = {
+    //         no_label_transition: false,
+    //         multiple_initial_states: false,
+    //         no_initial_state:false
 
-        }
-        return null;
-    }
+        // }
+        // return null;
     // if(error_object.epsilon_on_DFA){
     //     alert("Illegal Epsilon While in DFA-Mode");
+    //     error_object = {
+    //         multiple_initial_states :false,
+    //         no_label_transition: false,
+    //         no_initial_state:false,
+    //         epsilon_on_DFA: false
+    //     }
+    //   return null;
+    // }
+    // if(error_object.no_label_transition){
+    //     alert("\t\tUnlabeled Transition!");
     //     error_object = {
     //         multiple_initial_states :false,
     //         no_label_transition: false,
@@ -354,7 +363,6 @@ async function postToRustApi(){
 
     
     let Algorithms_are_the_computational_content_of_proofs = await fetch(url,postingObject);
-
     //reset error_object
     error_object = {
         multiple_initial_states :false,
@@ -403,15 +411,14 @@ async function postToRustApi(){
   
    async function onClickPingToApi(){
     //    event.preventDefault();
-    //lines 325 to 340 are for caching results of api requests, currently does nothin
         let empty_string = false;
         // let dump_var;
-        packet_to_misha_the_microsoft_engineer.input_strings = [];
+    packet_to_misha_the_microsoft_engineer.input_strings = [];
         // let process_empty_strings_array = [...row_entry_array];
-       user_input_row_collection.forEach((_,id)=>{
+    user_input_row_collection.forEach((_,id)=>{
         // (_ == "" ) ? packet_to_misha_the_microsoft_engineer.input_strings.push("null")  : packet_to_misha_the_microsoft_engineer.push(_);
 
-        packet_to_misha_the_microsoft_engineer.input_strings.push(_);
+    packet_to_misha_the_microsoft_engineer.input_strings.push(_);
         // (_=="") ? empty_string = true : packet_to_misha_the_microsoft_engineer.input_strings.push(_);
         // (empty_string) ?  process_empty_strings_array[id] = 1 : dump_var = 2;
        });
@@ -633,7 +640,7 @@ const WarningSign=()=>{
         {row_entry_array ? row_entry_array.map((_, key) => <RowInput key = {key} image={image_collection[row_entry_array[key]]}/> ):<></>}
         </div>
             <Popup open ={determinism_tf}>
-                <text>Invalid</text>
+                {/* <text>Invalid</text> */}
             </Popup>
             <Popup
             open={UIN_input}
@@ -642,7 +649,6 @@ const WarningSign=()=>{
                                 {  warning_display ? <WarningSign/> : <React.Fragment></React.Fragment>}
 
                   <InputGroup className="mb-2b" >
-
         
     <Form.Control type="text" onChange={(text) =>{set_text_form(text)}}  />
     <InputGroup.Append >
