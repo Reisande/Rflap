@@ -370,7 +370,7 @@ function setAccepting(props){
 
 
  function mount_styling()  {
-  let url = "http://worldclockapi.com/api/json/est/now";
+  let url = "https://worldclockapi.com/api/json/est/now";
     let postingObject = {
         method: "GET",
     }
