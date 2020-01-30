@@ -302,9 +302,8 @@ async function postToRustApi(){
     //         multiple_initial_states: false,
     //         no_initial_state:false
 
-        }
-        return null;
-    }
+        // }
+        // return null;
     // if(error_object.epsilon_on_DFA){
     //     alert("Illegal Epsilon While in DFA-Mode");
     //     error_object = {
