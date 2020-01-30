@@ -261,8 +261,9 @@ function Run(props){
     }
     const preprocess = () =>{
      
-        nodeProcess(master_context.graphobj.nodes.get());
         edgeProcess(master_context.graphobj.edges.get(),master_context.graphobj.nodes.get());
+        nodeProcess(master_context.graphobj.nodes.get());
+
 
 
     }
@@ -272,8 +273,8 @@ async function postToRustApi(){
 
 
     // let name_of_window = this.window.location;
-    // let url = "http://localhost:8080/api";
-    let url = `${window.location.origin}/api`;
+    let url = "http://localhost:8080/api";
+    // let url = `${window.location.origin}/api`;
 
     console.log('POSTED URL' + url);
     let postingObject = {
@@ -404,15 +405,14 @@ async function postToRustApi(){
   
    async function onClickPingToApi(){
     //    event.preventDefault();
-    //lines 325 to 340 are for caching results of api requests, currently does nothin
         let empty_string = false;
         // let dump_var;
-        packet_to_misha_the_microsoft_engineer.input_strings = [];
+    packet_to_misha_the_microsoft_engineer.input_strings = [];
         // let process_empty_strings_array = [...row_entry_array];
-       user_input_row_collection.forEach((_,id)=>{
+    user_input_row_collection.forEach((_,id)=>{
         // (_ == "" ) ? packet_to_misha_the_microsoft_engineer.input_strings.push("null")  : packet_to_misha_the_microsoft_engineer.push(_);
 
-        packet_to_misha_the_microsoft_engineer.input_strings.push(_);
+    packet_to_misha_the_microsoft_engineer.input_strings.push(_);
         // (_=="") ? empty_string = true : packet_to_misha_the_microsoft_engineer.input_strings.push(_);
         // (empty_string) ?  process_empty_strings_array[id] = 1 : dump_var = 2;
        });
