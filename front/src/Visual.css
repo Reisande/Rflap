@@ -7,16 +7,17 @@
 }
 
 #graph-display{
-    
+        
     outline:none;
     border:black !important;
 }
-#graph-display > {border:blue;outline:none};
+#graph-display > {outline:none};
 
 
 canvas{
     outline:black;
     border:black;
+
 }
 .vis-network{
 
@@ -61,16 +62,22 @@ canvas{
     /* position: absolute; */
 
 }
-#trash_button{
+#trash_button,#add_button_image, #trash_button_image{
  /* float:right; */
  outline:none;
+
+}
+#add_button_visual{
+    position: relative;
+    top: .65em;
+    left: -.83em;
+    outline:none;
 
 }
 #trash_button_input{
     position: relative;
     top: .7em;
-    left: -1em;
+    left: -2.3em;
     outline:none;
-
-
 }
+

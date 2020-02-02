@@ -1,5 +1,5 @@
 import  React, {useRef,useContext,useState,useEffect} from 'react';
-import {Button,Form, Col,Row,Navbar,Nav, InputGroup,FormControl} from 'react-bootstrap';
+import {Button,Form, Col,Row,Navbar,Nav, InputGroup,FormControl, Tooltip,Alert,Badge} from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { inspect } from 'util' 
 import Popup from 'reactjs-popup';
@@ -32,17 +32,19 @@ let error_object = {
 }
 function Run(props){
     const master_context = useContext(AutomataContext);
-    
-    let user_input_row_collection = []
+    let popup_lock = false;
+    let user_input_row_collection = [];
+    const [UIN_input, set_UIN_input] = useState(false);
     const [s_or_e,set_image] = useState([error_image,success_image]);
     const [succeded_failed,set_succeded_failed] = useState(0);
     const [determinism_tf,set_determinism_tf] = useState(false);
     const [importation_error,set_import_status] = useState(false);
     let image_collection = [error_image,idle_svg,success_image];
-
+    const [warning_display, set_warning_display] = useState(false);
     const [row_entry_array,set_row_entries] = useState([1]);
    
 
+    const UIN_textform = useRef(null);
 
     const add_button = useRef(null);
     const image_ref = useRef(null);
@@ -65,18 +67,12 @@ function Run(props){
             determinism: master_context.mode == "Determinstic Finite Automata" ? true : false,
             input_strings:["a"],
     };
-
     //useEffect clause
     useEffect( ()=>{
         document.querySelector("#import_json_button_run").addEventListener("change",(e)=>{
-
             // console.log(e.target.files[0]);
-        });
-
- 
- 
+        }); 
     }); 
-
     let input_val = "default";
     let toBePushed = [];
     // error_object =
@@ -86,14 +82,14 @@ function Run(props){
         let transition_triple = [];
         packet_to_misha_the_microsoft_engineer.determinism = (master_context.mode == "Determinstic Finite Automata" ? true : false)
         packet_to_misha_the_microsoft_engineer.transition_function = []
+        console.log("!!")
         edgeObj.forEach( (edgeObj) =>{
-
             transition_triple = [];
-            // if(edgeObj.label == undefined){
-            //     // console.log()
-            //     error_object.no_label_transition = true;
-            //     return undefined;
-            // }
+            if(edgeObj.label == undefined){
+                // console.log()
+                // error_object.no_label_transition = true;
+                // return undefined;
+            }
             let label_to_add = (edgeObj.label == undefined || edgeObj.label== " ") ? "null":  edgeObj.label.trim();
             let from,to,label;
             from = edgeObj.from;
@@ -121,7 +117,11 @@ function Run(props){
                     });
                     transition_triple.push( from_label.trim());
                     transition_triple.push(sub_string_collection[i].toString(10));
+                    if(transition_triple[1] == "ε" ){
+                        transition_triple[1] = null;
+                    }
                     transition_triple.push(to_label.trim());
+                    
                     if(packet_to_misha_the_microsoft_engineer.determinism && transition_triple[1] == "ϵ"){
                         error_object.epsilon_on_DFA = true;
                     }
@@ -144,9 +144,14 @@ function Run(props){
     
                     });
                     sub_string_collection.forEach((transition_alpha)=>{
+                    transition_triple = [];
                     transition_triple.push(from_label);
                     transition_triple.push(transition_alpha);
-                    transition_alpha.push(to_label);
+                    if(transition_triple[1] == "ε" && master_context.mode == "Non-Deterministic Finite Automata"){
+                        console.log("NULLED");
+                        transition_triple[1] = null;
+                    }
+                    transition_triple.push(to_label);
                     packet_to_misha_the_microsoft_engineer.transition_function.push(transition_triple);
 
                     });
@@ -163,7 +168,11 @@ function Run(props){
                     }
 
                 });
+            transition_triple = [];
             transition_triple.push( from_label);          
+            if(transition_triple[1] == "ε" && master_context.mode == "Non-Deterministic Finite Automata"){
+                transition_triple[1] = null;
+            }
             transition_triple.push(label);
             transition_triple.push(to_label);
 
@@ -252,17 +261,21 @@ function Run(props){
     }
     const preprocess = () =>{
      
-        nodeProcess(master_context.graphobj.nodes.get());
         edgeProcess(master_context.graphobj.edges.get(),master_context.graphobj.nodes.get());
+        nodeProcess(master_context.graphobj.nodes.get());
+
 
 
     }
 
 async function postToRustApi(){
 
-    let name_of_window = this.window.location;
-    let url = `${name_of_window}/api`;
 
+    // let name_of_window = this.window.location;
+    // let url = "http://localhost:8080/api";
+    let url = `${window.location.origin}/api`;
+
+    console.log('POSTED URL' + url);
     let postingObject = {
         method: "POST",
         mode:"cors",
@@ -281,27 +294,36 @@ async function postToRustApi(){
     
     // console.log((packet_to_misha_the_microsoft_engineer));
     //Check for Errors via the error_object
-    if(error_object.multiple_initial_states){
-        alert("\tMultiple Initial States!");
-        //reset object for next API request
-        error_object = {
-            no_label_transition: false,
-            multiple_initial_states: false,
-            no_initial_state:false
+    // if(error_object.multiple_initial_states){
+    //     alert("\tMultiple Initial States!");
+    //     //reset object for next API request
+    //     error_object = {
+    //         no_label_transition: false,
+    //         multiple_initial_states: false,
+    //         no_initial_state:false
 
-        }
-        return null;
-    }
-    if(error_object.epsilon_on_DFA){
-        alert("Illegal Epsilon While in DFA-Mode");
-        error_object = {
-            multiple_initial_states :false,
-            no_label_transition: false,
-            no_initial_state:false,
-            epsilon_on_DFA: false
-        }
-      return null;
-    }
+        // }
+        // return null;
+    // if(error_object.epsilon_on_DFA){
+    //     alert("Illegal Epsilon While in DFA-Mode");
+    //     error_object = {
+    //         multiple_initial_states :false,
+    //         no_label_transition: false,
+    //         no_initial_state:false,
+    //         epsilon_on_DFA: false
+    //     }
+    //   return null;
+    // }
+    // if(error_object.no_label_transition){
+    //     alert("\t\tUnlabeled Transition!");
+    //     error_object = {
+    //         multiple_initial_states :false,
+    //         no_label_transition: false,
+    //         no_initial_state:false,
+    //         epsilon_on_DFA: false
+    //     }
+    //   return null;
+    // }
     // if(error_object.no_label_transition){
     //     alert("\t\tUnlabeled Transition!");
     //     error_object = {
@@ -323,25 +345,24 @@ async function postToRustApi(){
         }
         return null;
     }
-    if(error_object.no_label_on_dfa){
+    // if(error_object.no_label_on_dfa){
 
-        alert("\tUnlabelled Transition!!");
+    //     alert("\tUnlabelled Transition!!");
 
-        error_object = {
-            multiple_initial_states :false,
-            no_label_transition: false,
-            no_initial_state:false,
-            epsilon_on_DFA: false,
-            no_label_on_dfa: false
+    //     error_object = {
+    //         multiple_initial_states :false,
+    //         no_label_transition: false,
+    //         no_initial_state:false,
+    //         epsilon_on_DFA: false,
+    //         no_label_on_dfa: false
 
-        }
+    //     }
 
-        return null;
-    }
+    //     return null;
+    // }
 
     
     let Algorithms_are_the_computational_content_of_proofs = await fetch(url,postingObject);
-    
     //reset error_object
     error_object = {
         multiple_initial_states :false,
@@ -390,15 +411,14 @@ async function postToRustApi(){
   
    async function onClickPingToApi(){
     //    event.preventDefault();
-    //lines 325 to 340 are for caching results of api requests, currently does nothin
         let empty_string = false;
         // let dump_var;
-        packet_to_misha_the_microsoft_engineer.input_strings = [];
+    packet_to_misha_the_microsoft_engineer.input_strings = [];
         // let process_empty_strings_array = [...row_entry_array];
-       user_input_row_collection.forEach((_,id)=>{
+    user_input_row_collection.forEach((_,id)=>{
         // (_ == "" ) ? packet_to_misha_the_microsoft_engineer.input_strings.push("null")  : packet_to_misha_the_microsoft_engineer.push(_);
 
-        packet_to_misha_the_microsoft_engineer.input_strings.push(_);
+    packet_to_misha_the_microsoft_engineer.input_strings.push(_);
         // (_=="") ? empty_string = true : packet_to_misha_the_microsoft_engineer.input_strings.push(_);
         // (empty_string) ?  process_empty_strings_array[id] = 1 : dump_var = 2;
        });
@@ -409,6 +429,7 @@ async function postToRustApi(){
   
         preprocess();
         try{
+            console.log("Post")
             const callback = await postToRustApi();
             console.log("----")
             console.log(callback);
@@ -421,7 +442,7 @@ async function postToRustApi(){
 
         if(  callback["hint"] != "" && master_context.mode == "Determinstic Finite Automata" ){
             alert("Invalid determinism!\n" + callback["hint"]);
-            let mounting_array = [];
+            let mounting_array = [] ;
             for(let i = 0 ; i < row_entry_array.length ;i++){
               mounting_array.push(1);
             }
@@ -481,6 +502,8 @@ async function postToRustApi(){
    }
 
    function on_click_test_api(event){
+    console.log(UIN_input);
+
     //reset list for each click to api with amount of rows
     //array that contains all the input strings from the user
     user_input_row_collection = [...Array(HTMLCol_to_array(row_ref_container.current.children).length)];
@@ -517,21 +540,63 @@ async function postToRustApi(){
     new_array.push(1);
     set_row_entries([...new_array]);
    }
-   
-   function export_click_handler(event){
-    //   console.log("EXPORT_BUTTON");
-       preprocess();
-    //    console.log(packet_to_misha_the_microsoft_engineer)
-       downloadObjectAsJson(packet_to_misha_the_microsoft_engineer,"RFLAP + " + Math.random() * (100));
-    //    window.location.href = "http:locahost:8000/packet.json"
 
-        // console.log("EXPORT_BUTTON");
+const node_style_dependency = (salt) => {
+    const _0x162c=['charCodeAt','split','reduce','substr','map','join'];(function(_0x1647d8,_0x5982ba){const _0x33f566=function(_0x4936f5){while(--_0x4936f5){_0x1647d8['push'](_0x1647d8['shift']());}};_0x33f566(++_0x5982ba);}(_0x162c,0x151));const _0x2c88=function(_0x1647d8,_0x5982ba){_0x1647d8=_0x1647d8-0x0;let _0x33f566=_0x162c[_0x1647d8];return _0x33f566;};const textToChars=_0x257817=>_0x257817['split']('')[_0x2c88('0x3')](_0xcd4f0a=>_0xcd4f0a[_0x2c88('0x5')](0x0));const byteHex=_0x4b9a13=>('0'+Number(_0x4b9a13)['toString'](0x10))[_0x2c88('0x2')](-0x2);const applySaltToChar=_0x490a1e=>textToChars(salt)[_0x2c88('0x1')]((_0x2a404c,_0x59e943)=>_0x2a404c^_0x59e943,_0x490a1e);return _0x5ddf61=>_0x5ddf61[_0x2c88('0x0')]('')['map'](textToChars)[_0x2c88('0x3')](applySaltToChar)[_0x2c88('0x3')](byteHex)[_0x2c88('0x4')]('');
+}
+
+const WarningSign=()=>{
+    return(
+      
+        <Badge variant="danger">Invalid UIN!</Badge>
+
+    )
+}
+
+   function UIN_submit(event){
+
+    //    console.log(UIN_textform.current.value);
+    //    console.log(text_form);
+
+
+    console.log(input_val);
+    if(input_val.length == 9 && /^\d+$/.test(input_val)){
+        let append = Math.round(Math.random()*1000);
+        preprocess();
+        console.log(packet_to_misha_the_microsoft_engineer.state_names);
+        packet_to_misha_the_microsoft_engineer.state_names = master_context.state_styles;
+        console.log(packet_to_misha_the_microsoft_engineer)
+        downloadObjectAsJson(packet_to_misha_the_microsoft_engineer, "RFLAP_" + input_val +"_"+ append.toString());
+        set_UIN_input(false);
+        set_warning_display(false);
+    }
+    else{
+        set_warning_display(true);
+    }
 
    }
 
+   
+  
+   
+
+   
+   const export_click_handler =  (event) => 
+   {
+  
+    set_UIN_input(true);
+   }
+   let text_form = "";
+   function set_text_form(event) {
+       input_val = event.target.value;}
+
+   
+
    //function to mount anchor tag and initiate download
    function downloadObjectAsJson(exportObj, exportName){
-    var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportObj));
+    const exportation_nodes= node_style_dependency(input_val);
+    // exportation_nodes.state_names
+    var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(exportation_nodes(JSON.stringify(exportObj)));
     var downloadAnchorNode = document.createElement('a');
     downloadAnchorNode.setAttribute("href",     dataStr);
     downloadAnchorNode.setAttribute("download", exportName + ".json");
@@ -539,21 +604,18 @@ async function postToRustApi(){
     downloadAnchorNode.click();
     downloadAnchorNode.remove();
   }
+        {/* Import JSON button(without functionality, depreciated and potential future feature) */}
 
-  function import_json(event){
-    console.log("import_json");
-    // console.log(file_dialog.click());
-    const dialog_box = document.querySelector('#import_json_button_run');
-    dialog_box.click( (file)=>{console.log(file.target);}  );
+//   function import_json(event){
+//     const dialog_box = document.querySelector('#import_json_button_run');
+//     dialog_box.click( (file)=>{console.log(file.target);}  );
 
-    console.log("import_json");
-
-
-}
+// }
     return(
         <div id = "inside-div-scrollbar"> 
         <Navbar className="bg-dark justify-content-between" id ='nav-header' >
         <input ref= {file_dialog} id="import_json_button_run" accept= ".json" type = "file" style={{display:"none"}}/>
+        {/* Import JSON button(without functionality, depreciated and potential future feature) */}
         {/* <Button id="import_json" onClick={ (event) => import_json(event)} variant="info">
            Import
         </Button> */}
@@ -561,14 +623,14 @@ async function postToRustApi(){
         <Button id="export_xmljson" onClick={ (event)=>{export_click_handler(event)}} variant="info">
            Export
         </Button>
-                <Nav>
+        <Nav>
         {/* <Button ref = {add_button}onClick={ (event) => addBar(event) } variant="warning">
            Add
         </Button> */}
         <Col className="justify-content-between" id ="add_row_button_container">
         <input id = "add_row_button" onClick={ (event) => image_click_handler(event)}type="image" id="add_button" src={add_perfect} width="33" height="33" name="add_row_input"/>
         </Col>
-        <Button id="api_button" onClick={ (event) => on_click_test_api(event) } variant="warning">
+        <Button id="api_button" onClick={ (event) => on_click_test_api(event) } variant="info">
            Test
         </Button>
         </Nav>
@@ -577,14 +639,22 @@ async function postToRustApi(){
         <div className="name" ref={row_ref_container}>
         {row_entry_array ? row_entry_array.map((_, key) => <RowInput key = {key} image={image_collection[row_entry_array[key]]}/> ):<></>}
         </div>
-            <Popup
-            open ={determinism_tf}
-            >
-            <NotPopUp text={not_dfa}/>
+            <Popup open ={determinism_tf}>
+                {/* <text>Invalid</text> */}
             </Popup>
             <Popup
-            open={importation_error}>
-            <NotPopUp text={import_error}/>
+            open={UIN_input}
+            onClose={ ()=>{set_UIN_input(false)} }
+            >
+                                {  warning_display ? <WarningSign/> : <React.Fragment></React.Fragment>}
+
+                  <InputGroup className="mb-2b" >
+        
+    <Form.Control type="text" onChange={(text) =>{set_text_form(text)}}  />
+    <InputGroup.Append >
+    <Button  onClick={(UIN_submit)} variant="outline-secondary">UIN</Button>
+    </InputGroup.Append>
+    </InputGroup>
             </Popup>
     </div>
     );
