@@ -173,7 +173,7 @@ useEffect( ()=>{
     // console.log("hoverNode: ");
     let node_id_clicked = params.node;
     if(in_add_node_mode){
-      console.log("GRAPH NODE LENGTH : " + graph.nodes.get().length);
+      // console.log("GRAPH NODE LENGTH : " + graph.nodes.get().length);
       // console.log("add_node_mode");
       nodesDS.remove({id:node_id_clicked});
       let new_id = node_id_global;
@@ -206,7 +206,7 @@ useEffect( ()=>{
     edgesDS.update([{id:edge_identifier, arrows:'to'}])
   });
   network.on("select", (params)=>{
-    console.log("select");
+    // console.log("select");
    
     if( (params != null ) && in_initial_mode && (params.nodes > 0 || params.nodes[0] !=null)){
    
@@ -239,8 +239,8 @@ useEffect( ()=>{
       // console.log("SET THE INITIAL COLOR: ");
       // console.log(final_color);
       if(found_node.init == true){
-        console.log("INITIAL TAG REMOVED");
-        console.log(final_state)
+        // console.log("INITIAL TAG REMOVED");
+        // console.log(final_state)
         nodesDS.update([{id:found_node.id, shape: final_state, init:false }]);
       }
       else{
@@ -332,7 +332,7 @@ const findEdgeByNodes = (from,to) =>{
     }
 
   })
-  console.log(return_id);
+  // console.log(return_id);
     return return_id; 
 
 }
