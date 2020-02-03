@@ -8,15 +8,15 @@ use serde_json::Result;
 
 #[derive(Debug, Deserialize)]
 pub struct TestsJson {
-    alphabet: HashSet<char>,
-    length: u8, // longest string
-    size: u8,   // how many strings for non deterministic, ignored for deterministic
-    random: bool,
+    pub alphabet: HashSet<char>,
+    pub length: u16, // longest string
+    pub size: u16,   // how many strings
+    pub random: bool,
 }
 
 #[derive(Debug, Serialize)]
 pub struct TestsJsonCallback {
-    return_vec: Vec<String>,
+    pub return_vec: Vec<String>,
 }
 
 pub fn generate_tests(input_json: TestsJson) -> TestsJsonCallback {
@@ -30,7 +30,7 @@ pub fn generate_tests(input_json: TestsJson) -> TestsJsonCallback {
         while return_vec.len() < input_json.size.try_into().unwrap() {
             let mut rng = rand::thread_rng();
 
-            let string_length: u8 = rng.gen_range(0, input_json.length);
+            let string_length: u16 = rng.gen_range(0, input_json.length);
 
             let new_test_string: String = (0..string_length)
                 .map(|_| {
@@ -53,6 +53,10 @@ pub fn generate_tests(input_json: TestsJson) -> TestsJsonCallback {
                     prefix.pop();
                 }
                 position += 1;
+            }
+
+            if return_vec.len() as u16 >= input_json.size {
+                break;
             }
         }
     }
