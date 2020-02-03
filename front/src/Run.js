@@ -148,7 +148,7 @@ function Run(props){
                     transition_triple.push(from_label);
                     transition_triple.push(transition_alpha);
                     if(transition_triple[1] == "ε" && master_context.mode == "Non-Deterministic Finite Automata"){
-                        console.log("NULLED");
+                        // console.log("NULLED");
                         transition_triple[1] = null;
                     }
                     transition_triple.push(to_label);
