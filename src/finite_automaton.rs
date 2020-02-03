@@ -106,7 +106,7 @@ impl FiniteAutomaton {
         current_state: String,
         transition_char: char,
         call_size: u32,
-    ) -> Result<(bool, Vec<(char, String)>)> {
+    ) -> (bool, Vec<(char, String)>) {
         if call_size >= 1500 {
             panic!("overflow")
         }
@@ -119,7 +119,7 @@ impl FiniteAutomaton {
                 None => false,
             };
             if is_final {
-                Ok((true, current_path.to_owned()))
+                (true, current_path.to_owned())
             } else {
                 // after the current symbol has been checked should check for epsilon transitions
                 let target_vec_epsilon_transitions = match self
@@ -140,12 +140,12 @@ impl FiniteAutomaton {
                         'Ɛ'.to_owned(),
                         call_size + 1,
                     ) {
-                        Ok((true, r)) => return Ok((true, r)),
+                        (true, r) => return (true, r),
                         _ => continue,
                     };
                 }
 
-                Ok((false, current_path))
+                (false, current_path)
             }
         } else {
             let search_tuple = (current_state.to_owned(), Some(validate_string[position]));
@@ -164,7 +164,7 @@ impl FiniteAutomaton {
                     validate_string[position],
                     call_size + 1,
                 ) {
-                    Ok((true, r)) => return Ok((true, r)),
+                    (true, r) => return (true, r),
                     _ => continue,
                 };
             }
@@ -187,12 +187,12 @@ impl FiniteAutomaton {
                     'Ɛ'.to_owned(),
                     call_size + 1,
                 ) {
-                    Ok((true, r)) => return Ok((true, r)),
+                    (true, r) => return (true, r),
                     _ => continue,
                 };
             }
 
-            Ok((false, current_path.to_owned()))
+            (false, current_path.to_owned())
         }
     }
 
@@ -213,17 +213,14 @@ impl FiniteAutomaton {
         let return_vec: Vec<(char, String)> = Vec::new();
 
         let validate_vec: Vec<char> = validate_string.chars().collect();
-        let (accepted, return_vec) = match self._validate_string(
+        let (accepted, return_vec) = self._validate_string(
             &validate_vec,
             0,
             return_vec,
             self.start_state.to_owned(),
             '_',
             0,
-        ) {
-            Ok((accepted, return_vec)) => (accepted, return_vec),
-            Err(_) => panic!("Overflow"),
-        };
+        );
 
         (
             self.is_deterministic.to_owned(),
