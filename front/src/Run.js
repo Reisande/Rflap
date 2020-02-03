@@ -82,7 +82,7 @@ function Run(props){
         let transition_triple = [];
         packet_to_misha_the_microsoft_engineer.determinism = (master_context.mode == "Determinstic Finite Automata" ? true : false)
         packet_to_misha_the_microsoft_engineer.transition_function = []
-        console.log("!!")
+        // console.log("!!")
         edgeObj.forEach( (edgeObj) =>{
             transition_triple = [];
             if(edgeObj.label == undefined){
@@ -193,8 +193,8 @@ function Run(props){
 
         } );
         // console.log("-----");
-        console.log("FINAL ALPHABET:");
-        console.log(alphabet_processed);
+        // console.log("FINAL ALPHABET:");
+        // console.log(alphabet_processed);
         // console.log("FINAL ALPHABET:");
 
         packet_to_misha_the_microsoft_engineer.alphabet = alphabet_processed;
@@ -243,7 +243,7 @@ function Run(props){
                 }
             }
         });
-        console.log(multiple_initial_states_check);
+        // console.log(multiple_initial_states_check);
         if(multiple_initial_states_check == false){
             error_object.no_initial_state = true;
             return;
