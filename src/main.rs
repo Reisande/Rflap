@@ -53,32 +53,6 @@ fn main() -> io::Result<()> {
         api(serde_json::de::from_str::<finite_automaton::FiniteAutomatonJson>(&buffer).unwrap());
     } else if &args[1] == "tests" {
         tests(serde_json::de::from_str::<generate_tests::TestsJson>(&buffer).unwrap());
-    } else if &args[1] == "grading" {
-        let mut buffer_answer = String::new();
-
-        // instructor input
-        io::stdin().read_to_string(&mut buffer_answer)?;
-
-        // for the actual grading, we should show like 20 shorter strings and hide 80,
-        let public_tests = grade(
-            serde_json::de::from_str::<finite_automaton::FiniteAutomatonJson>(&buffer).unwrap(),
-            serde_json::de::from_str::<finite_automaton::FiniteAutomatonJson>(&buffer_answer)
-                .unwrap(),
-            10,
-        );
-        let hidden_tests = grade(
-            serde_json::de::from_str::<finite_automaton::FiniteAutomatonJson>(&buffer).unwrap(),
-            serde_json::de::from_str::<finite_automaton::FiniteAutomatonJson>(&buffer_answer)
-                .unwrap(),
-            90,
-        );
-
-        // then initialize a data structure which follows the output of results.json
-        // the only members out of results.json which matter are score and tests
-        // the only members of tests which we care about are
-
-        // then serialize and write to a file like ./results.json
-        // can we make multiple results.json, without having to merge them together?
     }
 
     Ok(())
