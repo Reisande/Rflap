@@ -82,7 +82,7 @@ function Run(props){
         let transition_triple = [];
         packet_to_misha_the_microsoft_engineer.determinism = (master_context.mode == "Determinstic Finite Automata" ? true : false)
         packet_to_misha_the_microsoft_engineer.transition_function = []
-        console.log("!!")
+        // console.log("!!")
         edgeObj.forEach( (edgeObj) =>{
             transition_triple = [];
             if(edgeObj.label == undefined){
@@ -148,7 +148,7 @@ function Run(props){
                     transition_triple.push(from_label);
                     transition_triple.push(transition_alpha);
                     if(transition_triple[1] == "ε" && master_context.mode == "Non-Deterministic Finite Automata"){
-                        console.log("NULLED");
+                        // console.log("NULLED");
                         transition_triple[1] = null;
                     }
                     transition_triple.push(to_label);
@@ -183,7 +183,7 @@ function Run(props){
 
         });
         let alphabet_processed = [];
-        console.log("-----");
+        // console.log("-----");
         [...new Set(toBePushed)].forEach( (entry,id) =>{
             entry.split(",").forEach( (char)=>{
                     alphabet_processed.push(char);
@@ -192,10 +192,10 @@ function Run(props){
             
 
         } );
-        console.log("-----");
-        console.log("FINAL ALPHABET:");
-        console.log(alphabet_processed);
-        console.log("FINAL ALPHABET:");
+        // console.log("-----");
+        // console.log("FINAL ALPHABET:");
+        // console.log(alphabet_processed);
+        // console.log("FINAL ALPHABET:");
 
         packet_to_misha_the_microsoft_engineer.alphabet = alphabet_processed;
         // console.log(edgeObj);
@@ -213,10 +213,10 @@ function Run(props){
         // accepting: #FF8632
         // intial: #00bfff
         let sState = "";
-        console.log("LINEAR SEARCH:")
+        // console.log("LINEAR SEARCH:")
         nodeObj.forEach((node)=>{
 
-            console.log(node);
+            // console.log(node);
             //Accumulates all states
             if( !(states.includes(node.label)) ){
                 states.push( ""+node.label.trim());
@@ -243,7 +243,7 @@ function Run(props){
                 }
             }
         });
-        console.log(multiple_initial_states_check);
+        // console.log(multiple_initial_states_check);
         if(multiple_initial_states_check == false){
             error_object.no_initial_state = true;
             return;
@@ -275,7 +275,7 @@ async function postToRustApi(){
     // let url = "http://localhost:8080/api";
     let url = `${window.location.origin}/api`;
 
-    console.log('POSTED URL' + url);
+    // console.log('POSTED URL' + url);
     let postingObject = {
         method: "POST",
         mode:"cors",
@@ -288,7 +288,7 @@ async function postToRustApi(){
         // referrer: "no-referrer",
         body: JSON.stringify(packet_to_misha_the_microsoft_engineer)
     }
-    console.log(JSON.stringify(packet_to_misha_the_microsoft_engineer));
+    // console.log(JSON.stringify(packet_to_misha_the_microsoft_engineer));
     // console.log("callback")
     
     
@@ -378,21 +378,21 @@ async function postToRustApi(){
     let determinism_callback = listOfStringsCallback[1];
     let determinism_index = 1;
     let bool_check_for_determinism = false;
-    console.log("-");
-    console.log(listOfStringsCallback);
-    console.log("-");
-    console.log(listOfStringsCallback);
-    console.log(single_entry);
+    // console.log("-");
+    // console.log(listOfStringsCallback);
+    // console.log("-");
+    // console.log(listOfStringsCallback);
+    // console.log(single_entry);
     if(master_context['mode'] == "Determinstic Finite Automata"){
 
         if(single_entry == true){
-            console.log(listOfStringsCallback[0][1]);
-            console.log("First");
-            console.log(!listOfStringsCallback[0][1]);
+            // console.log(listOfStringsCallback[0][1]);
+            // console.log("First");
+            // console.log(!listOfStringsCallback[0][1]);
             return !listOfStringsCallback[0][1];
         }
         else{
-            console.log("Second");
+            // console.log("Second");
 
             listOfStringsCallback.forEach((_,id)=>{
                 if(!_[determinism_index]){
@@ -425,18 +425,18 @@ async function postToRustApi(){
     //    console.log(process_empty_strings_array);
     //    set_row_entries([...process_empty_strings_array]);
     
-       console.log("USER INPUT STRINGS:" + (packet_to_misha_the_microsoft_engineer.input_strings));
+    //    console.log("USER INPUT STRINGS:" + (packet_to_misha_the_microsoft_engineer.input_strings));
   
         preprocess();
         try{
-            console.log("Post")
+            // console.log("Post")
             const callback = await postToRustApi();
-            console.log("----")
-            console.log(callback);
-            console.log("----")
+            // console.log("----")
+            // console.log(callback);
+            // console.log("----")
 
             if(callback == null){
-                console.log("EXITING . . .")
+                // console.log("EXITING . . .")
                 return;
             }
 
@@ -449,27 +449,27 @@ async function postToRustApi(){
             set_row_entries([...mounting_array]);
         }
         else{
-            console.log("CALBACK")
-            console.log(callback);
-            console.log("CALBACK")
+            // console.log("CALBACK")
+            // console.log(callback);
+            // console.log("CALBACK")
 
             let new_array;
 
         if(row_entry_array.length == 1){
-            console.log("row_entry = 1");
+            // console.log("row_entry = 1");
             callback.list_of_strings[0][1] ? new_array = [2] : new_array = [0];
-            console.log(callback.list_of_strings[0][0])
+            // console.log(callback.list_of_strings[0][0])
             set_row_entries([...new_array]);
             // console.log("SINGLE row entry api call: ");
             // console.log( callback);
         }   
         else{
             let array_to_mount = [];
-            console.log("YOLO")
+            // console.log("YOLO")
             // console.log("ENSEMBLE row entries api call");
             // console.log(callback);
             //iterate through each array for each row index and declare it either rejected or accepted
-            console.log("---")
+            // console.log("---")
             
                     for(let i = 0 ; i < row_entry_array.length ;i++){
                         // console.log(callback.list_of_strings[i][1]);
@@ -480,8 +480,8 @@ async function postToRustApi(){
                             array_to_mount.push(0);
                         }
                     }
-                    console.log("---")
-                    console.log(array_to_mount);
+                    // console.log("---")
+                    // console.log(array_to_mount);
                     set_row_entries([...array_to_mount]);
                 
                 
@@ -502,7 +502,7 @@ async function postToRustApi(){
    }
 
    function on_click_test_api(event){
-    console.log(UIN_input);
+    // console.log(UIN_input);
 
     //reset list for each click to api with amount of rows
     //array that contains all the input strings from the user
@@ -559,13 +559,13 @@ const WarningSign=()=>{
     //    console.log(text_form);
 
 
-    console.log(input_val);
+    // console.log(input_val);
     if(input_val.length == 9 && /^\d+$/.test(input_val)){
         let append = Math.round(Math.random()*1000);
         preprocess();
-        console.log(packet_to_misha_the_microsoft_engineer.state_names);
+        // console.log(packet_to_misha_the_microsoft_engineer.state_names);
         packet_to_misha_the_microsoft_engineer.state_names = master_context.state_styles;
-        console.log(packet_to_misha_the_microsoft_engineer)
+        // console.log(packet_to_misha_the_microsoft_engineer)
         downloadObjectAsJson(packet_to_misha_the_microsoft_engineer, "RFLAP_" + input_val +"_"+ append.toString());
         set_UIN_input(false);
         set_warning_display(false);
