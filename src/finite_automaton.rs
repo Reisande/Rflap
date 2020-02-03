@@ -12,7 +12,7 @@ use std::iter::FromIterator;
 
 #[derive(Debug, Deserialize)]
 pub struct FiniteAutomatonJson {
-    alphabet: HashSet<char>,
+    pub alphabet: HashSet<char>,
     start_state: String,
     states: HashMap<String, bool>,
     transition_function: Vec<(String, Option<char>, String)>,
@@ -67,8 +67,13 @@ impl FiniteAutomaton {
         let mut new_transition_function: MultiMap<(String, Option<char>), String> = MultiMap::new();
 
         for element in json_struct.transition_function.iter() {
+            let mut insert_middle = element.1;
+            if element.1 == Some('ϵ') {
+                insert_middle = None;
+            }
+
             new_transition_function.insert(
-                (element.0.to_owned(), element.1.to_owned()),
+                (element.0.to_owned(), insert_middle.to_owned()),
                 element.2.to_owned(),
             );
         }
@@ -191,7 +196,7 @@ impl FiniteAutomaton {
     // this function assumes that the validation that the string is valid for the
     // alphabet occurs on the client side
 
-    // return API dictates: (is_deterministic, accepted, path)
+    // return API dictates: (is_deterministic, accepted, path, hint)
     // string is any possible hint in creation
     pub fn validate_string(
         &self,
