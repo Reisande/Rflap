@@ -105,7 +105,12 @@ impl FiniteAutomaton {
         mut current_path: Vec<(char, String)>,
         current_state: String,
         transition_char: char,
+        call_size: u32,
     ) -> (bool, Vec<(char, String)>) {
+        if call_size >= 1500 {
+            panic!("overflow")
+        }
+
         current_path.push((transition_char, current_state.to_owned()));
 
         if position == validate_string.len() {
@@ -133,6 +138,7 @@ impl FiniteAutomaton {
                         current_path.to_owned(),
                         target_state,
                         'Ɛ'.to_owned(),
+                        call_size + 1,
                     ) {
                         (true, r) => return (true, r),
                         _ => continue,
@@ -156,6 +162,7 @@ impl FiniteAutomaton {
                     current_path.to_owned(),
                     (*target_state).to_owned(),
                     validate_string[position],
+                    call_size + 1,
                 ) {
                     (true, r) => return (true, r),
                     _ => continue,
@@ -178,6 +185,7 @@ impl FiniteAutomaton {
                     current_path.to_owned(),
                     target_state,
                     'Ɛ'.to_owned(),
+                    call_size + 1,
                 ) {
                     (true, r) => return (true, r),
                     _ => continue,
@@ -211,6 +219,7 @@ impl FiniteAutomaton {
             return_vec,
             self.start_state.to_owned(),
             '_',
+            0,
         );
 
         (
