@@ -44,6 +44,7 @@ fn main() -> io::Result<()> {
     use std::io::Read;
 
     let mut buffer = String::new();
+    // student input
     io::stdin().read_to_string(&mut buffer)?;
 
     let args: Vec<String> = env::args().collect();
