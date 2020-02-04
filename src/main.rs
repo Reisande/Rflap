@@ -4,6 +4,7 @@ use std::collections::HashMap;
 use std::collections::HashSet;
 use std::env;
 use std::fs;
+use std::fs::File;
 use std::io;
 use std::io::{BufRead, BufReader, Error, Write};
 use std::path::Path;
@@ -120,49 +121,6 @@ struct Tests {
     visibility: String,
 }
 
-#[derive(Serialize, Deserialize)]
-struct GradingResults {
-    score: f32,
-    tests: Vec<Tests>,
-}
-
-impl GradingResults {
-    pub fn new(
-        public_tests: (u16, u16, Vec<String>, Vec<u8>, Vec<String>, Vec<u8>),
-        private_tests: (u16, u16, Vec<String>, Vec<u8>, Vec<String>, Vec<u8>),
-    ) -> GradingResults {
-        let final_score: f32 = ((public_tests.0 + private_tests.0) as f32)
-            / ((public_tests.1 + private_tests.1) as f32);
-
-        let mut tests: Vec<Tests> = Vec::new();
-
-        for test in 0..public_tests.2.len() {
-            tests.push(Tests {
-                score: public_tests.3[test] as f32,
-                name: public_tests.2[test].to_owned(),
-                number: (0, 0),
-                visibility: "visible".to_string(),
-            });
-        }
-
-        for test in 0..private_tests.4.len() {
-            tests.push(Tests {
-                score: public_tests.3[test] as f32,
-                name: public_tests.2[test].to_owned(),
-                number: (0, 0),
-                visibility: "hidden".to_string(),
-            });
-        }
-
-        GradingResults {
-            score: final_score,
-            tests: tests,
-        }
-    }
-
-    pub fn write_results(self) {}
-}
-
 fn main() -> io::Result<()> {
     use std::io::Read;
 
@@ -177,10 +135,9 @@ fn main() -> io::Result<()> {
         api(serde_json::de::from_str::<finite_automaton::FiniteAutomatonJson>(&buffer).unwrap());
     } else if &args[1] == "tests" {
         tests(serde_json::de::from_str::<generate_tests::TestsJson>(&buffer).unwrap());
-    } else if &args[1] == "grading" {
+    } else if &args[1] == "grade" {
         // answer file will be passed in the second command line argument
-        let path = Path::new(&args[2]);
-        let buffer_answer = fs::read_to_string(path)?;
+        let buffer_answer = fs::read_to_string(&args[2])?;
 
         // for the actual grading, we should show like 20 shorter strings and hide 80,
         let public_tests = grade(
@@ -199,9 +156,30 @@ fn main() -> io::Result<()> {
         // then initialize a data structure which follows the output of results.json
         // the only members out of results.json which matter are score and tests
         // the only members of tests which we care about are
+        let mut tests: Vec<Tests> = Vec::new();
 
-        // then serialize and write to a buffer file, which is then consolidated into a larger
-        // file by run_autograder
+        for test in 0..public_tests.2.len() {
+            tests.push(Tests {
+                score: public_tests.3[test] as f32,
+                name: public_tests.2[test].to_owned(),
+                number: (0, 0),
+                visibility: "visible".to_string(),
+            });
+        }
+
+        for test in 0..hidden_tests.4.len() {
+            tests.push(Tests {
+                score: public_tests.3[test] as f32,
+                name: public_tests.2[test].to_owned(),
+                number: (0, 0),
+                visibility: "hidden".to_string(),
+            });
+        }
+
+        let final_tests = serde_json::to_string(&tests)?;
+
+        let mut output = File::create(&args[3])?;
+        write!(output, "{}", final_tests)?;
     }
 
     Ok(())
