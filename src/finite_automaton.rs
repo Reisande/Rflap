@@ -107,7 +107,7 @@ impl FiniteAutomaton {
         transition_char: char,
         call_size: u32,
     ) -> (bool, Vec<(char, String)>) {
-        if call_size >= 1500 {
+        if call_size >= 200 {
             panic!("overflow")
         }
 
