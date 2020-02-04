@@ -3,7 +3,10 @@
 use std::collections::HashMap;
 use std::collections::HashSet;
 use std::env;
+use std::fs;
 use std::io;
+use std::io::{BufRead, BufReader, Error, Write};
+use std::path::Path;
 
 use serde::{Deserialize, Serialize};
 use serde_json::Result;
@@ -45,7 +48,7 @@ fn grade(
     source: finite_automaton::FiniteAutomatonJson,
     target: finite_automaton::FiniteAutomatonJson,
     num_tests: u16,
-) -> (u16, u16, Vec<String>, Vec<u8>, Vec<String>, Vec<u8>) {
+) -> (u16, u16, Vec<String>, Vec<u8>, Vec<String>, Vec<u8>, bool) {
     // generate TestsJson array
 
     let test_strings_deterministic = generate_tests::generate_tests(generate_tests::TestsJson {
@@ -66,8 +69,10 @@ fn grade(
     .return_vec;
     // run tests on source and target, check that the result is equal
 
-    let source = finite_automaton::FiniteAutomaton::new_from_json(&source).0;
-    let target = finite_automaton::FiniteAutomaton::new_from_json(&target).0;
+    let source: finite_automaton::FiniteAutomaton =
+        finite_automaton::FiniteAutomaton::new_from_json(&source).0;
+    let target: finite_automaton::FiniteAutomaton =
+        finite_automaton::FiniteAutomaton::new_from_json(&target).0;
 
     let mut deterministic_scores: Vec<u8> = Vec::new();
     let mut nondeterministic_scores: Vec<u8> = Vec::new();
@@ -103,6 +108,7 @@ fn grade(
         deterministic_scores,
         test_strings_nondeterministic,
         nondeterministic_scores,
+        source.is_deterministic() || !target.is_deterministic(),
     )
 }
 
@@ -110,6 +116,7 @@ fn grade(
 struct Tests {
     score: f32,
     name: String,
+    number: (u8, u8),
     visibility: String,
 }
 
@@ -129,18 +136,20 @@ impl GradingResults {
 
         let mut tests: Vec<Tests> = Vec::new();
 
-        for test in (0..public_tests.2.len()) {
+        for test in 0..public_tests.2.len() {
             tests.push(Tests {
                 score: public_tests.3[test] as f32,
                 name: public_tests.2[test].to_owned(),
+                number: (0, 0),
                 visibility: "visible".to_string(),
             });
         }
 
-        for test in (0..private_tests.4.len()) {
+        for test in 0..private_tests.4.len() {
             tests.push(Tests {
                 score: public_tests.3[test] as f32,
                 name: public_tests.2[test].to_owned(),
+                number: (0, 0),
                 visibility: "hidden".to_string(),
             });
         }
@@ -150,12 +159,15 @@ impl GradingResults {
             tests: tests,
         }
     }
+
+    pub fn write_results(self) {}
 }
 
 fn main() -> io::Result<()> {
     use std::io::Read;
 
     let mut buffer = String::new();
+
     // student input
     io::stdin().read_to_string(&mut buffer)?;
 
@@ -166,10 +178,9 @@ fn main() -> io::Result<()> {
     } else if &args[1] == "tests" {
         tests(serde_json::de::from_str::<generate_tests::TestsJson>(&buffer).unwrap());
     } else if &args[1] == "grading" {
-        let mut buffer_answer = String::new();
-
-        // instructor input
-        io::stdin().read_to_string(&mut buffer_answer)?;
+        // answer file will be passed in the second command line argument
+        let path = Path::new(&args[2]);
+        let buffer_answer = fs::read_to_string(path)?;
 
         // for the actual grading, we should show like 20 shorter strings and hide 80,
         let public_tests = grade(
@@ -189,8 +200,8 @@ fn main() -> io::Result<()> {
         // the only members out of results.json which matter are score and tests
         // the only members of tests which we care about are
 
-        // then serialize and write to a file like ./results.json
-        // can we make multiple results.json, without having to merge them together?
+        // then serialize and write to a buffer file, which is then consolidated into a larger
+        // file by run_autograder
     }
 
     Ok(())
