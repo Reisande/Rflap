@@ -50,13 +50,15 @@ pub fn generate_tests(input_json: TestsJson) -> TestsJsonCallback {
                 for letter in &alphabet_vec {
                     prefix.push(*letter);
                     return_vec.push(prefix.to_owned());
+                    if return_vec.len() as u16 >= input_json.size {
+                        println!("break: {} {} end", return_vec.len(), input_json.size);
+                        return TestsJsonCallback {
+                            return_vec: return_vec,
+                        };
+                    }
                     prefix.pop();
                 }
                 position += 1;
-            }
-
-            if return_vec.len() as u16 >= input_json.size {
-                break;
             }
         }
     }

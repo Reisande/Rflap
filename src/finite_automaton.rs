@@ -60,7 +60,7 @@ impl FiniteAutomaton {
             is_deterministic: a_is_deterministic,
         }
     }
-    
+
     pub fn new_from_json(
         json_struct: &FiniteAutomatonJson,
     ) -> (FiniteAutomaton, Vec<String>, String) {
@@ -93,9 +93,9 @@ impl FiniteAutomaton {
     }
 
     pub fn is_deterministic(self) -> bool {
-	self.is_deterministic
+        self.is_deterministic
     }
-    
+
     // convert the original string by using string.chars().collect()
     fn _validate_string(
         &self,

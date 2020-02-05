@@ -52,9 +52,12 @@ fn grade(
 ) -> (u16, u16, Vec<String>, Vec<u8>, Vec<String>, Vec<u8>, bool) {
     // generate TestsJson array
 
+    let mut alphabet = target.alphabet.to_owned();
+    alphabet.remove(&'Ɛ');
+
     let test_strings_deterministic = generate_tests::generate_tests(generate_tests::TestsJson {
-        alphabet: target.alphabet.to_owned(),
-        size: num_tests / 2, // how many strings for non deterministic, ignored for deterministic
+        alphabet: alphabet.to_owned(),
+        size: num_tests / 2, // how many strings for non deterministic
         length: 10,          // longest string
         random: false,
     })
@@ -62,8 +65,8 @@ fn grade(
     // then take out the first num_tests/2 elements from the vector
 
     let test_strings_nondeterministic = generate_tests::generate_tests(generate_tests::TestsJson {
-        alphabet: target.alphabet.to_owned(),
-        size: num_tests / 2, // how many strings for non deterministic, ignored for deterministic
+        alphabet: alphabet.to_owned(),
+        size: num_tests / 2, // how many strings for non deterministic
         length: 10,          // longest string
         random: true,
     })
@@ -109,7 +112,7 @@ fn grade(
         deterministic_scores,
         test_strings_nondeterministic,
         nondeterministic_scores,
-        source.is_deterministic() || !target.is_deterministic(),
+        source.is_deterministic() || !target.is_deterministic(), // count as 5/15 for false
     )
 }
 
@@ -117,7 +120,7 @@ fn grade(
 struct Tests {
     score: f32,
     name: String,
-    number: (u8, u8),
+    number: String,
     visibility: String,
 }
 
@@ -158,20 +161,34 @@ fn main() -> io::Result<()> {
         // the only members of tests which we care about are
         let mut tests: Vec<Tests> = Vec::new();
 
+        let problem_number: &String = &args[4];
+
         for test in 0..public_tests.2.len() {
             tests.push(Tests {
                 score: public_tests.3[test] as f32,
                 name: public_tests.2[test].to_owned(),
-                number: (0, 0),
+                number: problem_number.to_owned(),
+                visibility: "visible".to_string(),
+            });
+            tests.push(Tests {
+                score: public_tests.5[test] as f32,
+                name: public_tests.4[test].to_owned(),
+                number: problem_number.to_owned(),
                 visibility: "visible".to_string(),
             });
         }
 
         for test in 0..hidden_tests.4.len() {
             tests.push(Tests {
-                score: public_tests.3[test] as f32,
-                name: public_tests.2[test].to_owned(),
-                number: (0, 0),
+                score: hidden_tests.5[test] as f32,
+                name: hidden_tests.4[test].to_owned(),
+                number: problem_number.to_owned(),
+                visibility: "hidden".to_string(),
+            });
+            tests.push(Tests {
+                score: hidden_tests.3[test] as f32,
+                name: hidden_tests.2[test].to_owned(),
+                number: problem_number.to_owned(),
                 visibility: "hidden".to_string(),
             });
         }
