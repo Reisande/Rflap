@@ -47,7 +47,7 @@ let graph = {nodes: nodesDS,
     width: window.innerWidth.toString(),
     locale: 'en',
     physics:{
-      enabled: true,
+      enabled: false,
       repulsion:{
         springConstant: 1000,
         centralGravity:   .1,
