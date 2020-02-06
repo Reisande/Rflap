@@ -1,5 +1,5 @@
 # RFLAP
-jflap but in rust
+Jflap but in Rust
 
 ## Functionality
 
