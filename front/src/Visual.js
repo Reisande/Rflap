@@ -47,11 +47,23 @@ let graph = {nodes: nodesDS,
     width: window.innerWidth.toString(),
     locale: 'en',
     physics:{
-      enabled: false,
-      repulsion:{
-        springConstant: 1000,
-        centralGravity:   .1,
+      maxVelocity: 15,
+      enabled: true,
+      forceAtlas2Based:{
+        centralGravity: .008,
+        gravitationalConstant: -30,
+        springLength: 100,
       },
+      repulsion:{
+        // // springConstant: 1000,
+        // centralGravity:   .1,
+        // // springConstant: 1,
+        // springLength: 500,
+        // nodeDistance: 200,
+          // springConstant: .5
+
+      },
+      solver: "forceAtlas2Based",
     },
     nodes:{
       label: undefined,
@@ -85,7 +97,7 @@ let graph = {nodes: nodesDS,
         face:"sans serif",
         
         
-        size: 20,
+        size: 12,
         bold:{
           face:"sans serif",
           size: 20,
@@ -101,7 +113,7 @@ let graph = {nodes: nodesDS,
       // font: '12px arial #ff0000',
       // smooth:true,
       color:"skyblue",
-      length: 250,
+      // length: 85,
       scaling:{
         label:true,
       },
