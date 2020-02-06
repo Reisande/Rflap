@@ -49,7 +49,15 @@ fn grade(
     source: finite_automaton::FiniteAutomatonJson,
     target: finite_automaton::FiniteAutomatonJson,
     num_tests: u16,
-) -> (u16, u16, Vec<String>, Vec<u8>, Vec<String>, Vec<u8>, bool) {
+) -> (
+    u16,
+    u16,
+    std::vec::Vec<std::string::String>,
+    std::vec::Vec<u8>,
+    std::vec::Vec<std::string::String>,
+    std::vec::Vec<u8>,
+    bool,
+) {
     // generate TestsJson array
 
     let mut alphabet = target.alphabet.to_owned();
@@ -142,7 +150,6 @@ fn main() -> io::Result<()> {
         // answer file will be passed in the second command line argument
         let buffer_answer = fs::read_to_string(&args[2])?;
 
-        println!("hit0");
         // for the actual grading, we should show like 20 shorter strings and hide 80,
         let public_tests = grade(
             serde_json::de::from_str::<finite_automaton::FiniteAutomatonJson>(&buffer).unwrap(),
@@ -157,14 +164,21 @@ fn main() -> io::Result<()> {
             90,
         );
 
-        println!("hit0");
-
         // then initialize a data structure which follows the output of results.json
         // the only members out of results.json which matter are score and tests
         // the only members of tests which we care about are
         let mut tests: Vec<Tests> = Vec::new();
 
         let problem_number: String = args[4].to_owned();
+
+        let is_properly_deterministic = if public_tests.6 { 0.0 } else { -5.0 };
+
+        tests.push(Tests {
+            score: is_properly_deterministic,
+            name: "determinism".to_string(),
+            number: problem_number.to_owned(),
+            visibility: "visible".to_string(),
+        });
 
         for test in 0..public_tests.2.len() {
             tests.push(Tests {
