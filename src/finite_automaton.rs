@@ -67,8 +67,13 @@ impl FiniteAutomaton {
         let mut new_transition_function: MultiMap<(String, Option<char>), String> = MultiMap::new();
 
         for element in json_struct.transition_function.iter() {
+            let mut insert_middle = element.1;
+            if element.1 == Some('ϵ') {
+                insert_middle = None;
+            }
+
             new_transition_function.insert(
-                (element.0.to_owned(), element.1.to_owned()),
+                (element.0.to_owned(), insert_middle.to_owned()),
                 element.2.to_owned(),
             );
         }
@@ -104,7 +109,12 @@ impl FiniteAutomaton {
         mut current_path: Vec<(char, String)>,
         current_state: String,
         transition_char: char,
+        call_size: u32,
     ) -> (bool, Vec<(char, String)>) {
+        if call_size >= 200 {
+            panic!("overflow")
+        }
+
         current_path.push((transition_char, current_state.to_owned()));
 
         if position == validate_string.len() {
@@ -132,6 +142,7 @@ impl FiniteAutomaton {
                         current_path.to_owned(),
                         target_state,
                         'Ɛ'.to_owned(),
+                        call_size + 1,
                     ) {
                         (true, r) => return (true, r),
                         _ => continue,
@@ -155,6 +166,7 @@ impl FiniteAutomaton {
                     current_path.to_owned(),
                     (*target_state).to_owned(),
                     validate_string[position],
+                    call_size + 1,
                 ) {
                     (true, r) => return (true, r),
                     _ => continue,
@@ -177,6 +189,7 @@ impl FiniteAutomaton {
                     current_path.to_owned(),
                     target_state,
                     'Ɛ'.to_owned(),
+                    call_size + 1,
                 ) {
                     (true, r) => return (true, r),
                     _ => continue,
@@ -210,6 +223,7 @@ impl FiniteAutomaton {
             return_vec,
             self.start_state.to_owned(),
             '_',
+            0,
         );
 
         (
@@ -234,7 +248,7 @@ impl FiniteAutomaton {
                 == None;
 
             if !is_deterministic_check {
-                self.is_deterministic = is_deterministic_check;
+                self.is_deterministic = false;
                 return "Make sure no epsilon transitions exist".to_string();
             }
 
@@ -255,7 +269,7 @@ impl FiniteAutomaton {
                 // makes this check to break out early from the loop in order to not
                 // waste time
                 if !is_deterministic_check {
-                    self.is_deterministic = is_deterministic_check;
+                    self.is_deterministic = false;
 
                     if check_vec_length == 0 {
                         return "Make sure all states have transitions for all states".to_string();
@@ -268,7 +282,7 @@ impl FiniteAutomaton {
             }
         }
 
-        self.is_deterministic = is_deterministic_check;
+        self.is_deterministic = true;
         "".to_string()
     }
 

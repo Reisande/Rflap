@@ -32,6 +32,7 @@ pub fn generate_tests(input_json: TestsJson) -> TestsJsonCallback {
 
             let string_length: u16 = rng.gen_range(3, 3 + input_json.length);
 
+
             let new_test_string: String = (0..string_length)
                 .map(|_| {
                     let idx: usize = rng.gen_range(0, alphabet_vec.len()).try_into().unwrap();
@@ -59,6 +60,10 @@ pub fn generate_tests(input_json: TestsJson) -> TestsJsonCallback {
                     prefix.pop();
                 }
                 position += 1;
+            }
+
+            if return_vec.len() as u16 >= input_json.size {
+                break;
             }
         }
     }
