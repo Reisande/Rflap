@@ -97,6 +97,10 @@ impl FiniteAutomaton {
         )
     }
 
+    pub fn is_deterministic(self) -> bool {
+        self.is_deterministic
+    }
+
     // convert the original string by using string.chars().collect()
     fn _validate_string(
         &self,

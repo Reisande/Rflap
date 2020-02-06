@@ -6,20 +6,16 @@ edition = "2018"
 
 [profile.dev]
 opt-level = 0
+debug = true
 
 [profile.release]
 opt-level = 3
+debug = false
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-quick-xml = "0.17.0"
 rand = "0.7.2"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0.41"
 multimap = "0.8.0"
-
-[dependencies.rocket_contrib]
-version = "0.4.2"
-default-features = false
-features = ["json"]

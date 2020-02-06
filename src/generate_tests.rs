@@ -30,7 +30,8 @@ pub fn generate_tests(input_json: TestsJson) -> TestsJsonCallback {
         while return_vec.len() < input_json.size.try_into().unwrap() {
             let mut rng = rand::thread_rng();
 
-            let string_length: u16 = rng.gen_range(0, input_json.length);
+            let string_length: u16 = rng.gen_range(3, 3 + input_json.length);
+
 
             let new_test_string: String = (0..string_length)
                 .map(|_| {
@@ -50,6 +51,12 @@ pub fn generate_tests(input_json: TestsJson) -> TestsJsonCallback {
                 for letter in &alphabet_vec {
                     prefix.push(*letter);
                     return_vec.push(prefix.to_owned());
+                    if return_vec.len() as u16 >= input_json.size {
+                        println!("break: {} {} end", return_vec.len(), input_json.size);
+                        return TestsJsonCallback {
+                            return_vec: return_vec,
+                        };
+                    }
                     prefix.pop();
                 }
                 position += 1;

@@ -1,3 +1,0 @@
-struct Tm {}
-
-impl Tm {}
