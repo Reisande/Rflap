@@ -25,10 +25,10 @@
 #nav-header{
      display:flex    
 } */
-#add_row_button{
+#add_button{
     float: center;
 }
-#add_row_button_container{
+#add_button_container{
     align-content: center;
     position:relative;
     /* aligns the div container for the Run component buttons */
