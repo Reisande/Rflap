@@ -57,8 +57,8 @@ fn grade(
 
     let test_strings_deterministic = generate_tests::generate_tests(generate_tests::TestsJson {
         alphabet: alphabet.to_owned(),
-        size: num_tests / 2, // how many strings for non deterministic
-        length: 10,          // longest string
+        size: (num_tests * 4) / 5, // how many strings for non deterministic
+        length: 10,                // longest string
         random: false,
     })
     .return_vec;
@@ -66,8 +66,8 @@ fn grade(
 
     let test_strings_nondeterministic = generate_tests::generate_tests(generate_tests::TestsJson {
         alphabet: alphabet.to_owned(),
-        size: num_tests / 2, // how many strings for non deterministic
-        length: 10,          // longest string
+        size: (num_tests) / 5, // how many strings for non deterministic
+        length: 10,            // longest string
         random: true,
     })
     .return_vec;
@@ -118,7 +118,7 @@ fn grade(
 
 #[derive(Serialize, Deserialize)]
 struct Tests {
-    score: f32,
+    score: f64,
     name: String,
     number: String,
     visibility: String,
@@ -142,6 +142,7 @@ fn main() -> io::Result<()> {
         // answer file will be passed in the second command line argument
         let buffer_answer = fs::read_to_string(&args[2])?;
 
+        println!("hit0");
         // for the actual grading, we should show like 20 shorter strings and hide 80,
         let public_tests = grade(
             serde_json::de::from_str::<finite_automaton::FiniteAutomatonJson>(&buffer).unwrap(),
@@ -156,22 +157,27 @@ fn main() -> io::Result<()> {
             90,
         );
 
+        println!("hit0");
+
         // then initialize a data structure which follows the output of results.json
         // the only members out of results.json which matter are score and tests
         // the only members of tests which we care about are
         let mut tests: Vec<Tests> = Vec::new();
 
-        let problem_number: &String = &args[4];
+        let problem_number: String = args[4].to_owned();
 
         for test in 0..public_tests.2.len() {
             tests.push(Tests {
-                score: public_tests.3[test] as f32,
+                score: public_tests.3[test] as f64,
                 name: public_tests.2[test].to_owned(),
                 number: problem_number.to_owned(),
                 visibility: "visible".to_string(),
             });
+        }
+
+        for test in 0..public_tests.4.len() {
             tests.push(Tests {
-                score: public_tests.5[test] as f32,
+                score: public_tests.5[test] as f64,
                 name: public_tests.4[test].to_owned(),
                 number: problem_number.to_owned(),
                 visibility: "visible".to_string(),
@@ -180,13 +186,16 @@ fn main() -> io::Result<()> {
 
         for test in 0..hidden_tests.4.len() {
             tests.push(Tests {
-                score: hidden_tests.5[test] as f32,
+                score: hidden_tests.5[test] as f64,
                 name: hidden_tests.4[test].to_owned(),
                 number: problem_number.to_owned(),
                 visibility: "hidden".to_string(),
             });
+        }
+
+        for test in 0..hidden_tests.2.len() {
             tests.push(Tests {
-                score: hidden_tests.3[test] as f32,
+                score: hidden_tests.3[test] as f64,
                 name: hidden_tests.2[test].to_owned(),
                 number: problem_number.to_owned(),
                 visibility: "hidden".to_string(),
