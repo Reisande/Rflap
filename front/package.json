@@ -3,18 +3,18 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "bootstrap": "^4.3.1",
-    "d3": "^5.13.0",
+    "bootstrap": "^4.4.1",
+    "d3": "^5.15.0",
     "react": "^16.12.0",
-    "react-bootstrap": "^1.0.0-beta.14",
+    "react-bootstrap": "^1.0.0-beta.16",
     "react-contextmenu": "^2.13.0",
     "react-d3-graph": "^2.3.0",
     "react-dom": "^16.12.0",
     "react-files": "^2.4.8",
-    "react-scripts": "^3.3.0",
+    "react-scripts": "^3.3.1",
     "react-sidebar": "^3.0.2",
     "reactjs-popup": "^1.5.0",
-    "vis-network": "^6.4.4"
+    "vis-network": "^7.3.3"
   },
   "scripts": {
     "start": "react-scripts start",

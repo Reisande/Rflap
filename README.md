@@ -1,5 +1,5 @@
 # RFLAP
-jflap but in rust
+Jflap but in Rust
 
 ## Functionality
 
@@ -9,18 +9,17 @@ jflap but in rust
 
 
 
-![sample_dfa](https://i.ibb.co/R98GBXD/Screenshot-20191126-172155.png)
+![sample_1](https://i.ibb.co/R6SyzRC/rflap-github-2.png)
 
 
-Where blue denotes a starting state, and black denotes an accepting state.
+Where triangle denotes a starting state, and grey border denotes an accepting state.
 
 
 ### Testing Strings:
 
 
-![Sample_NFA](https://i.ibb.co/zrthVMc/Screenshot-20191126-144158-2.png)
 
-![Sample_NFA2](https://i.ibb.co/vdG4mgf/Screenshot-20191126-150348.png)
+![sample_2](https://i.ibb.co/ZTgtCdH/rflap-github-1.png)
 
 
 RUST API call occurs during string testing/generation. Exports to JSON and XML!

@@ -60,6 +60,10 @@ pub fn generate_tests(input_json: TestsJson) -> TestsJsonCallback {
                 }
                 position += 1;
             }
+
+            if return_vec.len() as u16 >= input_json.size {
+                break;
+            }
         }
     }
 
