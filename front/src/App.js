@@ -76,7 +76,7 @@ const render_visual_callback = useCallback( ()=>{
 
   useEffect( ()=>{
     // render_visual_callback();
-    console.log("RENDER")
+    // console.log("RENDER")
     window.addEventListener('click',(e)=> click_run_handler(e));
 
     return ()=>{
@@ -93,18 +93,18 @@ const render_visual_callback = useCallback( ()=>{
   }                                                                                                                                         
   function add_node(e,data){
 
-    console.log(e,data);
+    // console.log(e,data);
 
   }
   function change_node_name(e){
-    console.log("E"+ e.target.value);
+    // console.log("E"+ e.target.value);
   }
 
   function handleClick(e,data){
-    console.log('------HANDLECLICK-------');
-    console.log(e);
-    console.log(data);
-    console.log('////////HANDLECLICK///////');
+    // console.log('------HANDLECLICK-------');
+    // console.log(e);
+    // console.log(data);
+    // console.log('////////HANDLECLICK///////');
 
   }
   
