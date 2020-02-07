@@ -67,7 +67,7 @@ impl FiniteAutomaton {
         let mut new_transition_function: MultiMap<(String, Option<char>), String> = MultiMap::new();
 
         for element in json_struct.transition_function.iter() {
-            let insert_transition = if element.1 == Some('Ɛ') {
+            let insert_transition = if element.1 == Some('Ɛ') || element.1 == Some('ϵ') {
                 None
             } else {
                 element.1
