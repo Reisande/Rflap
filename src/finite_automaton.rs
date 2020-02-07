@@ -67,13 +67,14 @@ impl FiniteAutomaton {
         let mut new_transition_function: MultiMap<(String, Option<char>), String> = MultiMap::new();
 
         for element in json_struct.transition_function.iter() {
-            let mut insert_middle = element.1;
-            if element.1 == Some('ϵ') {
-                insert_middle = None;
-            }
+            let insert_transition = if element.1 == Some('Ɛ') || element.1 == Some('ϵ') {
+                None
+            } else {
+                element.1
+            };
 
             new_transition_function.insert(
-                (element.0.to_owned(), insert_middle.to_owned()),
+                (element.0.to_owned(), insert_transition),
                 element.2.to_owned(),
             );
         }
