@@ -42,7 +42,7 @@ let graph = {nodes: nodesDS,
   edges: edgesDS};
 
   let options = {
-    autoResize : false,
+    autoResize : true,
     height: height.toString(),
     width: window.innerWidth.toString(),
     locale: 'en',
