@@ -14,7 +14,7 @@ use std::iter::FromIterator;
 pub struct FiniteAutomatonJson {
     pub alphabet: HashSet<char>,
     start_state: String,
-    states: HashMap<String, bool>,
+    pub(crate) states: HashMap<String, bool>,
     transition_function: Vec<(String, Option<char>, String)>,
     input_strings: Vec<String>, // we need to update the api so that it passes a vec
                                 // of strings, and the post returns a vec of bools

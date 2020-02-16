@@ -46,8 +46,8 @@ fn tests(tests: generate_tests::TestsJson) -> Result<String> {
 
 // return is a tuple of number of passed test cases vs total cases
 fn grade(
-    source: finite_automaton::FiniteAutomatonJson,
-    target: finite_automaton::FiniteAutomatonJson,
+    source: &finite_automaton::FiniteAutomatonJson,
+    target: &finite_automaton::FiniteAutomatonJson,
     num_tests: u16,
     supposed_to_be_deterministic : bool,
 ) -> (
@@ -155,17 +155,18 @@ fn main() -> io::Result<()> {
         let determinism_weight: Option<f64> = Option::from(args[7].to_string().parse::<f64>().unwrap());
         let supposed_to_be_deterministic = determinism_weight != None;
         // for the actual grading, we should show like 20 shorter strings and hide 80,
+        let source = &serde_json::de::from_str::<finite_automaton::FiniteAutomatonJson>(&buffer).unwrap();
+        let target = &serde_json::de::from_str::<finite_automaton::FiniteAutomatonJson>(&buffer_answer)
+            .unwrap();
         let mut public_tests = grade(
-            serde_json::de::from_str::<finite_automaton::FiniteAutomatonJson>(&buffer).unwrap(),
-            serde_json::de::from_str::<finite_automaton::FiniteAutomatonJson>(&buffer_answer)
-                .unwrap(),
+            source,
+            target,
             10,
             supposed_to_be_deterministic,
         );
         let hidden_tests = grade(
-            serde_json::de::from_str::<finite_automaton::FiniteAutomatonJson>(&buffer).unwrap(),
-            serde_json::de::from_str::<finite_automaton::FiniteAutomatonJson>(&buffer_answer)
-                .unwrap(),
+            source,
+            target,
             90,
             supposed_to_be_deterministic,
         );
@@ -180,29 +181,34 @@ fn main() -> io::Result<()> {
         // STATIC TESTS
 
         // size of the automata in number of states, added as a test to public_tests
-        let minimal_size: Option<u8> = Option::from(args[5].to_string().parse::<u8>().unwrap());
+        let original_size: Option<u8> = Option::from(args[5].to_string().parse::<u8>().unwrap());
+        let minimal_size = target.states.len();
         let size_weight: f64 = f64::from(args[6].to_string().parse::<f64>().unwrap());
 
         // determinism
         if public_tests.6 {
             tests.push(Tests {
-                score: determinism_weight.unwrap(),
+                score: - determinism_weight.unwrap(),
                 name: "determinism".to_string(),
                 number: problem_number.to_owned(),
                 visibility: "visible".to_string(),
             });
         }
         // minimal size
-        match minimal_size {
+        match original_size {
             Some(v) => {
+                let size_score =
+                    - (size_weight *
+                    ((source.states.len() - target.states.len()) /
+                        (v as usize - target.states.len())) as f64);
                 tests.push(Tests{
-                    score: size_weight,
+                    score: size_score,
                     name: "size".to_string(),
                     number: problem_number.to_owned(),
                     visibility: "visible".to_string(),
                 });
             }
-            None => {}
+            _ => {}
         }
 
         // DYNAMIC TESTS
