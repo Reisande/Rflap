@@ -49,6 +49,9 @@ fn grade(
     source: finite_automaton::FiniteAutomatonJson,
     target: finite_automaton::FiniteAutomatonJson,
     num_tests: u16,
+    minimal_size: Option<u8>,
+    supposed_to_be_deterministic: bool,
+    determinism_weight: u8,
 ) -> (
     u16,
     u16,
@@ -120,7 +123,7 @@ fn grade(
         deterministic_scores,
         test_strings_nondeterministic,
         nondeterministic_scores,
-        source.is_deterministic() || !target.is_deterministic(), // count as 5/15 for false
+        !supposed_to_be_deterministic || target.is_deterministic(),
     )
 }
 
@@ -170,8 +173,6 @@ fn main() -> io::Result<()> {
         let mut tests: Vec<Tests> = Vec::new();
 
         let problem_number: String = args[4].to_owned();
-
-        let is_properly_deterministic = if public_tests.6 { 0.0 } else { -5.0 };
 
         tests.push(Tests {
             score: is_properly_deterministic,

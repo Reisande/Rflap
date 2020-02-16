@@ -9,6 +9,7 @@ use multimap::MultiMap;
 use std::assert;
 use std::collections::*;
 use std::iter::FromIterator;
+use core::panicking::panic;
 
 #[derive(Debug, Deserialize)]
 pub struct FiniteAutomatonJson {
