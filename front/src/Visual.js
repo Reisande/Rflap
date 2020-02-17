@@ -46,26 +46,12 @@ let graph = {nodes: nodesDS,
     height: height.toString(),
     width: window.innerWidth.toString(),
     locale: 'en',
-    physics:{
-      maxVelocity: 15,
-      enabled: true,
-      forceAtlas2Based:{
-        centralGravity: .008,
-        gravitationalConstant: -30,
-        springLength: 100,
-      },
-      repulsion:{
-        // // springConstant: 1000,
-        // centralGravity:   .1,
-        // // springConstant: 1,
-        // springLength: 500,
-        // nodeDistance: 200,
-          // springConstant: .5
-
-      },
-      solver: "forceAtlas2Based",
-    },
+   
+    
     nodes:{
+      physics:{
+        enabled:false,
+      },
       label: undefined,
     title: undefined,
       shape: "circle",
@@ -112,6 +98,29 @@ let graph = {nodes: nodesDS,
     edges:{
       // font: '12px arial #ff0000',
       // smooth:true,
+       physics:{
+      // maxVelocity: 1,
+      enabled: true,
+      forceAtlas2Based:{
+        centralGravity: 0,
+        // gravitationalConstant:  30,
+        springLength: 50,
+        springConstant: 1,
+        // damping: 0,
+      },
+      
+      
+      solver: "forceAtlas2Based",
+      
+     
+    },
+    stabilization: {
+      enabled: true,
+      iterations: 1000,
+      updateInterval: 100,
+      onlyDynamicEdges: false,
+      fit: true
+    },
       color:"skyblue",
       // length: 85,
       scaling:{
@@ -396,13 +405,27 @@ function setAccepting(props){
 
 }
 /*encryption*/
+//  const  isOverlapping= (label)=>{
+//   let returnBool = false;
+//   graph.nodes.get().forEach(  (node)=>{
+//     if(label == node.label){
+//       found_node = node;
+//       returnBool = true
 
+//     }}
+//   );
+//  }
 function populateNode(props){
   (!img_bar_status_did_mount) ?  master_context.did_mount = mount_styling() : master_context.did_mount = master_context.did_mount;
   img_bar_status_did_mount = true;
   node_id_global+=1;
-  
+  // graph.nodes.get().forEach(  (node)=>{
+  //   if(node.id == node_id_clicked){
+  //     found_node = node;
+  //   }}
+  // );
   nodesDS.add([{id:node_id_global, label: " Q "+ (graph.nodes.get().length) + " "}])
+
   network.moveNode(node_id_global, (Math.random()-.6) *400, (Math.random() -.6)*400)
 
 
