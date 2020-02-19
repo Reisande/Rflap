@@ -166,7 +166,7 @@ function App() {
         ) : null}
 
         <HeaderMenu />
-
+            
         {(function() {
           switch (machine_displayed) {
             case CURRENT_MACHINE.DFA:
@@ -174,7 +174,7 @@ function App() {
             case CURRENT_MACHINE.NFA:
               return <Visual />;
             case CURRENT_MACHINE.CFG:
-              return <h1>CFG</h1>;
+              return <CFG_Visual/>;
             case CURRENT_MACHINE.TM:
             return <h1>Turing Machine! :(</h1>
           }
