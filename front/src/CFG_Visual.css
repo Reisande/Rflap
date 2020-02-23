@@ -1,3 +1,11 @@
 #row_container_CFG{
     margin-top: 10px;
 }
+/* 
+.inline{
+    display: inline-block;
+} */
+
+.header-with-button{
+    /* float:right; */
+}
