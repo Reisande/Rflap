@@ -21,7 +21,8 @@ import CFG_Visual from "./CFG_Visual.js";
 import "bootstrap/dist/css/bootstrap.min.css";
 
 let master_context = {
-  graphobj: null
+  graphobj: null,    // DFA/NFA: holds graphing object, which declares parameters
+  grammar_obj: [{TERM:"",NON_TERM:""}], // CFG_MODULE: array of arrays, where each array is a grammar rule from "Definition"
 };
 
 // const disable_handler= (e) =>{

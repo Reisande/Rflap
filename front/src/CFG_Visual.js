@@ -1,4 +1,10 @@
-import React, { useEffect, useState, useRef, useCallback } from "react";
+import React, {
+  useEffect,
+  useState,
+  useRef,
+  useCallback,
+  useContext
+} from "react";
 import { AutomataContext } from "./AutomataContext.js";
 import { Form, Row, Col } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -12,28 +18,36 @@ import add_perfect from "./plus.svg";
 
 function CFG_Visual() {
   const formArea = useRef(null);
+  const master_context = useContext(AutomataContext);
 
   let image_collection = [error_image, idle_svg, success_image];
   const [row_entry_array, set_row_entries] = useState([1]);
-  const [definition_entry_array,set_definition_entry_array] = useState([]);
+  const [definition_entry_array, set_definition_entry_array] = useState([]);
 
   const definition_plus_handler = button_press => {
-    console.log("button click!")
-    let array_to_mount =  definition_entry_array;
-    array_to_mount.push(definition_entry_array.length+1);
+    console.log("button click!");
+    let array_to_mount = definition_entry_array;
+    let grammar_table_line = {
+      TERM: " ",
+      NON_TERM: " "
+    };
+    array_to_mount.push(grammar_table_line);
     set_definition_entry_array([...array_to_mount]);
   };
-
-  const RuleWithBreak = ()=>{
-
-    return(
+  useEffect(() => {
+    document.addEventListener("input", e => {
+      console.log(master_context.grammar_obj);
+    });
+  }, []);
+  const RuleWithBreak = props => {
+    console.log(props);
+    return (
       <div>
         <br></br>
-        <Rule/>
+        <Rule text={props.text} id={props.id} />
       </div>
-    )
-  }
-
+    );
+  };
 
   return (
     <div id="row_container_CFG">
@@ -41,10 +55,10 @@ function CFG_Visual() {
         <Form as={Col} md={{ span: 4 }}>
           {/* <div class="header-with-button"> */}
           <Row>
-            <Col md={{span:1,offset:5}}>
+            <Col md={{ span: 1, offset: 5 }}>
               <h4>Definition</h4>
             </Col>
-            <Col md={{offset:0}}>
+            <Col md={{ offset: 0 }}>
               <input
                 id="add_row_button"
                 onClick={event => definition_plus_handler(event)}
@@ -57,20 +71,11 @@ function CFG_Visual() {
               />
             </Col>
           </Row>
-          {/* </div> */}
-          <Rule text={"Sϵ"}/>
           {definition_entry_array ? (
-              definition_entry_array.map((_, key) => (
-                
-                <RuleWithBreak
-                  key={key}
-                />
-              ))
-            ) : (
-              <></>
-            )}
-          {/* <br></br>
-          <Rule /> */}
+            definition_entry_array.map((_, key) => <Rule key={key} />)
+          ) : (
+            <></>
+          )}
         </Form>
         <Col md={{ span: 3 }}>
           <h5>Grammar</h5>
