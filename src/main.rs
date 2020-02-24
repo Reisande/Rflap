@@ -10,7 +10,7 @@ use std::io::{BufRead, BufReader, Error, Write};
 use std::path::Path;
 
 use serde::{Deserialize, Serialize};
-use serde_json::{Result, to_string};
+use serde_json::{to_string, Result};
 
 use multimap::MultiMap;
 
@@ -49,14 +49,13 @@ fn grade(
     source: &finite_automaton::FiniteAutomatonJson,
     target: &finite_automaton::FiniteAutomatonJson,
     num_tests: u16,
-    supposed_to_be_deterministic : bool,
 ) -> (
     u16,
     u16,
     std::vec::Vec<std::string::String>,
-    std::vec::Vec<u8>,
+    std::vec::Vec<f64>,
     std::vec::Vec<std::string::String>,
-    std::vec::Vec<u8>,
+    std::vec::Vec<f64>,
     bool,
 ) {
     // generate TestsJson array
@@ -87,8 +86,8 @@ fn grade(
     let target: finite_automaton::FiniteAutomaton =
         finite_automaton::FiniteAutomaton::new_from_json(&target).0;
 
-    let mut deterministic_scores: Vec<u8> = Vec::new();
-    let mut nondeterministic_scores: Vec<u8> = Vec::new();
+    let mut deterministic_scores: Vec<f64> = Vec::new();
+    let mut nondeterministic_scores: Vec<f64> = Vec::new();
 
     let mut passed: u16 = 0;
 
@@ -100,7 +99,7 @@ fn grade(
             passed += 1;
         }
 
-        deterministic_scores.push((accepted_source == accepted_target) as u8);
+        deterministic_scores.push(((accepted_source == accepted_target) as u8) as f64);
     }
 
     for test in &test_strings_nondeterministic {
@@ -111,7 +110,7 @@ fn grade(
             passed += 1;
         }
 
-        nondeterministic_scores.push((accepted_source == accepted_target) as u8);
+        nondeterministic_scores.push(((accepted_source == accepted_target) as u8) as f64);
     }
 
     (
@@ -121,7 +120,7 @@ fn grade(
         deterministic_scores,
         test_strings_nondeterministic,
         nondeterministic_scores,
-        !supposed_to_be_deterministic || target.is_deterministic(),
+        source.is_deterministic() || !target.is_deterministic(),
     )
 }
 
@@ -152,24 +151,18 @@ fn main() -> io::Result<()> {
         let buffer_answer = fs::read_to_string(&args[2])?;
 
         // TOOD: add config file reader for the grading settings, this is getting bloated
-        let determinism_weight: Option<f64> = Option::from(args[7].to_string().parse::<f64>().unwrap());
-        let supposed_to_be_deterministic = determinism_weight != None;
+        let determinism_weight: Option<f64> =
+            Option::from(args[7].to_string().parse::<f64>().unwrap());
+
         // for the actual grading, we should show like 20 shorter strings and hide 80,
-        let source = &serde_json::de::from_str::<finite_automaton::FiniteAutomatonJson>(&buffer).unwrap();
-        let target = &serde_json::de::from_str::<finite_automaton::FiniteAutomatonJson>(&buffer_answer)
-            .unwrap();
-        let mut public_tests = grade(
-            source,
-            target,
-            10,
-            supposed_to_be_deterministic,
-        );
-        let hidden_tests = grade(
-            source,
-            target,
-            90,
-            supposed_to_be_deterministic,
-        );
+        let source =
+            &serde_json::de::from_str::<finite_automaton::FiniteAutomatonJson>(&buffer).unwrap();
+        let target =
+            &serde_json::de::from_str::<finite_automaton::FiniteAutomatonJson>(&buffer_answer)
+                .unwrap();
+
+        let mut public_tests = grade(source, target, 10);
+        let hidden_tests = grade(source, target, 90);
 
         // then initialize a data structure which follows the output of results.json
         // the only members out of results.json which matter are score and tests
@@ -177,6 +170,44 @@ fn main() -> io::Result<()> {
         let mut tests: Vec<Tests> = Vec::new();
 
         let problem_number: String = args[4].to_owned();
+
+        // DYNAMIC TESTS
+
+        for test in 0..public_tests.2.len() {
+            tests.push(Tests {
+                score: public_tests.3[test],
+                name: public_tests.2[test].to_owned(),
+                number: problem_number.to_owned(),
+                visibility: "visible".to_string(),
+            });
+        }
+
+        for test in 0..public_tests.4.len() {
+            tests.push(Tests {
+                score: public_tests.5[test],
+                name: public_tests.4[test].to_owned(),
+                number: problem_number.to_owned(),
+                visibility: "visible".to_string(),
+            });
+        }
+
+        for test in 0..hidden_tests.4.len() {
+            tests.push(Tests {
+                score: hidden_tests.5[test],
+                name: hidden_tests.4[test].to_owned(),
+                number: problem_number.to_owned(),
+                visibility: "hidden".to_string(),
+            });
+        }
+
+        for test in 0..hidden_tests.2.len() {
+            tests.push(Tests {
+                score: hidden_tests.3[test],
+                name: hidden_tests.2[test].to_owned(),
+                number: problem_number.to_owned(),
+                visibility: "hidden".to_string(),
+            });
+        }
 
         // STATIC TESTS
 
@@ -188,65 +219,34 @@ fn main() -> io::Result<()> {
         // determinism
         if public_tests.6 {
             tests.push(Tests {
-                score: - determinism_weight.unwrap(),
+                score: determinism_weight.unwrap(),
                 name: "determinism".to_string(),
                 number: problem_number.to_owned(),
                 visibility: "visible".to_string(),
             });
         }
+
         // minimal size
-        match original_size {
-            Some(v) => {
-                let size_score =
-                    - (size_weight *
-                    ((source.states.len() - target.states.len()) /
-                        (v as usize - target.states.len())) as f64);
-                tests.push(Tests{
-                    score: size_score,
-                    name: "size".to_string(),
-                    number: problem_number.to_owned(),
-                    visibility: "visible".to_string(),
-                });
+        if size_weight > 0.1 {
+            match original_size {
+                None | Some(0) => {}
+                Some(v) => {
+                    let dividend = (v as usize - target.states.len()) as f64;
+                    let size_score = if dividend as i64 != 0 {
+                        (size_weight
+                            * ((source.states.len() - target.states.len()) as f64 / dividend))
+                    } else {
+                        size_weight
+                    };
+
+                    tests.push(Tests {
+                        score: size_score,
+                        name: "size".to_string(),
+                        number: problem_number.to_owned(),
+                        visibility: "visible".to_string(),
+                    });
+                }
             }
-            _ => {}
-        }
-
-        // DYNAMIC TESTS
-
-        for test in 0..public_tests.2.len() {
-            tests.push(Tests {
-                score: public_tests.3[test] as f64,
-                name: public_tests.2[test].to_owned(),
-                number: problem_number.to_owned(),
-                visibility: "visible".to_string(),
-            });
-        }
-
-        for test in 0..public_tests.4.len() {
-            tests.push(Tests {
-                score: public_tests.5[test] as f64,
-                name: public_tests.4[test].to_owned(),
-                number: problem_number.to_owned(),
-                visibility: "visible".to_string(),
-            });
-        }
-
-        for test in 0..hidden_tests.4.len() {
-            tests.push(Tests {
-                score: hidden_tests.5[test] as f64,
-                name: hidden_tests.4[test].to_owned(),
-                number: problem_number.to_owned(),
-                visibility: "hidden".to_string(),
-            });
-        }
-
-        for test in 0..hidden_tests.2.len() {
-            tests.push(Tests {
-                score: hidden_tests.3[test] as f64,
-                name: hidden_tests.2[test].to_owned(),
-                number: problem_number.to_owned(),
-                visibility: "hidden".to_string(),
-            });
         }
 
         let final_tests = serde_json::to_string(&tests)?;

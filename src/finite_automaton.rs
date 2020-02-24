@@ -113,7 +113,7 @@ impl FiniteAutomaton {
         call_size: u32,
     ) -> (bool, Vec<(char, String)>) {
         if call_size >= 200 {
-            panic!("overflow")
+            std::panic!("overflow")
         }
 
         current_path.push((transition_char, current_state.to_owned()));
