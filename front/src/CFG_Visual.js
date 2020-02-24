@@ -45,10 +45,27 @@ function CFG_Visual() {
     // Fired whenever input box changes
     // use this to update grammar table componenet/textarea in the center of the page.
     document.addEventListener("input", e => {
-      console.log(master_context.grammar_obj);
-      master_context.grammar_obj.forEach((rule_object,index)=>{
+      formArea.current.value = "";
 
+      console.log(master_context.grammar_obj);
+      let rule_to_table = "";
+      let textarea_text = ""
+      grammar_table_text = [];
+      //### MIGHT DO CHECKS HERE TO SEE IF TERM/NON-TERM DECLARATIONS ARE ACTUALLY CORRECT
+      master_context.grammar_obj.forEach((rule_object,index)=>{
+        rule_to_table = "";
+        rule_to_table+= rule_object.NON_TERM;
+        rule_to_table+= "\u21d2";
+        rule_to_table+= rule_object.TERM;
+        grammar_table_text.push(rule_to_table);      
       });
+      grammar_table_text.forEach((string_text,index)=>{
+        textarea_text+= string_text + "\n";
+        textarea_text = textarea_text.replace(/!/g,"\u03B5")
+      });
+      
+      formArea.current.value = textarea_text;
+
     });
 
 

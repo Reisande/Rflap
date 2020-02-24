@@ -97,6 +97,7 @@ function App() {
   useEffect(() => {
     // render_visual_callback();
     // console.log("RENDER")
+
     window.addEventListener("click", e => {
       e.preventDefault();
       // menu handler
