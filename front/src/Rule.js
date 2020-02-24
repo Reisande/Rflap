@@ -9,34 +9,38 @@ const E_formtype = {
   TERM: "TERMINAL",
   NON_TERM: "NON_TERMINAL"
 };
-let key_index;
 function Rule(props) {
   const non_terminal = useRef(null);
   const definition = useRef(null);
   const master_context = useContext(AutomataContext);
   let mount_text = "";
   props.text == null ? (mount_text = "  ") : (mount_text = props.text);
-  console.log(props);
 
-  key_index = props.id;
+
 
   useEffect(() => {
-    key_index = props.id;
+
+    
   }, []);
 
-  const update_grammar_table = (e, E_formtype) => {
-    let text_input = e.target.value;
-    console.log(key_index);
-    switch (E_formtype) {
+  const update_grammar_table = (e, E_formtype_value) => {
+    let text_input = e.target.value.replace(/\s/g, "");
+    console.log("UPDATE_GRAMMAR_TABLE");
+    console.log(master_context.grammar_obj);
+    console.log(props.index);
+    switch (E_formtype_value) {
       case E_formtype.NON_TERM:
-        console.log("transformation of context grammar object!");
-        master_context.grammar_obj[key_index].NON_TERM = text_input;
+        console.log("transformation of context grammar: " + E_formtype.NON_TERM + "\nRow Number: " +  props.index);
+        master_context.grammar_obj[props.index].NON_TERM = text_input;
         break;
       case E_formtype.TERM:
-        console.log("transformation of context grammar object!");
+        console.log("transformation of context grammar: " + E_formtype.TERM + "\nRow Number: " +  props.index);
 
-        master_context.grammar_obj[key_index].TERM = text_input;
+        master_context.grammar_obj[props.index].TERM = text_input;
+        console.log(master_context.grammar_obj);
         break;
+      default:
+        console.log("NON-TYPE (neither terminal or non-terminal");
     }
   };
 

@@ -16,10 +16,13 @@ import success_image from "./success.svg";
 import idle_svg from "./button.svg";
 import add_perfect from "./plus.svg";
 
+let  CFG_Visual_Context_Index = -1;
+
 function CFG_Visual() {
+
   const formArea = useRef(null);
   const master_context = useContext(AutomataContext);
-
+  let grammar_table_text = [] // where each index is a line in the grammar table definition
   let image_collection = [error_image, idle_svg, success_image];
   const [row_entry_array, set_row_entries] = useState([1]);
   const [definition_entry_array, set_definition_entry_array] = useState([]);
@@ -27,27 +30,29 @@ function CFG_Visual() {
   const definition_plus_handler = button_press => {
     console.log("button click!");
     let array_to_mount = definition_entry_array;
+    CFG_Visual_Context_Index+=1;
     let grammar_table_line = {
       TERM: " ",
-      NON_TERM: " "
+      NON_TERM: " ",
+      index: CFG_Visual_Context_Index,
     };
     array_to_mount.push(grammar_table_line);
     set_definition_entry_array([...array_to_mount]);
+    master_context.grammar_obj = definition_entry_array;
+    console.log(array_to_mount);
   };
   useEffect(() => {
+    // Fired whenever input box changes
+    // use this to update grammar table componenet/textarea in the center of the page.
     document.addEventListener("input", e => {
       console.log(master_context.grammar_obj);
+      master_context.grammar_obj.forEach((rule_object,index)=>{
+
+      });
     });
+
+
   }, []);
-  const RuleWithBreak = props => {
-    console.log(props);
-    return (
-      <div>
-        <br></br>
-        <Rule text={props.text} id={props.id} />
-      </div>
-    );
-  };
 
   return (
     <div id="row_container_CFG">
@@ -72,7 +77,7 @@ function CFG_Visual() {
             </Col>
           </Row>
           {definition_entry_array ? (
-            definition_entry_array.map((_, key) => <Rule key={key} />)
+            definition_entry_array.map((_, key) => <Rule index={key} key={key} />)
           ) : (
             <></>
           )}
