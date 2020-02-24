@@ -15,11 +15,26 @@ function CFG_Visual() {
 
   let image_collection = [error_image, idle_svg, success_image];
   const [row_entry_array, set_row_entries] = useState([1]);
+  const [definition_entry_array,set_definition_entry_array] = useState([]);
 
-  const image_click_handler = button_press => {
+  const definition_plus_handler = button_press => {
     console.log("button click!")
-    return;
+    let array_to_mount =  definition_entry_array;
+    array_to_mount.push(definition_entry_array.length+1);
+    set_definition_entry_array([...array_to_mount]);
   };
+
+  const RuleWithBreak = ()=>{
+
+    return(
+      <div>
+        <br></br>
+        <Rule/>
+      </div>
+    )
+  }
+
+
   return (
     <div id="row_container_CFG">
       <Row>
@@ -32,7 +47,7 @@ function CFG_Visual() {
             <Col md={{offset:0}}>
               <input
                 id="add_row_button"
-                onClick={event => image_click_handler(event)}
+                onClick={event => definition_plus_handler(event)}
                 type="image"
                 id="add_button"
                 src={add_perfect}
@@ -43,9 +58,19 @@ function CFG_Visual() {
             </Col>
           </Row>
           {/* </div> */}
-          <Rule />
-          <br></br>
-          <Rule />
+          <Rule text={"Sϵ"}/>
+          {definition_entry_array ? (
+              definition_entry_array.map((_, key) => (
+                
+                <RuleWithBreak
+                  key={key}
+                />
+              ))
+            ) : (
+              <></>
+            )}
+          {/* <br></br>
+          <Rule /> */}
         </Form>
         <Col md={{ span: 3 }}>
           <h5>Grammar</h5>
