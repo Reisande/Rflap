@@ -24,7 +24,7 @@ function Rule(props) {
   }, []);
 
   const update_grammar_table = (e, E_formtype_value) => {
-    let text_input = e.target.value.replace(/\s/g, "");
+    let text_input = e.target.value.replace(/\s/g, "")    ;
     console.log("UPDATE_GRAMMAR_TABLE");
     console.log(master_context.grammar_obj);
     console.log(props.index);

@@ -56,12 +56,33 @@ function CFG_Visual() {
         rule_to_table = "";
         rule_to_table+= rule_object.NON_TERM;
         rule_to_table+= "\u21d2";
-        rule_to_table+= rule_object.TERM;
+        let accumulating_string = "";
+        if(rule_object.TERM != " "){
+          let l = rule_object.TERM.split("|").length
+          rule_object.TERM.split("|").forEach( (str,index)=>{
+            
+            if(l-1==index || l==1 ){
+              accumulating_string+= (" " + str + " ");
+
+            }
+            else{
+            accumulating_string+= (" "+ str+" |");
+          }
+          });
+        }
+        
+        rule_to_table+= accumulating_string;
+
         grammar_table_text.push(rule_to_table);      
       });
       grammar_table_text.forEach((string_text,index)=>{
-        textarea_text+= string_text + "\n";
+        textarea_text+= string_text + "\n\n";
         textarea_text = textarea_text.replace(/!/g,"\u03B5")
+      
+
+        // textarea_text = textarea_text.replace(/|/g,"\u2588")
+
+      
       });
       
       formArea.current.value = textarea_text;
