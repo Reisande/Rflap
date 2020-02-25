@@ -41,6 +41,12 @@ function CFG_Visual() {
     master_context.grammar_obj = definition_entry_array;
     console.log(array_to_mount);
   };
+ const tests_plus_handler = button_press =>{
+  let new_array = row_entry_array;
+  new_array.push(1);
+  set_row_entries([...new_array]);
+ }
+
   useEffect(() => {
     // Fired whenever input box changes
     // use this to update grammar table componenet/textarea in the center of the page.
@@ -55,7 +61,7 @@ function CFG_Visual() {
       master_context.grammar_obj.forEach((rule_object,index)=>{
         rule_to_table = "";
         rule_to_table+= rule_object.NON_TERM;
-        rule_to_table+= "\u21d2";
+        rule_to_table+= " \u21d2";
         let accumulating_string = "";
         if(rule_object.TERM != " "){
           let l = rule_object.TERM.split("|").length
@@ -96,7 +102,6 @@ function CFG_Visual() {
     <div id="row_container_CFG">
       <Row>
         <Form as={Col} md={{ span: 4 }}>
-          {/* <div class="header-with-button"> */}
           <Row>
             <Col md={{ span: 1, offset: 5 }}>
               <h4>Definition</h4>
@@ -133,7 +138,24 @@ function CFG_Visual() {
           ></Form.Control>
         </Col>
         <Col md={{ span: 5 }}>
-          <h5>Tests</h5>
+        <Row>
+            <Col md={{ span: 0, offset: 5 }}>
+              <h4>Tests</h4>
+            </Col>
+            <Col md={{ offset: 0, span:1 }}>
+              <input
+                id="add_row_button_CFG_tests"
+                onClick={event => tests_plus_handler(event)}
+                type="image"
+                id="add_button"
+                src={add_perfect}
+                width="22"
+                height="22"
+                name="add_row_input"
+              />
+            </Col>
+          </Row>
+
           <div>
             {row_entry_array ? (
               row_entry_array.map((_, key) => (
