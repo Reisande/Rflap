@@ -7,6 +7,7 @@ import HeaderMenu from "./HeaderMenu.js";
 import { AutomataContext } from "./AutomataContext.js";
 import Run from "./Run.js";
 import Sidebar from "react-sidebar";
+import PDA_Visual from "./PDA_Visual.js";
 import {
   Button,
   Table,
@@ -39,7 +40,8 @@ const CURRENT_MACHINE = {
   DFA: 0,
   NFA: 1,
   CFG: 2,
-  TM: 3
+  TM: 3,
+  PDA:4
 };
 
 function App() {
@@ -113,6 +115,9 @@ function App() {
         if (e.target.id == "CFG") {
           set_menu_item(CURRENT_MACHINE.CFG);
         }
+        if(e.target.id == "PDA"){
+          set_menu_item(CURRENT_MACHINE.PDA);
+        }
          if(e.target.id == "TM"){
          set_menu_item(CURRENT_MACHINE.TM); 
         }
@@ -177,6 +182,8 @@ function App() {
               return <Visual />;
             case CURRENT_MACHINE.CFG:
               return <CFG_Visual/>;
+            case CURRENT_MACHINE.PDA:
+              return <PDA_Visual/>
             case CURRENT_MACHINE.TM:
             return <h1>Turing Machine! :(</h1>
           }

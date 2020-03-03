@@ -92,6 +92,9 @@ return(
         <NavDropdown.Item id = "DFA"onClick={(event) => propagateEvent(event,DFA)} ref= {DFA}  href="">Deterministic Finite Automata </NavDropdown.Item>
         <NavDropdown.Item id = "NFA"onClick={(event) => propagateEvent(event,NFA)} ref= {NFA} href=""> Non-Deterministic Finite Automata </NavDropdown.Item>
         <NavDropdown.Item id = "CFG" onClick={(event) => propagateEvent(event,CFG)} ref= {CFG}href="">Context-free Grammar</NavDropdown.Item>
+        <NavDropdown.Item id = "PDA" onClick={(event) => propagateEvent(event,PDA)} ref= {PDA}href="">Push-down Automata</NavDropdown.Item>
+        <NavDropdown.Item id = "TM" onClick={(event) => propagateEvent(event,TM)} ref= {TM}href="">Turing Machine</NavDropdown.Item>
+
         {/* <NavDropdown.Item onClick={(event) => propagateEvent(event,TM)} id = "TM" ref= {TM}href="">Turing Machine</NavDropdown.Item> */}
         {/* <NavDropdown.Item onClick={(event) => propagateEvent(event,TM)} ref= {TM}href="">Turing Machine</NavDropdown.Item>
         <NavDropdown.Item onClick={(event) => propagateEvent(event,PDA)} ref= {PDA}href="">Push-down Automata</NavDropdown.Item>
