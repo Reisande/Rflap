@@ -6,12 +6,17 @@ import {Navbar, Nav, NavDropdown,Col,Button} from 'react-bootstrap';
 import {AutomataContext} from './AutomataContext.js';
 import not_ferris  from "./rFlapLogo.png";
 
-
+const CURRENT_MACHINE = {
+  DFA: 0,
+  NFA: 1,
+  CFG: 2,
+  TM: 3
+};
 
 function HeaderMenu(props){
     const master_context = useContext(AutomataContext)
 
-
+   const runbutton = useRef();
 
     const DFA = useRef();
     const NFA = useRef();
@@ -25,9 +30,17 @@ function HeaderMenu(props){
       //edit the colors of the right menu drop down buttons and run button
      document.querySelector("a.dropdown-toggle.nav-link").style.color = "#e25b4b";
       master_context.mode = machine_select;
+      if(master_context.mode == "Context-free Grammar" || master_context.mode == "Turing Machine" ){
+        runbutton.current.style.visibility = "hidden";
+
+      }
+      else{
+        runbutton.current.style.visibility = "visible";
+
+      }
     }  )  ;
 
-    const [machine_select,set_machine_title] = useState("Determinstic Finite Automata");
+    const [machine_select,set_machine_title] = useState("Deterministic Finite Automata");
 
     // console.log("master context "  + master_context['test_value']);
 
@@ -38,7 +51,6 @@ function HeaderMenu(props){
         // console.log(name);
         set_machine_title(name);
         master_context.mode = name;
-        master_context['test_value']= "Change made to test_value in HeaderMenu.js";
         // console.log("In propogateEvent");
     }
 
@@ -77,16 +89,20 @@ return(
       <NavDropdown class = "nav-dropdown-text" title="Machines"id="collasible-nav-dropdown" >
       
         
-        <NavDropdown.Item onClick={(event) => propagateEvent(event,DFA)} ref= {DFA}  href="">Deterministic Finite Automata </NavDropdown.Item>
-        <NavDropdown.Item onClick={(event) => propagateEvent(event,NFA)} ref= {NFA} href=""> Non-Deterministic Finite Automata </NavDropdown.Item>
+        <NavDropdown.Item id = "DFA"onClick={(event) => propagateEvent(event,DFA)} ref= {DFA}  href="">Deterministic Finite Automata </NavDropdown.Item>
+        <NavDropdown.Item id = "NFA"onClick={(event) => propagateEvent(event,NFA)} ref= {NFA} href=""> Non-Deterministic Finite Automata </NavDropdown.Item>
+        <NavDropdown.Item id = "CFG" onClick={(event) => propagateEvent(event,CFG)} ref= {CFG}href="">Context-free Grammar</NavDropdown.Item>
+        <NavDropdown.Item id = "PDA" onClick={(event) => propagateEvent(event,PDA)} ref= {PDA}href="">Push-down Automata</NavDropdown.Item>
+        <NavDropdown.Item id = "TM" onClick={(event) => propagateEvent(event,TM)} ref= {TM}href="">Turing Machine</NavDropdown.Item>
+
+        {/* <NavDropdown.Item onClick={(event) => propagateEvent(event,TM)} id = "TM" ref= {TM}href="">Turing Machine</NavDropdown.Item> */}
         {/* <NavDropdown.Item onClick={(event) => propagateEvent(event,TM)} ref= {TM}href="">Turing Machine</NavDropdown.Item>
         <NavDropdown.Item onClick={(event) => propagateEvent(event,PDA)} ref= {PDA}href="">Push-down Automata</NavDropdown.Item>
-        <NavDropdown.Item onClick={(event) => propagateEvent(event,CFG)} ref= {CFG}href="">Context-free Grammar</NavDropdown.Item>
         <NavDropdown.Item onClick={(event) => propagateEvent(event,REG)} ref= {REG} href="">Regular Expression</NavDropdown.Item> */}
       </NavDropdown>
       <Col></Col>
       <Nav>
-  <Nav.Link href="" class="text-primary" id = 'runbutton'>Run</Nav.Link>
+  <Nav.Link ref={runbutton} href="" class="text-primary"  id = 'runbutton'>Run</Nav.Link>
 
   <Col>
   
