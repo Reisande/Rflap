@@ -83,32 +83,20 @@ function CFG_Visual() {
   const downloadObjectAsJson = (exportObj, exportName)=> {
     // const exportation_nodes = node_style_dependency(input_val);
     // exportation_nodes.state_names
-<<<<<<< HEAD
-=======
-    console.log("DOWNLOADOBJ");
->>>>>>> export button
     var dataStr =
       "data:text/json;charset=utf-8," +
       encodeURIComponent(JSON.stringify(exportObj));
     var downloadAnchorNode = document.createElement("a");
     downloadAnchorNode.setAttribute("href", dataStr);
-<<<<<<< HEAD
     downloadAnchorNode.setAttribute("id","temp_anchor");
-=======
->>>>>>> export button
     downloadAnchorNode.setAttribute("download", exportName + ".json");
     document.body.appendChild(downloadAnchorNode); // required for firefox
     downloadAnchorNode.click();
     downloadAnchorNode.remove();
   }
   const export_click_handler = () => {
-<<<<<<< HEAD
     // console.log("Exported!");
     set_UIN_input(true);
-=======
-    console.log("Exported!");
-    // set_UIN_input(true);
->>>>>>> export button
   };
   useEffect(() => {
     // Fired whenever input box changes
