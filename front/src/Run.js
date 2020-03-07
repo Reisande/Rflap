@@ -627,8 +627,11 @@ function Run(props) {
     var downloadAnchorNode = document.createElement('a');
     downloadAnchorNode.setAttribute("href",     dataStr);
     downloadAnchorNode.setAttribute("download", exportName + ".json");
+    downloadAnchorNode.setAttribute("id","temp_anchor")
     document.body.appendChild(downloadAnchorNode); // required for firefox
+    console.log("click");
     downloadAnchorNode.click();
+    console.log("click");
     downloadAnchorNode.remove();
 
 

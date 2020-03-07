@@ -101,6 +101,8 @@ function App() {
     // console.log("RENDER")
 
     window.addEventListener("click", e => {
+      console.log(e.target.id == "temp_anchor");
+      if(e.target.id == "temp_anchor") return;
       e.preventDefault();
       // menu handler
       if (e.target != null) {
@@ -181,7 +183,7 @@ function App() {
             case CURRENT_MACHINE.NFA:
               return <Visual />;
             case CURRENT_MACHINE.CFG:
-              return <Visual/>;
+              return <CFG_Visual/>;
             case CURRENT_MACHINE.PDA:
               return <PDA_Visual/>
             case CURRENT_MACHINE.TM:
