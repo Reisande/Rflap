@@ -49,9 +49,7 @@ let graph = {nodes: nodesDS,
    
     
     nodes:{
-      physics:{
-        enabled:false,
-      },
+      physics: false,
       label: undefined,
     title: undefined,
       shape: "circle",
@@ -98,29 +96,15 @@ let graph = {nodes: nodesDS,
     edges:{
       // font: '12px arial #ff0000',
       // smooth:true,
-       physics:{
-      // maxVelocity: 1,
-      enabled: true,
-      forceAtlas2Based:{
-        centralGravity: 0,
-        // gravitationalConstant:  30,
-        springLength: 50,
-        springConstant: 1,
-        // damping: 0,
-      },
-      
-      
-      solver: "forceAtlas2Based",
-      
-     
-    },
-    stabilization: {
-      enabled: true,
-      iterations: 1000,
-      updateInterval: 100,
-      onlyDynamicEdges: false,
-      fit: true
-    },
+       physics: true,
+       
+    // stabilization: {
+    //   enabled: true,
+    //   iterations: 1000,
+    //   updateInterval: 100,
+    //   onlyDynamicEdges: false,
+    //   fit: true
+    // },
       color:"skyblue",
       // length: 85,
       scaling:{
