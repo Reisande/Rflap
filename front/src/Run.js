@@ -627,6 +627,7 @@ function Run(props) {
     var downloadAnchorNode = document.createElement('a');
     downloadAnchorNode.setAttribute("href",     dataStr);
     downloadAnchorNode.setAttribute("download", exportName + ".json");
+    //necessary to ignore event listeners in useEffect in app.js
     downloadAnchorNode.setAttribute("id","temp_anchor")
     document.body.appendChild(downloadAnchorNode); // required for firefox
     console.log("click");

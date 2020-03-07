@@ -36,7 +36,6 @@ function CFG_Visual() {
     return <Badge variant="danger">Invalid UIN!</Badge>;
   };
   const definition_plus_handler = button_press => {
-    console.log("button click!");
     let array_to_mount = definition_entry_array;
     CFG_Visual_Context_Index += 1;
     let grammar_table_line = {
@@ -84,20 +83,20 @@ function CFG_Visual() {
   const downloadObjectAsJson = (exportObj, exportName)=> {
     // const exportation_nodes = node_style_dependency(input_val);
     // exportation_nodes.state_names
-    console.log("DOWNLOADOBJ");
     var dataStr =
       "data:text/json;charset=utf-8," +
       encodeURIComponent(JSON.stringify(exportObj));
     var downloadAnchorNode = document.createElement("a");
     downloadAnchorNode.setAttribute("href", dataStr);
+    downloadAnchorNode.setAttribute("id","temp_anchor");
     downloadAnchorNode.setAttribute("download", exportName + ".json");
     document.body.appendChild(downloadAnchorNode); // required for firefox
     downloadAnchorNode.click();
     downloadAnchorNode.remove();
   }
   const export_click_handler = () => {
-    console.log("Exported!");
-    // set_UIN_input(true);
+    // console.log("Exported!");
+    set_UIN_input(true);
   };
   useEffect(() => {
     // Fired whenever input box changes
