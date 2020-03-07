@@ -181,11 +181,11 @@ function App() {
             case CURRENT_MACHINE.NFA:
               return <Visual />;
             case CURRENT_MACHINE.CFG:
-              return <CFG_Visual/>;
+              return <Visual/>;
             case CURRENT_MACHINE.PDA:
               return <PDA_Visual/>
             case CURRENT_MACHINE.TM:
-            return <h1>Turing Machine! :(</h1>
+              return <h1>Turing Machine! :(</h1>
           }
         })()}
       </AutomataContext.Provider>

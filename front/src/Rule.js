@@ -68,6 +68,7 @@ function Rule(props) {
             onChange={e => update_grammar_table(e, E_formtype.TERM)}
             as="input"
             defaultValue={mount_text.charAt(1)}
+            id= "rule_terminal"
           />
         </Col>
       </Form.Row>
