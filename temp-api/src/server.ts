@@ -27,6 +27,16 @@ app.post('/api', (req: Request, res: Response) => {
     });
 })
 
+app.post('/cfg', (req: Request, res: Response) => {
+    const json = JSON.stringify(req.body, null);
+    console.log(json);
+    console.log(automata_exec);
+    child_process.exec(`echo '${json}' | ${automata_exec} cfg`, {cwd: '..'}, (error, stdout, stderr) => {
+        if (error) res.status(500).send(stderr);
+        else res.status(200).send(stdout);
+    });
+})
+
 app.post('/generate-tests', (req: Request, res: Response) => {
     const json = JSON.stringify(req.body, null);
     child_process.exec(`echo '${json}' | cargo run tests`, {cwd: '..'}, (error, stdout, stderr) => {
