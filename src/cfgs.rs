@@ -93,7 +93,12 @@ impl CfgJson {
             let terminal_string = terminal.encode_utf8(&mut char_string).to_string();
             production_strings.insert(*terminal, terminal_string.to_owned());
 
-            g = g.terminal(terminal_string.to_owned(), move |c| c == terminal_string);
+            if terminal != '!' {
+                g = g.terminal(terminal_string.to_owned(), move |c| c == terminal_string);
+            } else {
+                // in the case of handling an epsilon case, you shouldn't add a terminal,
+                // rather add a separate rule
+            }
         }
 
         for (production_name, rules) in self.productions.iter() {
@@ -105,10 +110,14 @@ impl CfgJson {
                     .map(|c| production_strings.get(c).unwrap().as_str().clone())
                     .collect();
 
-                g = g.rule(
-                    production_strings.get(production_name).unwrap().as_str(),
-                    string_vec.as_slice(),
-                );
+                if rule[0] != '!' {
+                    g = g.rule(
+                        production_strings.get(production_name).unwrap().as_str(),
+                        string_vec.as_slice(),
+                    );
+                } else {
+                    // TODO: Tbh idk what to do here right now we just skip over it
+                }
             }
         }
 
@@ -144,25 +153,58 @@ impl CfgJson {
                     return Err("One of your rules has more than two symbols");
                 }
 
-                for symbol in rule {
-                    if rule.len() == 2 {
-                        // both symbol have to be non-terminals
-                        if !self.non_terminals.contains(rule[0].borrow())
-                            && !self.non_terminals.contains(rule[1].borrow())
-                        {
-                            return Err("One of your rules has a non-terminal and a terminal, or two non terminals");
-                        }
-                    } else if rule.len() == 1 {
-                        if !self.terminals.contains(rule[0].borrow()) {
-                            return Err("One of your rules has only one symbol, and that one symbol is not a terminal");
-                        }
-                    } else if rule.len() == 0 {
-                        return Err("One of your rules is empty. This should not happen; please report this error on Piazza");
+                if rule.len() == 2 {
+                    // both symbol have to be non-terminals
+                    if !self.non_terminals.contains(rule[0].borrow())
+                        && !self.non_terminals.contains(rule[1].borrow())
+                    {
+                        return Err("One of your rules has a non-terminal and a terminal, or two non terminals");
                     }
+                } else if rule.len() == 1 {
+                    if !self.terminals.contains(rule[0].borrow()) {
+                        return Err("One of your rules has only one symbol, and that one symbol is not a terminal");
+                    }
+                } else if rule.len() == 0 {
+                    return Err("One of your rules is empty. This should not happen; please report this error on Piazza");
                 }
             }
         }
 
         Ok(())
     }
+}
+
+#[cfg(test)]
+#[test]
+pub fn test_cfgs() -> () {
+    // trivial example of the CFG which recognizes palindromes
+    // ! represents epsilon
+    // S -> aSa | bSb | a | b | !
+    let mut terminals: HashSet<char> = HashSet::new();
+    terminals.insert('a');
+    terminals.insert('b');
+
+    let mut non_terminals: HashSet<char> = HashSet::new();
+    non_terminals.insert('S');
+
+    let mut productions: HashMap<char, Vec<Vec<char>>> = HashMap::new();
+    productions.insert(
+        'S',
+        [
+            ['a', 'S', 'a'].to_vec(),
+            ['b', 'S', 'b'].to_vec(),
+            ['a'].to_vec(),
+            ['b'].to_vec(),
+            ['!'].to_vec(),
+        ]
+        .to_vec(),
+    );
+
+    let mut tests: Vec<String> = Vec::new();
+    tests.push("aba".to_string());
+    tests.push("".to_string());
+    tests.push("ba".to_string());
+    tests.push("aabaa".to_string());
+    tests.push("aa".to_string());
+    tests.push("b".to_string());
 }
