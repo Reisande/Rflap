@@ -9,12 +9,12 @@ use std::io::Write;
 use serde::{Deserialize, Serialize};
 use serde_json::Result;
 
-use earlgrey;
-use earlgrey::{EarleyParser, Grammar, GrammarBuilder};
-
 mod cfgs;
 mod finite_automaton;
 mod generate_tests;
+
+extern crate dynparser;
+use dynparser::{parse, rules_from_peg};
 
 fn automata(input_automaton_json: finite_automaton::FiniteAutomatonJson) -> Result<String> {
     let (input_automaton, input_strings, hint) =

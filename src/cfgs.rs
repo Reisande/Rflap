@@ -1,8 +1,8 @@
 use crate::tests;
-use earlgrey;
-use earlgrey::{EarleyParser, Grammar, GrammarBuilder};
+
 use serde::{Deserialize, Serialize};
 use serde_json::Result;
+
 use std::borrow::Borrow;
 use std::collections::{HashMap, HashSet};
 use std::panic;
