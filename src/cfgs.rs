@@ -130,5 +130,32 @@ impl CfgJson {
     }
 
     // check Chomsky Normal form
-    pub fn check_chomsky_normal_form() {}
+    pub fn check_chomsky_normal_form(&self) -> std::result::Result<(), &'static str> {
+        for (_, rules) in self.productions {
+            for rule in rules {
+                if rule.len() > 2 {
+                    return Err("One of your rules has more than two symbols");
+                }
+
+                for symbol in rule {
+                    if rule.len() == 2 {
+                        // both symbol have to be non-terminals
+                        if !self.non_terminals.contains(rule[0].borrow())
+                            && !self.non_terminals.contains(rule[1].borrow())
+                        {
+                            return Err("One of your rules has a non-terminal and a terminal, or two non terminals");
+                        }
+                    } else if rule.len() == 1 {
+                        if !self.terminals.contains(rule[0].borrow()) {
+                            return Err("One of your rules has only one symbol, and that one symbol is not a terminal");
+                        }
+                    } else if rule.len() == 0 {
+                        return Err("One of your rules is empty. This should not happen; please report this error on Piazza");
+                    }
+                }
+            }
+        }
+
+        Ok(())
+    }
 }
