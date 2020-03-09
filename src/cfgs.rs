@@ -1,5 +1,5 @@
 use earlgrey;
-use earlgrey::{Grammar, GrammarBuilder};
+use earlgrey::{EarleyParser, Grammar, GrammarBuilder};
 use serde::{Deserialize, Serialize};
 use serde_json::Result;
 use std::borrow::Borrow;
@@ -109,7 +109,20 @@ impl CfgJson {
     }
 
     // validate string
-    pub fn validate_strings(&self) {}
+    pub fn validate_strings(
+        &self,
+        grammar: earlgrey::Grammar,
+    ) -> Vec<std::result::Result<ParseTrees, String>> {
+        let mut return_vec: Vec<std::result::Result<ParseTrees, String>> = Vec::new();
+
+        let parser: EarleyParser = earlgrey::EarleyParser::new(grammar);
+
+        for test in &self.tests {
+            return_vec.push(parser.parse(test.split_whitespace()));
+        }
+
+        return_vec
+    }
 
     // run tests
     //pub fn run_tests() -> Vec<(String, bool)> {}
