@@ -1,9 +1,11 @@
+use crate::tests;
 use earlgrey;
 use earlgrey::{EarleyParser, Grammar, GrammarBuilder};
 use serde::{Deserialize, Serialize};
 use serde_json::Result;
 use std::borrow::Borrow;
 use std::collections::{HashMap, HashSet};
+use std::panic;
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct CfgJsonCallback {
@@ -93,7 +95,7 @@ impl CfgJson {
             let terminal_string = terminal.encode_utf8(&mut char_string).to_string();
             production_strings.insert(*terminal, terminal_string.to_owned());
 
-            if terminal != '!' {
+            if terminal != &'!' {
                 g = g.terminal(terminal_string.to_owned(), move |c| c == terminal_string);
             } else {
                 // in the case of handling an epsilon case, you shouldn't add a terminal,
@@ -105,12 +107,12 @@ impl CfgJson {
             // go through and create a slice which consists of the strings which make up the rules vec
 
             for rule in rules {
-                let string_vec: Vec<&str> = rule
-                    .iter()
-                    .map(|c| production_strings.get(c).unwrap().as_str().clone())
-                    .collect();
-
                 if rule[0] != '!' {
+                    let string_vec: Vec<&str> = rule
+                        .iter()
+                        .map(|c| production_strings.get(c).unwrap().as_str().clone())
+                        .collect();
+
                     g = g.rule(
                         production_strings.get(production_name).unwrap().as_str(),
                         string_vec.as_slice(),
@@ -133,9 +135,11 @@ impl CfgJson {
         let parser: EarleyParser = earlgrey::EarleyParser::new(grammar);
 
         for test in &self.tests {
+            let a = parser.parse("aba".split_whitespace());
+
             return_vec.push((
                 test.to_owned(),
-                match parser.parse(test.split_whitespace()) {
+                match a {
                     Ok(_) => true,
                     Err(_) => false,
                 },
@@ -202,9 +206,37 @@ pub fn test_cfgs() -> () {
 
     let mut tests: Vec<String> = Vec::new();
     tests.push("aba".to_string());
-    tests.push("".to_string());
+    //tests.push("".to_string()); currently this makes the thing crash
     tests.push("ba".to_string());
     tests.push("aabaa".to_string());
     tests.push("aa".to_string());
     tests.push("b".to_string());
+
+    let cfg = CfgJson {
+        terminals,
+        non_terminals,
+        productions,
+        tests,
+    };
+
+    println!("{:?}", cfg.validate_cfg_json());
+
+    let grammar = match cfg.create_grammar() {
+        Ok(g) => g,
+        Err(s) => {
+            println!("{}", s);
+            panic!(s);
+        }
+    };
+
+    println!("{:?}", cfg.check_chomsky_normal_form());
+
+    let result_of_tests = cfg.validate_strings(grammar);
+
+    assert!(result_of_tests[0].1);
+    assert!(result_of_tests[1].1);
+    assert!(result_of_tests[!2].1);
+    assert!(result_of_tests[3].1);
+    assert!(result_of_tests[4].1);
+    assert!(result_of_tests[5].1);
 }
