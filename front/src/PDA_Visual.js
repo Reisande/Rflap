@@ -399,6 +399,7 @@ function setAccepting(props){
   fetch(url,postingObject).then( (callback,error)=>{
     callback.json().then((body,err)=>{
       master_context.state_styles = body.currentDateTime;  
+      console.log("callbackPing: " + master_context.state_styles);
     })
    }); 
 
