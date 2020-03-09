@@ -6,7 +6,14 @@ use std::borrow::Borrow;
 use std::collections::{HashMap, HashSet};
 
 #[derive(Debug, Deserialize, Serialize)]
-struct CfgJson {
+pub struct CfgJsonCallback {
+    pub test_results: Vec<(String, bool)>,
+    pub chomsky_normal_form: bool,
+    pub error_string: String,
+}
+
+#[derive(Debug, Deserialize, Serialize)]
+pub struct CfgJson {
     // terminals: lowercase letters or numbers
     terminals: HashSet<char>,
     // start_nonterminal: char,
@@ -131,7 +138,7 @@ impl CfgJson {
 
     // check Chomsky Normal form
     pub fn check_chomsky_normal_form(&self) -> std::result::Result<(), &'static str> {
-        for (_, rules) in self.productions {
+        for (_, rules) in &self.productions {
             for rule in rules {
                 if rule.len() > 2 {
                     return Err("One of your rules has more than two symbols");
