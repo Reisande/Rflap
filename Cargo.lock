@@ -4,6 +4,7 @@
 name = "automata"
 version = "0.2.0"
 dependencies = [
+ "earlgrey",
  "multimap",
  "rand",
  "serde",
@@ -24,6 +25,12 @@ name = "cfg-if"
 version = "0.1.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4785bdd1c96b2a846b2bd7cc02e86b6b3dbf14e7e53446c4f54c92a361040822"
+
+[[package]]
+name = "earlgrey"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "54c9e4cdb23d437a65dd1107a3f34a54c96fb17bb9d9ae986877b1fe2b1ac696"
 
 [[package]]
 name = "getrandom"

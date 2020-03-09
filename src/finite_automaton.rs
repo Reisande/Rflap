@@ -6,9 +6,9 @@ use serde_json::Result;
 
 use multimap::MultiMap;
 
-use std::assert;
 use std::collections::*;
 use std::iter::FromIterator;
+use std::panic;
 
 #[derive(Debug, Deserialize)]
 pub struct FiniteAutomatonJson {

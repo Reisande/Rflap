@@ -4,7 +4,6 @@ use std::collections::HashSet;
 use std::convert::TryInto;
 
 use serde::{Deserialize, Serialize};
-use serde_json::Result;
 
 #[derive(Debug, Deserialize)]
 pub struct TestsJson {
