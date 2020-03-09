@@ -74,6 +74,10 @@ function CFG_Visual() {
     return await Algorithms_are_the_computational_content_of_proofs.json();
   }
 
+  let input_val = "";
+  const WarningSign = () => {
+    return <Badge variant="danger">Invalid UIN!</Badge>;
+  };
   const definition_plus_handler = button_press => {
     let array_to_mount = definition_entry_array;
     CFG_Visual_Context_Index += 1;
@@ -168,7 +172,6 @@ function CFG_Visual() {
     document.body.appendChild(downloadAnchorNode); // required for firefox
     downloadAnchorNode.click();
     downloadAnchorNode.remove();
-    // console.log(exportation_nodes(exportation_nodes(nodes)));
   }
   const export_click_handler = () => {
     // console.log("Exported!");
@@ -221,6 +224,7 @@ function CFG_Visual() {
 
   //test api functionality:
   const HTMLCol_to_array = html_collection => Array.prototype.slice.call(html_collection);
+
 
 
    async function  on_click_CFG_api(e) {
@@ -405,6 +409,7 @@ function CFG_Visual() {
           </Button> */}
           </Col>
             <Col md={{ span: 0, offset:0 }}>
+
               <h4>Tests</h4>
             </Col>
 

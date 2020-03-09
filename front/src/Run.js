@@ -635,7 +635,6 @@ function Run(props) {
     console.log("click");
     downloadAnchorNode.remove();
 
-
   }
   return (
     <div id="inside-div-scrollbar">
