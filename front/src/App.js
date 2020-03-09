@@ -24,6 +24,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 let master_context = {
   graphobj: null,    // DFA/NFA: holds graphing object, which declares parameters
   grammar_obj: [{TERM:"",NON_TERM:""}], // CFG_MODULE: array of arrays, where each array is a grammar rule from "Definition"
+  pushdown: false, // for Push Down Automatas
 };
 
 // const disable_handler= (e) =>{
@@ -101,7 +102,6 @@ function App() {
     // console.log("RENDER")
 
     window.addEventListener("click", e => {
-      console.log(e.target.id == "temp_anchor");
       if(e.target.id == "temp_anchor") return;
       e.preventDefault();
       // menu handler
