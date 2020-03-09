@@ -10,12 +10,13 @@ use std::io::{BufRead, BufReader, Error, Write};
 use std::path::Path;
 
 use serde::{Deserialize, Serialize};
-use serde_json::{Result, to_string};
+use serde_json::{to_string, Result};
 
 use multimap::MultiMap;
 
 mod finite_automaton;
 mod generate_tests;
+mod pda;
 
 fn api(input_automaton_json: finite_automaton::FiniteAutomatonJson) -> Result<String> {
     let (input_automaton, input_strings, hint) =
@@ -49,7 +50,7 @@ fn grade(
     source: &finite_automaton::FiniteAutomatonJson,
     target: &finite_automaton::FiniteAutomatonJson,
     num_tests: u16,
-    supposed_to_be_deterministic : bool,
+    supposed_to_be_deterministic: bool,
 ) -> (
     u16,
     u16,
@@ -152,24 +153,17 @@ fn main() -> io::Result<()> {
         let buffer_answer = fs::read_to_string(&args[2])?;
 
         // TOOD: add config file reader for the grading settings, this is getting bloated
-        let determinism_weight: Option<f64> = Option::from(args[7].to_string().parse::<f64>().unwrap());
+        let determinism_weight: Option<f64> =
+            Option::from(args[7].to_string().parse::<f64>().unwrap());
         let supposed_to_be_deterministic = determinism_weight != None;
         // for the actual grading, we should show like 20 shorter strings and hide 80,
-        let source = &serde_json::de::from_str::<finite_automaton::FiniteAutomatonJson>(&buffer).unwrap();
-        let target = &serde_json::de::from_str::<finite_automaton::FiniteAutomatonJson>(&buffer_answer)
-            .unwrap();
-        let mut public_tests = grade(
-            source,
-            target,
-            10,
-            supposed_to_be_deterministic,
-        );
-        let hidden_tests = grade(
-            source,
-            target,
-            90,
-            supposed_to_be_deterministic,
-        );
+        let source =
+            &serde_json::de::from_str::<finite_automaton::FiniteAutomatonJson>(&buffer).unwrap();
+        let target =
+            &serde_json::de::from_str::<finite_automaton::FiniteAutomatonJson>(&buffer_answer)
+                .unwrap();
+        let mut public_tests = grade(source, target, 10, supposed_to_be_deterministic);
+        let hidden_tests = grade(source, target, 90, supposed_to_be_deterministic);
 
         // then initialize a data structure which follows the output of results.json
         // the only members out of results.json which matter are score and tests
@@ -188,7 +182,7 @@ fn main() -> io::Result<()> {
         // determinism
         if public_tests.6 {
             tests.push(Tests {
-                score: - determinism_weight.unwrap(),
+                score: -determinism_weight.unwrap(),
                 name: "determinism".to_string(),
                 number: problem_number.to_owned(),
                 visibility: "visible".to_string(),
@@ -197,11 +191,10 @@ fn main() -> io::Result<()> {
         // minimal size
         match original_size {
             Some(v) => {
-                let size_score =
-                    - (size_weight *
-                    ((source.states.len() - target.states.len()) /
-                        (v as usize - target.states.len())) as f64);
-                tests.push(Tests{
+                let size_score = -(size_weight
+                    * ((source.states.len() - target.states.len())
+                        / (v as usize - target.states.len())) as f64);
+                tests.push(Tests {
                     score: size_score,
                     name: "size".to_string(),
                     number: problem_number.to_owned(),
