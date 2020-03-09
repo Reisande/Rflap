@@ -108,24 +108,26 @@ impl CfgJson {
         g.into_grammar("S")
     }
 
-    // validate string
-    pub fn validate_strings(
-        &self,
-        grammar: earlgrey::Grammar,
-    ) -> Vec<std::result::Result<ParseTrees, String>> {
-        let mut return_vec: Vec<std::result::Result<ParseTrees, String>> = Vec::new();
+    // validate strings
+    // The error type means that a string fails to parse, and should be rejected, the ParseTrees
+    // are just in case we want to show them later, but are unused for now
+    pub fn validate_strings(&self, grammar: earlgrey::Grammar) -> Vec<(String, bool)> {
+        let mut return_vec: Vec<(String, bool)> = Vec::new();
 
         let parser: EarleyParser = earlgrey::EarleyParser::new(grammar);
 
         for test in &self.tests {
-            return_vec.push(parser.parse(test.split_whitespace()));
+            return_vec.push((
+                test.to_owned(),
+                match parser.parse(test.split_whitespace()) {
+                    Ok(_) => true,
+                    Err(_) => false,
+                },
+            ));
         }
 
         return_vec
     }
-
-    // run tests
-    //pub fn run_tests() -> Vec<(String, bool)> {}
 
     // check Chomsky Normal form
     pub fn check_chomsky_normal_form() {}
