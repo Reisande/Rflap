@@ -8,8 +8,8 @@ use std::collections::{HashMap, HashSet};
 use std::panic;
 
 use dynparser::parser::atom::Atom::Literal;
-use dynparser::parser::expression::{Expression, MultiExpr, SetOfRules};
-use dynparser::{parse, rules_from_peg};
+use dynparser::parser::expression::{Expression, MultiExpr, RepInfo, SetOfRules};
+use dynparser::{parse, parse_debug, rules_from_peg};
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct CfgJsonCallback {
@@ -99,7 +99,10 @@ impl CfgJson {
 
         let mut init_hashmap: HashMap<String, Expression> = HashMap::new();
 
+        init_hashmap.insert("main".to_string(), Expression::RuleName("S".to_owned()));
+
         for (production_name, rules) in self.productions.iter() {
+            let mut rule_list: Vec<Expression> = Vec::new();
             for rule in rules {
                 let mut exp_vec: Vec<Expression> = Vec::new();
                 for sub_expression in rule {
@@ -107,6 +110,12 @@ impl CfgJson {
                         exp_vec.push(Expression::RuleName(S.to_owned()))
                     } else if let Some(S) = terminal_strings.get(sub_expression) {
                         exp_vec.push(Expression::Simple(Literal(S.to_owned())))
+                    } else if *sub_expression == '!' {
+                        exp_vec.push(Expression::Repeat(RepInfo::new(
+                            Box::new(Expression::Simple(Literal("!".to_string()))),
+                            0,
+                            Some(1),
+                        )));
                     } else {
                         return Err(format!(
                             "{} has no corresponding non-terminal or terminal",
@@ -115,16 +124,16 @@ impl CfgJson {
                     }
                 }
 
-                let insert_expression: Expression = Expression::And(MultiExpr::new(exp_vec));
-
-                init_hashmap.insert(
-                    non_terminal_strings
-                        .get(production_name)
-                        .unwrap()
-                        .to_owned(),
-                    insert_expression,
-                );
+                rule_list.push(Expression::And(MultiExpr::new(exp_vec)));
             }
+
+            init_hashmap.insert(
+                non_terminal_strings
+                    .get(production_name)
+                    .unwrap()
+                    .to_owned(),
+                Expression::Or(MultiExpr::new(rule_list)),
+            );
         }
 
         Ok(SetOfRules::new(init_hashmap))
@@ -133,25 +142,27 @@ impl CfgJson {
     // validate strings
     // The error type means that a string fails to parse, and should be rejected, the ParseTrees
     // are just in case we want to show them later, but are unused for now
-    /*pub fn validate_strings(&self, grammar: earlgrey::Grammar) -> Vec<(String, bool)> {
+    pub fn validate_strings(&self) -> Vec<(String, bool)> {
         let mut return_vec: Vec<(String, bool)> = Vec::new();
 
-        let parser: EarleyParser = earlgrey::EarleyParser::new(grammar);
+        let parser = match self.create_grammar() {
+            Ok(s) => s,
+            Err(e) => std::panic!("{}", e),
+        };
 
         for test in &self.tests {
-            let a = parser.parse("aba".split_whitespace());
-
-            return_vec.push((
-                test.to_owned(),
-                match a {
-                    Ok(_) => true,
-                    Err(_) => false,
-                },
-            ));
+            let parse_result = match parse_debug(test, parser.borrow()) {
+                Ok(_) => true,
+                Err(s) => {
+                    println!("{:?}", s);
+                    false
+                }
+            };
+            return_vec.push((test.to_owned(), parse_result));
         }
 
         return_vec
-    }*/
+    }
 
     // check Chomsky Normal form
     pub fn check_chomsky_normal_form(&self) -> std::result::Result<(), &'static str> {
@@ -209,12 +220,16 @@ pub fn test_cfgs() -> () {
     );
 
     let mut tests: Vec<String> = Vec::new();
+    tests.push("".to_string()); // currently this makes the thing crash
     tests.push("aba".to_string());
-    //tests.push("".to_string()); currently this makes the thing crash
-    tests.push("ba".to_string());
     tests.push("aabaa".to_string());
+    tests.push("ababa".to_string());
     tests.push("aa".to_string());
-    tests.push("b".to_string());
+    tests.push("abba".to_string());
+
+    tests.push("bba".to_string());
+    tests.push("ba".to_string());
+    tests.push("baa".to_string());
 
     let cfg = CfgJson {
         terminals,
@@ -225,7 +240,7 @@ pub fn test_cfgs() -> () {
 
     println!("{:?}", cfg.validate_cfg_json());
 
-    /*let grammar = match cfg.create_grammar() {
+    let grammar = match cfg.create_grammar() {
         Ok(g) => g,
         Err(s) => {
             println!("{}", s);
@@ -235,12 +250,17 @@ pub fn test_cfgs() -> () {
 
     println!("{:?}", cfg.check_chomsky_normal_form());
 
-    let result_of_tests = cfg.validate_strings(grammar);
+    let result_of_tests = cfg.validate_strings();
 
     assert!(result_of_tests[0].1);
     assert!(result_of_tests[1].1);
-    assert!(result_of_tests[!2].1);
+    assert!(result_of_tests[2].1);
     assert!(result_of_tests[3].1);
     assert!(result_of_tests[4].1);
-    assert!(result_of_tests[5].1);*/
+    assert!(result_of_tests[5].1);
+
+    assert!(!result_of_tests[6].1);
+    assert!(!result_of_tests[7].1);
+    assert!(!result_of_tests[8].1);
+    assert!(!result_of_tests[9].1);
 }
