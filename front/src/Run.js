@@ -825,7 +825,7 @@ try{
         packet_to_misha_the_microsoft_engineer,
         "RFLAP_" + input_val + "_" + append.toString()
       );
-      console.log(packet_to_misha_the_microsoft_engineer);
+      // console.log(packet_to_misha_the_microsoft_engineer);
       set_UIN_input(false);
       set_warning_display(false);
     } else {
