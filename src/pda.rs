@@ -40,7 +40,7 @@ pub struct Pda {
     states: HashMap<String, bool>,
     // transition function is a hashMap from the current state, to a hashmap
     // representing all of the transitions for the current state
-    // the transition of a current state is a letter and a next state
+    // the transition of a current state is a let mutter and a next state
     transition_function: MultiMap<(String, Option<char>, Option<char>), (Option<char>, String)>,
     stack: Vec<char>,
 }
@@ -63,12 +63,18 @@ impl Pda {
     ) -> Pda {
         let mut transition_function = MultiMap::new();
 
-        /*for ((from, c0, c1), (c2, to)) in a_transitions {
-            transition_function.insert(
-                (from, convert_chars(c0), convert_chars(c1)),
-                (convert_chars(c2), to),
-            );
-        }*/
+        for ((from, c0, c1), v) in a_transitions {
+            for (c2, to) in v {
+                transition_function.insert(
+                    (
+                        from.to_owned(),
+                        convert_chars(c0.unwrap()),
+                        convert_chars(c1.unwrap()),
+                    ),
+                    (convert_chars(c2.unwrap()), to),
+                );
+            }
+        }
 
         // should probably add a check for validity of automaton, or maybe it
         // should be done client side
@@ -152,17 +158,19 @@ impl Pda {
             None => {}
         };
 
+        if current_stack.last() == None && call_size > 0 && position <= validate_string.len() {
+            return (false, Vec::new(), Vec::new());
+        }
+
         // end of the string
         if position >= validate_string.len() {
-            let is_final: bool = match self.states.get(&current_state) {
+            let mut is_final: bool = match self.states.get(&current_state.to_owned()) {
                 Some(b) => *b,
                 None => false,
             };
 
             if is_final {
                 return (true, current_path.to_owned(), current_stack.to_owned());
-            } else {
-                return (false, current_path, current_stack);
             }
         } else {
             // regular transition with pop top of stack
@@ -179,7 +187,7 @@ impl Pda {
                 };
 
             for (push_char, to_state) in targets {
-                let transition_char: Option<char> = None;
+                let mut transition_char: Option<char> = None;
 
                 match self._validate_string(
                     validate_string,
@@ -210,7 +218,7 @@ impl Pda {
 
             // epsilon transition with no stack pop
             for (push_char, to_state) in target_vec_epsilon_transitions {
-                let transition_char: Option<char> = None;
+                let mut transition_char: Option<char> = None;
 
                 match self._validate_string(
                     validate_string,
@@ -232,7 +240,7 @@ impl Pda {
         // epsilon transition with pop top of stack
         // epsilon transition with pop nothing
 
-        let target_vec_epsilon_transitions: Vec<(Option<char>, String)> =
+        let mut target_vec_epsilon_transitions: Vec<(Option<char>, String)> =
             match self.transition_function.get_vec(&(
                 current_state.to_owned(),
                 None,
@@ -243,7 +251,7 @@ impl Pda {
             };
 
         for (push_char, to_state) in target_vec_epsilon_transitions {
-            let transition_char: Option<char> = None;
+            let mut transition_char: Option<char> = None;
 
             match self._validate_string(
                 validate_string,
@@ -272,7 +280,7 @@ impl Pda {
 
         // epsilon transition with no stack pop
         for (push_char, to_state) in target_vec_epsilon_transitions {
-            let transition_char: Option<char> = None;
+            let mut transition_char: Option<char> = None;
 
             match self._validate_string(
                 validate_string,
@@ -320,7 +328,7 @@ impl Pda {
             Vec::new(),
             self.start_state.to_owned(),
             Some('_'),
-            Some('_'),
+            Some('$'),
             None,
             0,
         );
@@ -341,4 +349,85 @@ impl Pda {
 
 #[cfg(test)]
 #[test]
-pub fn test_pdas() -> () {}
+pub fn test_pdas() -> () {
+    // start out with the pda with recognizes palindromes
+    let mut a_stack_alphabet: HashSet<char> = HashSet::new();
+
+    a_stack_alphabet.insert('a');
+    a_stack_alphabet.insert('b');
+    a_stack_alphabet.insert('$');
+
+    let mut a_transition_alphabet: HashSet<char> = HashSet::new();
+
+    a_transition_alphabet.insert('a');
+    a_transition_alphabet.insert('b');
+
+    let a_start_state: String = "q1".to_string();
+
+    let mut a_new_states: HashMap<String, bool> = HashMap::new();
+
+    a_new_states.insert("q1".to_string(), false);
+    a_new_states.insert("q2".to_string(), false);
+    a_new_states.insert("q3".to_string(), false);
+    a_new_states.insert("q4".to_string(), true);
+
+    let mut a_transitions: MultiMap<(String, Option<char>, Option<char>), (Option<char>, String)> =
+        MultiMap::new();
+
+    a_transitions.insert(
+        ("q1".to_string(), Some('!'), Some('!')),
+        (Some('!'), "q2".to_string()),
+    );
+
+    a_transitions.insert(
+        ("q2".to_string(), Some('a'), Some('!')),
+        (Some('a'), "q2".to_string()),
+    );
+    a_transitions.insert(
+        ("q2".to_string(), Some('b'), Some('!')),
+        (Some('b'), "q2".to_string()),
+    );
+    a_transitions.insert(
+        ("q2".to_string(), Some('a'), Some('!')),
+        (Some('!'), "q3".to_string()),
+    );
+    a_transitions.insert(
+        ("q2".to_string(), Some('b'), Some('!')),
+        (Some('!'), "q3".to_string()),
+    );
+    a_transitions.insert(
+        ("q2".to_string(), Some('!'), Some('!')),
+        (Some('!'), "q3".to_string()),
+    );
+
+    a_transitions.insert(
+        ("q3".to_string(), Some('b'), Some('b')),
+        (Some('!'), "q3".to_string()),
+    );
+    a_transitions.insert(
+        ("q3".to_string(), Some('a'), Some('a')),
+        (Some('!'), "q3".to_string()),
+    );
+    a_transitions.insert(
+        ("q3".to_string(), Some('!'), Some('$')),
+        (Some('!'), "q4".to_string()),
+    );
+
+    let mut test_pda = Pda::new(
+        a_stack_alphabet,
+        a_transition_alphabet,
+        a_start_state,
+        a_new_states,
+        a_transitions,
+    );
+
+    /*assert!(test_pda.validate_string("".to_string()).0);
+    assert!(test_pda.validate_string("aa".to_string()).0);
+    assert!(test_pda.validate_string("a".to_string()).0);
+    assert!(test_pda.validate_string("abba".to_string()).0);
+
+    assert!(!test_pda.validate_string("abbbab".to_string()).0);
+    assert!(!test_pda.validate_string("ba".to_string()).0);
+    assert!(!test_pda.validate_string("bba".to_string()).0);
+    assert!(!test_pda.validate_string("baaa".to_string()).0);*/
+}
