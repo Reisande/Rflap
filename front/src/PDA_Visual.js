@@ -180,7 +180,7 @@ let network;
 useEffect( ()=>{
     img_status.current.src = passive_bar;
     const HTMLCol_to_array = (html_collection) => Array.prototype.slice.call(html_collection);
-
+    master_context.PDA = true;
         // let yager = HTMLCol_to_array(wrapper.current.childNodes);
         // console.log(HTMLCol_to_array(wrapper.current.childNodes));
         // console.log(yager)
@@ -202,45 +202,28 @@ useEffect( ()=>{
       nodesDS.add([{id:new_id, label: " Q "+ (graph.nodes.get().length) + " "}])
       network.moveNode(new_id, (Math.random()-.6) *200, (Math.random() -.7)*200)
       
-    // graph.nodes.get().forEach(  (node)=>{
-    //   if(node.id == node_id_clicked){
-    //     found_node = node;
-       
-    //   }
-    // }
-    // );
-    // nodesDS.remove({id:found_node.id});
-    // // Update the name of the new Node
-    // nodesDS.update([{id:found_node.id, label: " Q "+ (graph.nodes.get().length) + " "}]);
 
     in_add_node_mode = false;
     img_status.current.src = passive_bar;
-    // console.log("end add_Node_mode\n--------------")
   }
   })
   network.on("controlNodeDragEnd",(params)=>{
-    // console.log("disabled edit mode");
     network.disableEditMode();
     let edge_identifier = findEdgeByNodes(params.controlEdge.from,params.controlEdge.to);
-    // console.log(edge_identifier);
     
     edgesDS.update([{id:edge_identifier, arrows:'to'}])
   });
   network.on("select", (params)=>{
-    // console.log("select");
    
     if( (params != null ) && in_initial_mode && (params.nodes > 0 || params.nodes[0] !=null)){
    
       let node_id_clicked= params.nodes[0];
       let found_node;
-      //find node given
       graph.nodes.get().forEach(  (node)=>{
         if(node.id == node_id_clicked){
           found_node = node;
         }}
       );
-      // console.log(found_node);
-      // nodesDS.update([{id:node_id_clicked,color: "#00bfff"}]);
       in_initial_mode = false;
       img_status.current.src = passive_bar;
       let final_state;
@@ -257,17 +240,12 @@ useEffect( ()=>{
       else{
         final_state = circle_config;
       }
-      // console.log("SET THE INITIAL COLOR: ");
-      // console.log(final_color);
       if(found_node.init == true){
-        // console.log("INITIAL TAG REMOVED");
-        // console.log(final_state)
         nodesDS.update([{id:found_node.id, shape: final_state, init:false }]);
       }
       else{
       nodesDS.update([{id:found_node.id, shape: final_state, init:true}]);
       }
-      // console.log("END-initial")
     }
     //ACCEPTING BUTTON PRESS LISTENER
     else if((params != null )  && (params.nodes != null) && in_accepting_mode_ &&  ( params.nodes >  0 || params.nodes[0] != null )){
@@ -279,7 +257,6 @@ useEffect( ()=>{
           found_node = node;
         }
         } );
-      // console.log(found_node);
       let final_border = 3;
       let border_width_a = 3;
       let border_width_b = 0;
@@ -295,12 +272,9 @@ useEffect( ()=>{
       nodesDS.update([{id:node_id_clicked, borderWidth: final_border}]);
       in_accepting_mode_ = false;
       img_status.current.src = passive_bar;
-      // console.log("END-accepting")
     }
     else if(params.edges.length  == 1 && params.nodes == 0){
-    // console.log(params.edges[0]);
     let edge_id = params.edges[0];
-    // console.log("Clicked on an edge!");
     let Display_String = master_context.mode == "Determinstic Finite Automata" ? "Edit String!" : "Edit String! ([ ε ])"
      let user_input_string =  prompt(Display_String);
       ChangeEdgeText(user_input_string, edge_id)
@@ -314,6 +288,7 @@ useEffect( ()=>{
    network.off("hoverNode");
    network.off("showPopup");
    network.destroy();
+   master_context.PDA = false;
   }
 });
 const deselectAllModes= ()=>{
@@ -339,26 +314,19 @@ const ChangeEdgeText = (userInput, edgeID)=>{
 }
 
 const findEdgeByNodes = (from,to) =>{
-  // console.log("find edge by nodes!");
-  // console.log(to);
-  // console.log(from);
+  
   let return_id;
   graph.edges.forEach( (edge,index)=>{
-    // console.log(index + ":");
-    // console.log(edge);
     if( (to == edge.to) &&   (edge.from == from)   ){
-      // console.log('returned  true');
-      // console.log("edge id" + edge.id)
+     
       return_id = edge.id;
     }
 
   })
-  // console.log(return_id);
     return return_id; 
 
 }
 function toEditEdgeMode(props){
-  // console.log("EditEdgeMode");
   deselectAllModes();
     img_status.current.src = transition_bar;
     network.enableEditMode();
@@ -420,11 +388,6 @@ function populateNode(props){
   (!img_bar_status_did_mount) ?  master_context.did_mount = mount_styling() : master_context.did_mount = master_context.did_mount;
   img_bar_status_did_mount = true;
   node_id_global+=1;
-  // graph.nodes.get().forEach(  (node)=>{
-  //   if(node.id == node_id_clicked){
-  //     found_node = node;
-  //   }}
-  // );
   nodesDS.add([{id:node_id_global, label: " Q "+ (graph.nodes.get().length) + " "}])
 
   network.moveNode(node_id_global, (Math.random()-.6) *400, (Math.random() -.6)*400)
@@ -435,18 +398,9 @@ function populateNode(props){
 function deleteNodeOrEdge(props){
   deselectAllModes();
 
-  // console.log("deletion:")
   let node_deleted,edge_deleted;
-  //console.log(network.getIds([network.getSelec]))
   let deleted_node = network.getSelectedEdges
   graph.nodes.forEach( (node)=>{
-  //   if(node.id == )
-  // } );
-  // console.log(network.getSelectedEdges());
-  // console.log(network.getSelectedNodes());
-
-
-  // console.log('deletion--end');
 
   network.deleteSelected();
 });
@@ -454,7 +408,6 @@ function deleteNodeOrEdge(props){
 
   return (
     <div id = "non-header-div">
-        {/* <div id="button-hold"><Col></Col></div> */}
       
       <div class="div-inline-group-below-header"  >
       <div id = "trash_button" class = "div-inline-group-below-header">

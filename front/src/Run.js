@@ -38,7 +38,8 @@ let error_object = {
   no_label_transition: false,
   no_initial_state: false,
   epsilon_on_DFA: false,
-  no_label_on_dfa: false
+  no_label_on_dfa: false,
+  out_of_bounds:false
 };
 function Run(props) {
   const master_context = useContext(AutomataContext);
@@ -64,6 +65,7 @@ function Run(props) {
 
   // console.log(row_entry_array);
   let packet_to_misha_the_microsoft_engineer = {
+    PDA: false,
     alphabet: [],
     start_state: "",
     //String:Bool
@@ -75,6 +77,7 @@ function Run(props) {
       master_context.mode == "Determinstic Finite Automata" ? true : false,
     input_strings: ["a"]
   };
+
   //useEffect clause
   useEffect(() => {
     document
@@ -87,13 +90,210 @@ function Run(props) {
   let toBePushed = [];
   // error_object =
   const edgeProcess = (edgeObj, nodeObj) => {
-    // console.log("edge process");
-    // console.log(edgeObj);
     let transition_triple = [];
-    packet_to_misha_the_microsoft_engineer.determinism =
-      master_context.mode == "Determinstic Finite Automata" ? true : false;
+    packet_to_misha_the_microsoft_engineer.determinism = master_context.mode == "Determinstic Finite Automata" ? true : false;
     packet_to_misha_the_microsoft_engineer.transition_function = [];
-    // console.log("!!")
+    let stack_alpha = new Set();
+    let alpha = new Set();
+    if(master_context.PDA){
+      packet_to_misha_the_microsoft_engineer.PDA = true
+
+    edgeObj.forEach(edgeObj => {
+      transition_triple = [];
+      if (edgeObj.label == undefined) {
+      }
+      let label_to_add =
+        edgeObj.label == undefined || edgeObj.label == " "
+          ? "null"
+          : edgeObj.label.trim();
+      let from, to, label;
+      from = edgeObj.from;
+      to = edgeObj.to;
+      if (
+        edgeObj.label == undefined &&
+        packet_to_misha_the_microsoft_engineer.determinism
+      ) {
+        error_object.no_label_on_dfa = true;
+      }
+      if (edgeObj.label == undefined) return;
+      label = edgeObj.label.trim();
+      if (from == to) {
+        let sub_string_collection = label.replace(/\s/g,'').split("|");
+
+        for (let i = 0; i < sub_string_collection.length; i++) {
+          let from_label, to_label;
+          transition_triple = [];
+          nodeObj.forEach(nodeObj => {
+            if (nodeObj.id == from) {
+              from_label = nodeObj.label;
+            }
+            if (nodeObj.id == to) {
+              to_label = nodeObj.label;
+            }
+          });
+          transition_triple.push(from_label.trim());
+          // transition_triple.push(sub_string_collection[i].toString(10));
+          let transition_alpha_no_whitespace = sub_string_collection[i].replace(/\s/g,'');
+          // [0]: read
+// [2]: push
+// [5]: pop
+          let read,push,pop;
+try{
+   read = transition_alpha_no_whitespace[0];
+   push = transition_alpha_no_whitespace[2];
+   pop = transition_alpha_no_whitespace[5];
+  }
+  catch(e){
+    error_object.out_of_bounds = true;
+    return;
+  }
+
+  transition_triple.push(read);
+  transition_triple.push(push);
+  stack_alpha.add(push);
+  transition_triple.push(pop);
+  stack_alpha.add(push);
+
+
+
+
+          if (transition_triple[1] == "ε") {
+            transition_triple[1] = null;
+          }
+          transition_triple.push(to_label.trim());
+
+          if (
+            packet_to_misha_the_microsoft_engineer.determinism &&
+            transition_triple[1] == "ϵ"
+          ) {
+            error_object.epsilon_on_DFA = true;
+          }
+          packet_to_misha_the_microsoft_engineer.transition_function.push(
+            transition_triple
+          );
+        }
+      } else {
+        let from_label, to_label;
+        if (edgeObj.label.includes("|")) {
+          let sub_string_collection = edgeObj.label.split("|");
+          transition_triple = [];
+          nodeObj.forEach(nodeObj => {
+            if (nodeObj.id == from) {
+              from_label = nodeObj.label.trim();
+            }
+            if (nodeObj.id == to) {
+              to_label = nodeObj.label.trim();
+            }
+          });
+          sub_string_collection.forEach(transition_alpha => {
+            transition_triple = [];
+            transition_triple.push(from_label);
+            let transition_alpha_no_whitespace = transition_alpha.replace(/\s/g,'');
+// [0]: read
+// [2]: push
+// [5]: pop
+            let read,push,pop
+            try{
+             read = transition_alpha_no_whitespace[0];
+             push = transition_alpha_no_whitespace[2];
+             pop = transition_alpha_no_whitespace[5];
+            }
+            catch(e){
+              error_object.out_of_bounds = true;
+              return;
+            }
+
+            transition_triple.push(read);
+            alpha.add(read);
+            transition_triple.push(push);
+            stack_alpha.add(push);
+            
+            transition_triple.push(pop);
+            stack_alpha.add(push);
+
+
+            if (
+              transition_triple[1] == "ε" &&
+              master_context.mode == "Non-Deterministic Finite Automata"
+            ) {
+              // console.log("NULLED");
+              transition_triple[1] = null;
+            }
+            transition_triple.push(to_label);
+            packet_to_misha_the_microsoft_engineer.transition_function.push(
+              transition_triple
+            );
+          });
+        } else {
+          nodeObj.forEach(nodeObj => {
+            if (nodeObj.id == from) {
+              from_label = nodeObj.label.trim();
+            }
+            if (nodeObj.id == to) {
+              to_label = nodeObj.label.trim();
+            }
+          });
+          transition_triple = [];
+          transition_triple.push(from_label);
+          if (
+            transition_triple[1] == "ε" &&
+            master_context.mode == "Non-Deterministic Finite Automata"
+          ) {
+            transition_triple[1] = null;
+          }
+          let transition_alpha_no_whitespace = label.replace(/\s/g,'').split("");
+
+          let read,push,pop;
+            try{
+            read = transition_alpha_no_whitespace[0];
+            push = transition_alpha_no_whitespace[2];
+            pop = transition_alpha_no_whitespace[5];
+            }
+            catch(e){
+              error_object.out_of_bounds = true;
+              return;
+            }
+            transition_triple.push(read);
+            alpha.add(read);
+            transition_triple.push(push);
+            stack_alpha.add(push);
+
+            transition_triple.push(pop);
+            stack_alpha.add(pop);
+
+            transition_triple.push(to_label);
+          toBePushed.push(label_to_add.toString(10));
+          packet_to_misha_the_microsoft_engineer.transition_function.push(
+            transition_triple
+          );
+        }
+      }
+
+    });
+    let alphabet_processed = [];
+    // console.log("-----");
+    [...new Set(toBePushed)].forEach((entry, id) => {
+      entry.split("|").forEach(char => {
+        alphabet_processed.push(char);
+      });
+    });
+
+    // console.log("-----");
+    // console.log("FINAL ALPHABET:");
+    // console.log(alphabet_processed);
+    // console.log("FINAL ALPHABET:");
+
+    packet_to_misha_the_microsoft_engineer.transition_alpha = [...alpha];
+    packet_to_misha_the_microsoft_engineer.stack_alphabet = [...stack_alpha];
+    // console.log(edgeObj);
+    // console.log("end of edgeProcess");
+    }
+
+    
+    //NON_PDA
+    else{
+      // console.log("NON_pda");
+      packet_to_misha_the_microsoft_engineer.PDA= false;
     edgeObj.forEach(edgeObj => {
       transition_triple = [];
       if (edgeObj.label == undefined) {
@@ -216,8 +416,7 @@ function Run(props) {
     // console.log("FINAL ALPHABET:");
 
     packet_to_misha_the_microsoft_engineer.alphabet = alphabet_processed;
-    // console.log(edgeObj);
-    // console.log("end of edgeProcess");
+    }
   };
   const nodeProcess = nodeObj => {
     // console.log("node process");
@@ -355,6 +554,18 @@ function Run(props) {
         no_label_on_dfa: false
       };
       return null;
+    }
+    if(error_object.out_of_bounds){
+      alert("\tInvalid transitions");
+      error_object = {
+        multiple_initial_states:false,
+        no_label_transition:false,
+        no_initial_state:false,
+        epsilon_on_DFA:false,
+        no_label_on_dfa:false,
+        out_of_bounds: false,
+
+      }
     }
     // if(error_object.no_label_on_dfa){
 
@@ -529,7 +740,7 @@ function Run(props) {
     onClickPingToApi();
   }
   function addBar(e) {
-    console.log(e.target);
+    // console.log(e.target);
     e.preventDefault();
   }
   function setInputVal(value) {
@@ -595,15 +806,26 @@ function Run(props) {
     // console.log(input_val);
     if (input_val.length == 9 && /^\d+$/.test(input_val)) {
       let append = Math.round(Math.random() * 1000);
+      
       preprocess();
       // console.log(packet_to_misha_the_microsoft_engineer.state_names);
       packet_to_misha_the_microsoft_engineer.state_names =
         master_context.state_styles;
       // console.log(packet_to_misha_the_microsoft_engineer)
+      // console.log(master_context.state_styles);
+      // console.log("----")
+      // console.log(packet_to_misha_the_microsoft_engineer);
+      // console.log("----")
+      if(packet_to_misha_the_microsoft_engineer.PDA){
+      delete packet_to_misha_the_microsoft_engineer.state_names;
+      delete packet_to_misha_the_microsoft_engineer.determinism;
+      delete packet_to_misha_the_microsoft_engineer.alphabet;
+      }
       downloadObjectAsJson(
         packet_to_misha_the_microsoft_engineer,
         "RFLAP_" + input_val + "_" + append.toString()
       );
+      console.log(packet_to_misha_the_microsoft_engineer);
       set_UIN_input(false);
       set_warning_display(false);
     } else {
@@ -630,9 +852,9 @@ function Run(props) {
     //necessary to ignore event listeners in useEffect in app.js
     downloadAnchorNode.setAttribute("id","temp_anchor")
     document.body.appendChild(downloadAnchorNode); // required for firefox
-    console.log("click");
+    // console.log("click");
     downloadAnchorNode.click();
-    console.log("click");
+    // console.log("click");
     downloadAnchorNode.remove();
 
   }
@@ -679,13 +901,13 @@ function Run(props) {
               name="add_row_input"
             />
           </Col>
-          <Button
+          { (!master_context.PDA) ? <Button
             id="api_button"
             onClick={event => on_click_test_api(event)}
             variant="info"
           >
             Test
-          </Button>
+          </Button>: <></>}
         </Nav>
       </Navbar>
       <Row>
