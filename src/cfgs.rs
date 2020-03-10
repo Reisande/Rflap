@@ -7,6 +7,12 @@ use std::borrow::Borrow;
 use std::collections::{HashMap, HashSet};
 use std::panic;
 
+#[macro_use]
+extern crate dynparser;
+use dynparser::parser::atom::Atom::Literal;
+use dynparser::parser::expression::{Expression, SetOfRules};
+use dynparser::{parse, rules_from_peg};
+
 #[derive(Debug, Deserialize, Serialize)]
 pub struct CfgJsonCallback {
     pub test_results: Vec<(String, bool)>,
@@ -73,10 +79,9 @@ impl CfgJson {
         Ok(())
     }
 
-    pub fn create_grammar(&self) -> std::result::Result<Grammar, String> {
-        let mut g = earlgrey::GrammarBuilder::default();
-
-        let mut production_strings: HashMap<char, String> = HashMap::new();
+    pub fn create_grammar(&self) -> std::result::Result<SetOfRules, String> {
+        let mut non_terminal_strings: HashMap<char, String> = HashMap::new();
+        let mut terminal_strings: HashMap<char, String> = HashMap::new();
 
         // TODO: this code is disgusting and horribly inefficient, change the char in the CFG
         // TODO: type to be a string and check all invariants
@@ -84,46 +89,47 @@ impl CfgJson {
             let mut char_string = [0; 4];
 
             let non_terminal_string = non_terminal.encode_utf8(&mut char_string).to_string();
-            production_strings.insert(*non_terminal, non_terminal_string.to_owned());
-
-            g = g.nonterm(non_terminal_string);
+            non_terminal_strings.insert(*non_terminal, non_terminal_string.to_owned());
         }
 
         for terminal in self.terminals.iter() {
             let mut char_string = [0; 4];
 
             let terminal_string = terminal.encode_utf8(&mut char_string).to_string();
-            production_strings.insert(*terminal, terminal_string.to_owned());
-
-            if terminal != &'!' {
-                g = g.terminal(terminal_string.to_owned(), move |c| c == terminal_string);
-            } else {
-                // in the case of handling an epsilon case, you shouldn't add a terminal,
-                // rather add a separate rule
-            }
+            terminal_strings.insert(*terminal, terminal_string.to_owned());
         }
 
-        for (production_name, rules) in self.productions.iter() {
-            // go through and create a slice which consists of the strings which make up the rules vec
+        let mut init_hashmap: HashMap<String, Expression> = HashMap::new();
 
+        for (production_name, rule) in self.productions.iter() {
             for rule in rules {
-                if rule[0] != '!' {
-                    let string_vec: Vec<&str> = rule
-                        .iter()
-                        .map(|c| production_strings.get(c).unwrap().as_str().clone())
-                        .collect();
-
-                    g = g.rule(
-                        production_strings.get(production_name).unwrap().as_str(),
-                        string_vec.as_slice(),
-                    );
-                } else {
-                    // TODO: Tbh idk what to do here right now we just skip over it
+                let mut exp_vec: &Vec<Expression> = &Vec::new();
+                for sub_expression in rule {
+                    if let Some(&S) = non_terminal_strings.get(sub_expression) {
+                        exp_vec.push(Expression::RuleName(S))
+                    } else if let Some(&S) = terminal_strings.get(sub_expression) {
+                        exp_vec.push(Expression::Simple(Literal(S)))
+                    } else {
+                        return Err(format!(
+                            "{} has no corresponding non-terminal or terminal",
+                            sub_expression
+                        ));
+                    }
                 }
+
+                let insert_expression: Expression = Expression::And(Expression::new(exp_vec));
+
+                init_hashmap.insert(
+                    non_terminal_strings
+                        .get(production_name)
+                        .unwrap()
+                        .to_owned(),
+                    insert_expression,
+                );
             }
         }
 
-        g.into_grammar("S")
+        Err("Not implemented".to_string())
     }
 
     // validate strings
@@ -221,7 +227,7 @@ pub fn test_cfgs() -> () {
 
     println!("{:?}", cfg.validate_cfg_json());
 
-    let grammar = match cfg.create_grammar() {
+    /*let grammar = match cfg.create_grammar() {
         Ok(g) => g,
         Err(s) => {
             println!("{}", s);
@@ -238,5 +244,5 @@ pub fn test_cfgs() -> () {
     assert!(result_of_tests[!2].1);
     assert!(result_of_tests[3].1);
     assert!(result_of_tests[4].1);
-    assert!(result_of_tests[5].1);
+    assert!(result_of_tests[5].1);*/
 }
