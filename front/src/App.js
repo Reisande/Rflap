@@ -125,6 +125,10 @@ function App() {
         }
       }
       click_run_handler(e);
+      setTimeout(()=>{
+
+
+      },1)
     });
     return () => {
       window.removeEventListener("click", e => click_run_handler(e));
