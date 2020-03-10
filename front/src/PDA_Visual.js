@@ -276,8 +276,8 @@ useEffect( ()=>{
     else if(params.edges.length  == 1 && params.nodes == 0){
     let edge_id = params.edges[0];
     let Display_String = master_context.mode == "Determinstic Finite Automata" ? "Edit String!" : "Edit String! ([ ε ])"
-     let user_input_string =  prompt(Display_String);
-      ChangeEdgeText(user_input_string, edge_id)
+     let user_input_string =  prompt(Display_String + "\t ! for Epsilon");
+      ChangeEdgeText(user_input_string.replace(/!/g, "\u03B5"), edge_id)
       img_status.current.src = passive_bar;
 
   }});
@@ -288,7 +288,7 @@ useEffect( ()=>{
    network.off("hoverNode");
    network.off("showPopup");
    network.destroy();
-   master_context.PDA = false;
+   master_context.PDA =false;
   }
 });
 const deselectAllModes= ()=>{
