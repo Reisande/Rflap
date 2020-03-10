@@ -211,7 +211,7 @@ function CFG_Visual() {
 
         // textarea_text = textarea_text.replace(/|/g,"\u2588")
       });
-
+      if(formArea != null)
       formArea.current.value = textarea_text;
     }
     });
@@ -280,8 +280,8 @@ function CFG_Visual() {
       //   }); 
       // }
       // check_alphabet(alphabet);
-      packet.term = alphabet.terminals;
-      packet.non_term = alphabet.non_terminals;
+      packet.term = [...alphabet.terminals];
+      packet.non_term = [...alphabet.non_terminals];
       return packet;
   }
 
