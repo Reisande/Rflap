@@ -134,6 +134,123 @@ struct Tests {
     visibility: String,
 }
 
+pub fn endpoint_grade(buffer: String, args: Vec<String>) -> io::Result<()> {
+    // answer file will be passed in the second command line argument
+    let buffer_answer = fs::read_to_string(&args[2])?;
+
+    // TOOD: add config file reader for the grading settings, this is getting bloated
+    let determinism_weight: Option<f64> = Option::from(args[7].to_string().parse::<f64>().unwrap());
+    let supposed_to_be_deterministic = determinism_weight != None;
+    // for the actual grading, we should show like 20 shorter strings and hide 80,
+    let source =
+        &serde_json::de::from_str::<finite_automaton::FiniteAutomatonJson>(&buffer).unwrap();
+    let target =
+        &serde_json::de::from_str::<finite_automaton::FiniteAutomatonJson>(&buffer_answer).unwrap();
+    let mut public_tests = grade(source, target, 10, supposed_to_be_deterministic);
+    let hidden_tests = grade(source, target, 90, supposed_to_be_deterministic);
+
+    // then initialize a data structure which follows the output of results.json
+    // the only members out of results.json which matter are score and tests
+    // the only members of tests which we care about are
+    let mut tests: Vec<Tests> = Vec::new();
+
+    let problem_number: String = args[4].to_owned();
+
+    // STATIC TESTS
+
+    // size of the automata in number of states, added as a test to public_tests
+    let original_size: Option<u8> = Option::from(args[5].to_string().parse::<u8>().unwrap());
+    let minimal_size = target.states.len();
+    let size_weight: f64 = f64::from(args[6].to_string().parse::<f64>().unwrap());
+
+    // determinism
+    if public_tests.6 {
+        tests.push(Tests {
+            score: -determinism_weight.unwrap(),
+            name: "determinism".to_string(),
+            number: problem_number.to_owned(),
+            visibility: "visible".to_string(),
+        });
+    }
+    // minimal size
+    match original_size {
+        Some(v) => {
+            let size_score = -(size_weight
+                * ((source.states.len() - target.states.len()) / (v as usize - target.states.len()))
+                    as f64);
+            tests.push(Tests {
+                score: size_score,
+                name: "size".to_string(),
+                number: problem_number.to_owned(),
+                visibility: "visible".to_string(),
+            });
+        }
+        _ => {}
+    }
+
+    // DYNAMIC TESTS
+
+    for test in 0..public_tests.2.len() {
+        tests.push(Tests {
+            score: public_tests.3[test] as f64,
+            name: public_tests.2[test].to_owned(),
+            number: problem_number.to_owned(),
+            visibility: "visible".to_string(),
+        });
+    }
+
+    for test in 0..public_tests.4.len() {
+        tests.push(Tests {
+            score: public_tests.5[test] as f64,
+            name: public_tests.4[test].to_owned(),
+            number: problem_number.to_owned(),
+            visibility: "visible".to_string(),
+        });
+    }
+
+    for test in 0..hidden_tests.4.len() {
+        tests.push(Tests {
+            score: hidden_tests.5[test] as f64,
+            name: hidden_tests.4[test].to_owned(),
+            number: problem_number.to_owned(),
+            visibility: "hidden".to_string(),
+        });
+    }
+
+    for test in 0..hidden_tests.2.len() {
+        tests.push(Tests {
+            score: hidden_tests.3[test] as f64,
+            name: hidden_tests.2[test].to_owned(),
+            number: problem_number.to_owned(),
+            visibility: "hidden".to_string(),
+        });
+    }
+
+    let final_tests = serde_json::to_string(&tests)?;
+
+    let mut output = File::create(&args[3])?;
+    write!(output, "{}", final_tests)?;
+
+    Ok(())
+}
+
+fn pda(input_pda: pda::PdaJson) -> Result<String> {
+    let (pda, input_strings) = pda::Pda::new_from_json(&input_pda);
+
+    let mut return_paths = input_strings
+        .iter()
+        .map(|s| (pda.validate_string(s.to_owned()).0, s.to_owned()))
+        .collect();
+
+    let callback = pda::PdaCallback {
+        list_of_strings: return_paths.to_owned(),
+    };
+
+    let callback_string = serde_json::to_string(&callback)?;
+    println!("{}", callback_string);
+    Ok("".to_string())
+}
+
 fn main() -> io::Result<()> {
     use std::io::Read;
 
@@ -149,103 +266,8 @@ fn main() -> io::Result<()> {
     } else if &args[1] == "tests" {
         tests(serde_json::de::from_str::<generate_tests::TestsJson>(&buffer).unwrap());
     } else if &args[1] == "grade" {
-        // answer file will be passed in the second command line argument
-        let buffer_answer = fs::read_to_string(&args[2])?;
-
-        // TOOD: add config file reader for the grading settings, this is getting bloated
-        let determinism_weight: Option<f64> =
-            Option::from(args[7].to_string().parse::<f64>().unwrap());
-        let supposed_to_be_deterministic = determinism_weight != None;
-        // for the actual grading, we should show like 20 shorter strings and hide 80,
-        let source =
-            &serde_json::de::from_str::<finite_automaton::FiniteAutomatonJson>(&buffer).unwrap();
-        let target =
-            &serde_json::de::from_str::<finite_automaton::FiniteAutomatonJson>(&buffer_answer)
-                .unwrap();
-        let mut public_tests = grade(source, target, 10, supposed_to_be_deterministic);
-        let hidden_tests = grade(source, target, 90, supposed_to_be_deterministic);
-
-        // then initialize a data structure which follows the output of results.json
-        // the only members out of results.json which matter are score and tests
-        // the only members of tests which we care about are
-        let mut tests: Vec<Tests> = Vec::new();
-
-        let problem_number: String = args[4].to_owned();
-
-        // STATIC TESTS
-
-        // size of the automata in number of states, added as a test to public_tests
-        let original_size: Option<u8> = Option::from(args[5].to_string().parse::<u8>().unwrap());
-        let minimal_size = target.states.len();
-        let size_weight: f64 = f64::from(args[6].to_string().parse::<f64>().unwrap());
-
-        // determinism
-        if public_tests.6 {
-            tests.push(Tests {
-                score: -determinism_weight.unwrap(),
-                name: "determinism".to_string(),
-                number: problem_number.to_owned(),
-                visibility: "visible".to_string(),
-            });
-        }
-        // minimal size
-        match original_size {
-            Some(v) => {
-                let size_score = -(size_weight
-                    * ((source.states.len() - target.states.len())
-                        / (v as usize - target.states.len())) as f64);
-                tests.push(Tests {
-                    score: size_score,
-                    name: "size".to_string(),
-                    number: problem_number.to_owned(),
-                    visibility: "visible".to_string(),
-                });
-            }
-            _ => {}
-        }
-
-        // DYNAMIC TESTS
-
-        for test in 0..public_tests.2.len() {
-            tests.push(Tests {
-                score: public_tests.3[test] as f64,
-                name: public_tests.2[test].to_owned(),
-                number: problem_number.to_owned(),
-                visibility: "visible".to_string(),
-            });
-        }
-
-        for test in 0..public_tests.4.len() {
-            tests.push(Tests {
-                score: public_tests.5[test] as f64,
-                name: public_tests.4[test].to_owned(),
-                number: problem_number.to_owned(),
-                visibility: "visible".to_string(),
-            });
-        }
-
-        for test in 0..hidden_tests.4.len() {
-            tests.push(Tests {
-                score: hidden_tests.5[test] as f64,
-                name: hidden_tests.4[test].to_owned(),
-                number: problem_number.to_owned(),
-                visibility: "hidden".to_string(),
-            });
-        }
-
-        for test in 0..hidden_tests.2.len() {
-            tests.push(Tests {
-                score: hidden_tests.3[test] as f64,
-                name: hidden_tests.2[test].to_owned(),
-                number: problem_number.to_owned(),
-                visibility: "hidden".to_string(),
-            });
-        }
-
-        let final_tests = serde_json::to_string(&tests)?;
-
-        let mut output = File::create(&args[3])?;
-        write!(output, "{}", final_tests)?;
+        endpoint_grade(buffer, args);
+    } else if &args[1] == "pdas" {
     }
 
     Ok(())

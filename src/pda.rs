@@ -19,13 +19,12 @@ pub struct PdaJson {
     pub(crate) states: HashMap<String, bool>,
     // chars are: read, pop, push
     transition_function: Vec<(String, char, char, char, String)>,
-    input_strings: Vec<String>,
+    pub input_strings: Vec<String>,
 }
 
 #[derive(Serialize)]
 pub struct PdaCallback {
-    pub list_of_strings: Vec<(bool, bool, Vec<(char, String)>, String)>,
-    pub hint: String,
+    pub list_of_strings: Vec<(bool, String)>,
 }
 
 #[derive(Debug)]
@@ -88,7 +87,7 @@ impl Pda {
         }
     }
 
-    pub fn new_from_json(&self, json_struct: &PdaJson) -> (Pda, Vec<String>) {
+    pub fn new_from_json(json_struct: &PdaJson) -> (Pda, Vec<String>) {
         let mut new_transition_function = MultiMap::new();
 
         for (from, c0, c1, c2, to) in json_struct.transition_function.to_owned() {
