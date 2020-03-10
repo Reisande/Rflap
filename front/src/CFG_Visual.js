@@ -85,7 +85,7 @@ function CFG_Visual() {
     array_to_mount.push(grammar_table_line);
     set_definition_entry_array([...array_to_mount]);
     master_context.grammar_obj = definition_entry_array;
-    console.log(array_to_mount);
+    // console.log(array_to_mount);
   };
   function set_text_form(event) {
     input_val = event.target.value;
@@ -129,17 +129,17 @@ function CFG_Visual() {
   function UIN_submit(event) {
 
     if (input_val.length == 9 && /^\d+$/.test(input_val)) {
-      console.log("UIN submit-")
+      // console.log("UIN submit-")
       // console.log(master_context.grammar_obj);
       let append = Math.round(Math.random() * 1000);
       let temp_pack = preprocessor();
-      console.log(temp_pack);
+      // console.log(temp_pack);
 
       downloadObjectAsJson(
         temp_pack,
         "RFLAP_CFG" + input_val + "_" + append.toString()
       );
-      console.log("UIN submit-")
+      // console.log("UIN submit-")
 
       set_UIN_input(false);
       set_warning_display(false);
@@ -346,7 +346,7 @@ function CFG_Visual() {
       // check_alphabet(alphabet);
       packet_to_misha_the_fasting_juggernaut.term = alphabet.terminals;
       packet_to_misha_the_fasting_juggernaut.non_term = alphabet.non_terminals;
-      console.log(packet_to_misha_the_fasting_juggernaut);
+      // console.log(packet_to_misha_the_fasting_juggernaut);
       if(error_found) return;
 
       // functionality for updating state of tests
