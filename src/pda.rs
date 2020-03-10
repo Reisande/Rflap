@@ -8,6 +8,7 @@ use multimap::MultiMap;
 
 use std::assert;
 use std::collections::*;
+use std::env::current_exe;
 use std::iter::FromIterator;
 
 #[derive(Debug, Deserialize)]
@@ -31,7 +32,8 @@ pub struct PdaCallback {
 pub struct Pda {
     // automata are defined as a 5 tuple of states, alphabet, transition function,
     // final, and start state
-    alphabet: HashSet<char>,
+    stack_alphabet: HashSet<char>,
+    transition_alphabet: HashSet<char>,
     start_state: String,
     // states are defined as a map from strings to bools, which determine if
     // they are accepting states
@@ -39,149 +41,256 @@ pub struct Pda {
     // transition function is a hashMap from the current state, to a hashmap
     // representing all of the transitions for the current state
     // the transition of a current state is a letter and a next state
-    transition_function: MultiMap<(String, Option<char>, Option<char>, Option<char>), String>,
+    transition_function: MultiMap<(String, Option<char>, Option<char>), (Option<char>, String)>,
     stack: Vec<char>,
+}
+
+#[inline]
+fn convert_chars(c: char) -> Option<char> {
+    match c {
+        '!' => None,
+        _ => Some(c),
+    }
 }
 
 impl Pda {
     pub fn new(
-        a_alphabet: HashSet<char>,
+        a_stack_alphabet: HashSet<char>,
+        a_transition_alphabet: HashSet<char>,
         a_start_state: String,
         a_new_states: HashMap<String, bool>,
-        a_transitions: MultiMap<(String, char, char, char), String>,
-        a_is_deterministic: bool,
+        a_transitions: MultiMap<(String, Option<char>, Option<char>), (Option<char>, String)>,
     ) -> Pda {
+        let mut transition_function = MultiMap::new();
+
+        /*for ((from, c0, c1), (c2, to)) in a_transitions {
+            transition_function.insert(
+                (from, convert_chars(c0), convert_chars(c1)),
+                (convert_chars(c2), to),
+            );
+        }*/
+
         // should probably add a check for validity of automaton, or maybe it
         // should be done client side
         Pda {
-            alphabet: a_alphabet,
+            stack_alphabet: a_stack_alphabet,
+            transition_alphabet: a_transition_alphabet,
             start_state: a_start_state,
             states: a_new_states,
-            transition_function: a_transitions
-                .iter()
-                .map(|(from, c0, c1, c2), to| (from, Some(c0), Some(c1), Some(c2), to))
-                .collect(),
+            transition_function: transition_function,
             stack: Vec::new(),
         }
     }
 
-    pub fn new_from_json(json_struct: &PdaJson) -> (Pda, Vec<String>, String) {
-        let new_transition_function = json_struct
-            .transition_function
-            .iter()
-            .map(|(from, c0, c1, c2), to| (from, Some(c0), Some(c1), Some(c2), to))
-            .collect();
+    pub fn new_from_json(&self, json_struct: &PdaJson) -> (Pda, Vec<String>) {
+        let mut new_transition_function = MultiMap::new();
+
+        for (from, c0, c1, c2, to) in json_struct.transition_function.to_owned() {
+            new_transition_function.insert(
+                (from, convert_chars(c0), convert_chars(c1)),
+                (convert_chars(c2), to),
+            );
+        }
 
         let mut return_pda = Pda {
-            alphabet: json_struct.alphabet.to_owned(),
+            transition_alphabet: json_struct.transition_alphabet.to_owned(),
+            stack_alphabet: json_struct.transition_alphabet.to_owned(),
             start_state: json_struct.start_state.to_owned(),
             states: json_struct.states.to_owned(),
             transition_function: new_transition_function,
             stack: Vec::new(),
         };
 
-        let hint: String = return_pda.check_is_deterministic();
-
-        (return_pda, json_struct.input_strings.to_owned(), hint)
+        (return_pda, json_struct.input_strings.to_owned())
     }
 
     // convert the original string by using string.chars().collect()
+    // accepted, path, stack
+    // TODO: use ! instead of epsilon and map over in the new method of the pdaJsonCallback
+
+    // TODO: build invariant that stack is never empty, pop_char will never be empty
     fn _validate_string(
         &self,
         validate_string: &Vec<char>,
         position: usize,
-        mut current_path: Vec<(char, String)>,
+        mut current_path: Vec<(Option<char>, Option<char>, Option<char>, String)>,
+        mut current_stack: Vec<char>,
         current_state: String,
-        transition_char: char,
+        transition_char: Option<char>,
+        push_char: Option<char>,
+        pop_char: Option<char>,
         call_size: u32,
-    ) -> (bool, Vec<(char, String)>) {
+    ) -> (
+        bool,
+        Vec<(Option<char>, Option<char>, Option<char>, String)>,
+        Vec<char>,
+    ) {
         if call_size >= 200 {
             std::panic!("overflow")
         }
 
-        current_path.push((transition_char, current_state.to_owned()));
+        current_path.push((
+            transition_char,
+            pop_char,
+            push_char,
+            current_state.to_owned(),
+        ));
 
-        if position == validate_string.len() {
+        match pop_char {
+            Some(c) => {
+                current_stack.pop();
+                ()
+            }
+            None => {}
+        };
+
+        match push_char {
+            Some(c) => {
+                current_stack.push(c);
+                ()
+            }
+            None => {}
+        };
+
+        // end of the string
+        if position >= validate_string.len() {
             let is_final: bool = match self.states.get(&current_state) {
                 Some(b) => *b,
                 None => false,
             };
+
             if is_final {
-                (true, current_path.to_owned())
+                return (true, current_path.to_owned(), current_stack.to_owned());
             } else {
-                // after the current symbol has been checked should check for epsilon transitions
-                let target_vec_epsilon_transitions = match self
-                    .transition_function
-                    .get_vec(&(current_state.to_owned(), None))
-                {
+                return (false, current_path, current_stack);
+            }
+        } else {
+            // regular transition with pop top of stack
+            // regular transition with pop nothing
+
+            let mut targets: Vec<(Option<char>, String)> =
+                match self.transition_function.get_vec(&(
+                    current_state.to_owned(),
+                    Some(validate_string[position]),
+                    Some(*(current_stack.last().unwrap())),
+                )) {
                     Some(v) => v.to_owned(),
                     None => Vec::new(),
                 };
 
-                // check for epsilon transitions here
-                for target_state in target_vec_epsilon_transitions {
-                    match self._validate_string(
-                        validate_string,
-                        position,
-                        current_path.to_owned(),
-                        target_state,
-                        'Ɛ'.to_owned(),
-                        call_size + 1,
-                    ) {
-                        (true, r) => return (true, r),
-                        _ => continue,
-                    };
-                }
+            for (push_char, to_state) in targets {
+                let transition_char: Option<char> = None;
 
-                (false, current_path)
-            }
-        } else {
-            let search_tuple = (current_state.to_owned(), Some(validate_string[position]));
-            let target_states_vec = match self.transition_function.get_vec(&search_tuple.to_owned())
-            {
-                Some(v) => v.to_owned(),
-                None => Vec::new(),
-            };
-
-            for target_state in target_states_vec {
                 match self._validate_string(
                     validate_string,
                     position + 1,
                     current_path.to_owned(),
-                    (*target_state).to_owned(),
-                    validate_string[position],
+                    current_stack.to_owned(),
+                    to_state.to_owned(),
+                    Some(validate_string[position]),
+                    push_char,
+                    Some(*(current_stack.last().unwrap())),
                     call_size + 1,
                 ) {
-                    (true, r) => return (true, r),
-                    _ => continue,
-                };
+                    (true, path, stack) => return (true, path, stack),
+                    (false, _, _) => {}
+                }
             }
 
             // after the current symbol has been checked should check for epsilon transitions
-            let target_vec_epsilon_transitions = match self
-                .transition_function
-                .get_vec(&(current_state.to_owned(), None))
-            {
+            let mut target_vec_epsilon_transitions: Vec<(Option<char>, String)> =
+                match self.transition_function.get_vec(&(
+                    current_state.to_owned(),
+                    Some(validate_string[position]),
+                    None,
+                )) {
+                    Some(v) => v.to_owned(),
+                    None => Vec::new(),
+                };
+
+            // epsilon transition with no stack pop
+            for (push_char, to_state) in target_vec_epsilon_transitions {
+                let transition_char: Option<char> = None;
+
+                match self._validate_string(
+                    validate_string,
+                    position + 1,
+                    current_path.to_owned(),
+                    current_stack.to_owned(),
+                    to_state.to_owned(),
+                    Some(validate_string[position]),
+                    push_char,
+                    None,
+                    call_size + 1,
+                ) {
+                    (true, path, stack) => return (true, path, stack),
+                    (false, _, _) => {}
+                }
+            }
+        }
+
+        // epsilon transition with pop top of stack
+        // epsilon transition with pop nothing
+
+        let target_vec_epsilon_transitions: Vec<(Option<char>, String)> =
+            match self.transition_function.get_vec(&(
+                current_state.to_owned(),
+                None,
+                Some(*(current_stack.last().unwrap())),
+            )) {
                 Some(v) => v.to_owned(),
                 None => Vec::new(),
             };
 
-            for target_state in target_vec_epsilon_transitions {
-                match self._validate_string(
-                    validate_string,
-                    position,
-                    current_path.to_owned(),
-                    target_state,
-                    'Ɛ'.to_owned(),
-                    call_size + 1,
-                ) {
-                    (true, r) => return (true, r),
-                    _ => continue,
-                };
-            }
+        for (push_char, to_state) in target_vec_epsilon_transitions {
+            let transition_char: Option<char> = None;
 
-            (false, current_path.to_owned())
+            match self._validate_string(
+                validate_string,
+                position,
+                current_path.to_owned(),
+                current_stack.to_owned(),
+                to_state.to_owned(),
+                None,
+                push_char,
+                Some(*(current_stack.last().unwrap())),
+                call_size + 1,
+            ) {
+                (true, path, stack) => return (true, path, stack),
+                (false, _, _) => {}
+            }
         }
+
+        // after the current symbol has been checked should check for epsilon transitions
+        let mut target_vec_epsilon_transitions: Vec<(Option<char>, String)> = match self
+            .transition_function
+            .get_vec(&(current_state.to_owned(), None, None))
+        {
+            Some(v) => v.to_owned(),
+            None => Vec::new(),
+        };
+
+        // epsilon transition with no stack pop
+        for (push_char, to_state) in target_vec_epsilon_transitions {
+            let transition_char: Option<char> = None;
+
+            match self._validate_string(
+                validate_string,
+                position,
+                current_path.to_owned(),
+                current_stack.to_owned(),
+                to_state.to_owned(),
+                None,
+                push_char,
+                None,
+                call_size + 1,
+            ) {
+                (true, path, stack) => return (true, path, stack),
+                (false, _, _) => {}
+            }
+        }
+
+        (false, current_path.to_owned(), current_stack.to_owned())
     }
 
     // returns a path of transitions and states, beginning with the start state
@@ -192,29 +301,35 @@ impl Pda {
     // this function assumes that the validation that the string is valid for the
     // alphabet occurs on the client side
 
-    // return API dictates: (is_deterministic, accepted, path, hint)
+    // return API dictates: (accepted, path, end_stack, hint)
     // string is any possible hint in creation
     pub fn validate_string(
         &self,
         validate_string: String,
-    ) -> (bool, bool, Vec<(char, String)>, String) {
-        let return_vec: Vec<(char, String)> = Vec::new();
-
+    ) -> (
+        bool,
+        Vec<(Option<char>, Option<char>, Option<char>, String)>,
+        Vec<char>,
+        String,
+    ) {
         let validate_vec: Vec<char> = validate_string.chars().collect();
-        let (accepted, return_vec) = self._validate_string(
+        let (accepted, return_path, return_stack) = self._validate_string(
             &validate_vec,
             0,
-            return_vec,
+            Vec::new(),
+            Vec::new(),
             self.start_state.to_owned(),
-            '_',
+            Some('_'),
+            Some('_'),
+            None,
             0,
         );
 
         (
-            self.is_deterministic.to_owned(),
             accepted,
-            return_vec.to_owned(),
-            validate_string,
+            return_path.to_owned(),
+            return_stack.to_owned(),
+            validate_string.to_owned(),
         )
     }
 
