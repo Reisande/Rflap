@@ -821,6 +821,7 @@ try{
       delete packet_to_misha_the_microsoft_engineer.determinism;
       delete packet_to_misha_the_microsoft_engineer.alphabet;
       }
+      console.log(packet_to_misha_the_microsoft_engineer);
       downloadObjectAsJson(
         packet_to_misha_the_microsoft_engineer,
         "RFLAP_" + input_val + "_" + append.toString()
