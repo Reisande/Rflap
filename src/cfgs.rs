@@ -7,10 +7,8 @@ use std::borrow::Borrow;
 use std::collections::{HashMap, HashSet};
 use std::panic;
 
-#[macro_use]
-extern crate dynparser;
 use dynparser::parser::atom::Atom::Literal;
-use dynparser::parser::expression::{Expression, SetOfRules};
+use dynparser::parser::expression::{Expression, MultiExpr, SetOfRules};
 use dynparser::{parse, rules_from_peg};
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -101,14 +99,14 @@ impl CfgJson {
 
         let mut init_hashmap: HashMap<String, Expression> = HashMap::new();
 
-        for (production_name, rule) in self.productions.iter() {
+        for (production_name, rules) in self.productions.iter() {
             for rule in rules {
-                let mut exp_vec: &Vec<Expression> = &Vec::new();
+                let mut exp_vec: Vec<Expression> = Vec::new();
                 for sub_expression in rule {
-                    if let Some(&S) = non_terminal_strings.get(sub_expression) {
-                        exp_vec.push(Expression::RuleName(S))
-                    } else if let Some(&S) = terminal_strings.get(sub_expression) {
-                        exp_vec.push(Expression::Simple(Literal(S)))
+                    if let Some(S) = non_terminal_strings.get(sub_expression) {
+                        exp_vec.push(Expression::RuleName(S.to_owned()))
+                    } else if let Some(S) = terminal_strings.get(sub_expression) {
+                        exp_vec.push(Expression::Simple(Literal(S.to_owned())))
                     } else {
                         return Err(format!(
                             "{} has no corresponding non-terminal or terminal",
@@ -117,7 +115,7 @@ impl CfgJson {
                     }
                 }
 
-                let insert_expression: Expression = Expression::And(Expression::new(exp_vec));
+                let insert_expression: Expression = Expression::And(MultiExpr::new(exp_vec));
 
                 init_hashmap.insert(
                     non_terminal_strings
@@ -129,13 +127,13 @@ impl CfgJson {
             }
         }
 
-        Err("Not implemented".to_string())
+        Ok(SetOfRules::new(init_hashmap))
     }
 
     // validate strings
     // The error type means that a string fails to parse, and should be rejected, the ParseTrees
     // are just in case we want to show them later, but are unused for now
-    pub fn validate_strings(&self, grammar: earlgrey::Grammar) -> Vec<(String, bool)> {
+    /*pub fn validate_strings(&self, grammar: earlgrey::Grammar) -> Vec<(String, bool)> {
         let mut return_vec: Vec<(String, bool)> = Vec::new();
 
         let parser: EarleyParser = earlgrey::EarleyParser::new(grammar);
@@ -153,7 +151,7 @@ impl CfgJson {
         }
 
         return_vec
-    }
+    }*/
 
     // check Chomsky Normal form
     pub fn check_chomsky_normal_form(&self) -> std::result::Result<(), &'static str> {

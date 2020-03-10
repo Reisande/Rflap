@@ -13,6 +13,7 @@ mod cfgs;
 mod finite_automaton;
 mod generate_tests;
 
+#[macro_use]
 extern crate dynparser;
 use dynparser::{parse, rules_from_peg};
 
@@ -231,7 +232,7 @@ fn pull_grade_input(buffer: String, args: Vec<String>) -> io::Result<()> {
     Ok(())
 }
 
-fn failed_cfg(error: String) -> Result<()> {
+/*fn failed_cfg(error: String) -> Result<()> {
     let callback = cfgs::CfgJsonCallback {
         test_results: Vec::new(),
         chomsky_normal_form: false,
@@ -273,7 +274,7 @@ fn grammar(cfg: cfgs::CfgJson) -> Result<()> {
     println!("{}", callback_string);
 
     Ok(())
-}
+}*/
 
 fn main() -> io::Result<()> {
     use std::io::Read;
@@ -294,7 +295,7 @@ fn main() -> io::Result<()> {
     } else if &args[1] == "grade" {
         pull_grade_input(buffer, args);
     } else if &args[1] == "cfg" {
-        grammar(serde_json::de::from_str::<cfgs::CfgJson>(&buffer).unwrap());
+        //grammar(serde_json::de::from_str::<cfgs::CfgJson>(&buffer).unwrap());
     }
 
     Ok(())
