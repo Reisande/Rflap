@@ -132,13 +132,15 @@ function CFG_Visual() {
       console.log("UIN submit-")
       // console.log(master_context.grammar_obj);
       let append = Math.round(Math.random() * 1000);
+      let temp_pack = preprocessor();
+      console.log(temp_pack);
+
       downloadObjectAsJson(
-        packet_to_misha_the_fasting_juggernaut,
+        temp_pack,
         "RFLAP_CFG" + input_val + "_" + append.toString()
       );
       console.log("UIN submit-")
 
-      console.log(master_context.grammar_obj)
       set_UIN_input(false);
       set_warning_display(false);
     } else {
@@ -156,11 +158,7 @@ function CFG_Visual() {
     var dataStr =
       "data:text/json;charset=utf-8," +
       encodeURIComponent(exportation_nodes(JSON.stringify(exportObj)));
-
-
-    let encoded = exportation_nodes(JSON.stringify(exportObj));
-    let decoded_raw = exportation_nodes(encoded);
-    console.log(decoded_raw);
+    // console.log(decoded_raw);
     var downloadAnchorNode = document.createElement("a");
     downloadAnchorNode.setAttribute("href", dataStr);
     downloadAnchorNode.setAttribute("id","temp_anchor");
@@ -180,7 +178,7 @@ function CFG_Visual() {
     document.addEventListener("input", e => {
 //make condition to specify this specific input 
       if(e.target.id == "rule_terminal" || e.target.id == "rule_non-terminal"){
-      formArea.current.value = "";
+      // formArea.current.value = "";
 
       // console.log(master_context.grammar_obj);
       let rule_to_table = "";
@@ -222,6 +220,70 @@ function CFG_Visual() {
   //test api functionality:
   const HTMLCol_to_array = html_collection => Array.prototype.slice.call(html_collection);
 
+  
+  const preprocessor = ()=>{
+      let error_found = false;
+      let packet;
+      let alphabet = {
+        terminals: new Set(),
+        non_terminals: new Set(),
+      };
+      // get user inputted tests
+      // user_input_row_collection = [
+      //   ...Array(HTMLCol_to_array(row_ref_container.current.children).length)
+
+      // ]
+      // user_input_row_collection.forEach((_, id) => { packet.user_input.push(_);});
+      packet = {
+        term: [], // set of terminals
+        non_term:[], // set of non-temrinals
+        productions:{
+         //{'A':[[array_of_chars],[]]} [array_of_rules[]]
+        },
+        user_input: []
+      };      //proess object/gramma rules to send to the fasting jugger
+      master_context.grammar_obj.forEach( (rule_obj,id) => {
+        // let production_blueprint = {"A":[[]]}
+        let production_blueprint = {}
+        rule_obj.NON_TERM = rule_obj.NON_TERM.trim();
+        if(rule_obj.NON_TERM.length != 1){
+          alert("Rule with non-terminal that has more th  an one character!")
+          error_found = true;
+          return;
+        }
+        if(rule_obj.TERM.trim().length == 0){
+          alert("Rule with empty body!");
+          error_found = true;
+          return;
+        }
+        
+        let NON_TERM = rule_obj.NON_TERM;
+        alphabet.non_terminals.add(NON_TERM);
+        if(packet.productions[NON_TERM] == undefined || packet.productions[NON_TERM] == null) packet.productions[NON_TERM] = [];
+        let arr_of_arr_of_chars = [];
+        let arr_of_rules = rule_obj.TERM.split("|").forEach((string,index)=>{
+          arr_of_arr_of_chars.push(Array.from(string.trim()));
+          alphabet.terminals.add(string);
+        });
+        
+        packet.productions[NON_TERM] = packet.productions[NON_TERM].concat(arr_of_arr_of_chars);
+        
+      } );
+
+      // Check alphabet
+      // implement function definition when time permits, to catch more errors/faulty grammars.
+      // const check_alphabet = (alphabet_obj)=>{
+      //   const capital_terminals = alphabet_obj.terminals.filter( (terminal)=> (terminal == terminal.toUpperCase())).forEach((terminal)=>{})
+        
+      //   alphabet_obj.non_terminals.forEach( ()=>{
+
+      //   }); 
+      // }
+      // check_alphabet(alphabet);
+      packet.term = alphabet.terminals;
+      packet.non_term = alphabet.non_terminals;
+      return packet;
+  }
 
    async function  on_click_CFG_api(e) {
       e.preventDefault();
