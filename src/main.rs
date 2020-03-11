@@ -237,7 +237,7 @@ pub fn endpoint_grade(buffer: String, args: Vec<String>) -> io::Result<()> {
 fn pda(input_pda: pda::PdaJson) -> Result<String> {
     let (pda, input_strings) = pda::Pda::new_from_json(&input_pda);
 
-    let mut return_paths = input_strings
+    let mut return_paths: Vec<(bool, String)> = input_strings
         .iter()
         .map(|s| (pda.validate_string(s.to_owned()).0, s.to_owned()))
         .collect();
@@ -268,6 +268,7 @@ fn main() -> io::Result<()> {
     } else if &args[1] == "grade" {
         endpoint_grade(buffer, args);
     } else if &args[1] == "pdas" {
+        pda((serde_json::de::from_str::<pda::PdaJson>(&buffer).unwrap()));
     }
 
     Ok(())
