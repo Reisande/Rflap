@@ -86,6 +86,8 @@ function Run(props) {
         // console.log(e.target.files[0]);
       });
   });
+
+
   let input_val = "default";
   let toBePushed = [];
   // error_object =
@@ -283,7 +285,7 @@ try{
     // console.log(alphabet_processed);
     // console.log("FINAL ALPHABET:");
 
-    packet_to_misha_the_microsoft_engineer.transition_alpha = [...alpha];
+    packet_to_misha_the_microsoft_engineer.transition_alphabet = [...alpha];
     packet_to_misha_the_microsoft_engineer.stack_alphabet = [...stack_alpha];
     // console.log(edgeObj);
     // console.log("end of edgeProcess");
@@ -483,10 +485,40 @@ try{
 
   async function postToRustApi() {
     // let name_of_window = this.window.location;
-    // let url = "http://localhost:8080/api";
-    let url = `${window.location.origin}/api`;
+    let endpoint = "";
+    master_context.PDA ? endpoint = "pda": endpoint = "automata"; 
+    //for testing:
+    // let url = "http://localhost:8080/"+ endpoint;
+    //for production
+    let url = `${window.location.origin}/` + endpoint;
 
-    // console.log('POSTED URL' + url);
+
+    if(packet_to_misha_the_microsoft_engineer.PDA){
+      delete packet_to_misha_the_microsoft_engineer.state_names;
+      delete packet_to_misha_the_microsoft_engineer.determinism;
+      delete packet_to_misha_the_microsoft_engineer.alphabet;
+      delete packet_to_misha_the_microsoft_engineer.PDA;
+      packet_to_misha_the_microsoft_engineer.transition_function.forEach( (ar_,id)=>{
+        ar_.forEach((item,index)=>{
+          if(item == "ε"){
+            ar_[index] = "!";
+          }
+        })
+      })
+      packet_to_misha_the_microsoft_engineer.stack_alphabet.map((item,index)=>{
+        if(item == "ε"){
+          packet_to_misha_the_microsoft_engineer.stack_alphabet[index] = "!";
+        }      
+      })
+      packet_to_misha_the_microsoft_engineer.transition_alphabet.map((item,index)=>{
+        if(item == "ε"){
+          packet_to_misha_the_microsoft_engineer.transition_alphabet[index] = "!";
+        }      
+      })
+
+      }
+      // console.log("Post:")
+      // console.log(packet_to_misha_the_microsoft_engineer);
     let postingObject = {
       method: "POST",
       mode: "cors",
@@ -582,7 +614,6 @@ try{
 
     //     return null;
     // }
-
     let Algorithms_are_the_computational_content_of_proofs = await fetch(
       url,
       postingObject
@@ -677,7 +708,9 @@ try{
 
         if (row_entry_array.length == 1) {
           // console.log("row_entry = 1");
-          callback.list_of_strings[0][1]
+          let bool_result = master_context.PDA ? callback.list_of_strings[0][0] : callback.list_of_strings[0][1];
+
+          bool_result
             ? (new_array = [2])
             : (new_array = [0]);
           // console.log(callback.list_of_strings[0][0])
@@ -693,8 +726,9 @@ try{
           // console.log("---")
 
           for (let i = 0; i < row_entry_array.length; i++) {
-            // console.log(callback.list_of_strings[i][1]);
-            if (callback.list_of_strings[i][1]) {
+            
+            let bool_result = master_context.PDA ? callback.list_of_strings[i][0] : callback.list_of_strings[i][1];
+            if (bool_result) {
               array_to_mount.push(2);
             } else {
               array_to_mount.push(0);
@@ -820,8 +854,28 @@ try{
       delete packet_to_misha_the_microsoft_engineer.state_names;
       delete packet_to_misha_the_microsoft_engineer.determinism;
       delete packet_to_misha_the_microsoft_engineer.alphabet;
+      delete packet_to_misha_the_microsoft_engineer.PDA;
+      packet_to_misha_the_microsoft_engineer.transition_function.forEach( (ar_,id)=>{
+        ar_.forEach((item,index)=>{
+          if(item == "ε"){
+            ar_[index] = "!";
+          }
+        })
+      })
+      packet_to_misha_the_microsoft_engineer.stack_alphabet.map((item,index)=>{
+        if(item == "ε"){
+          packet_to_misha_the_microsoft_engineer.stack_alphabet[index] = "!";
+        }      
+      })
+      packet_to_misha_the_microsoft_engineer.transition_alphabet.map((item,index)=>{
+        if(item == "ε"){
+          packet_to_misha_the_microsoft_engineer.transition_alphabet[index] = "!";
+        }      
+      })
+
       }
-      console.log(packet_to_misha_the_microsoft_engineer);
+      // console.log("Export:")
+      // console.log(packet_to_misha_the_microsoft_engineer);
       downloadObjectAsJson(
         packet_to_misha_the_microsoft_engineer,
         "RFLAP_" + input_val + "_" + append.toString()
@@ -902,7 +956,7 @@ try{
               name="add_row_input"
             />
           </Col>
-          { (!master_context.PDA) ? <Button
+          { true ? <Button
             id="api_button"
             onClick={event => on_click_test_api(event)}
             variant="info"

@@ -17,7 +17,7 @@ app.use(cors());
 
 app.use(express.static(path.resolve('../front/build')));
 
-app.post('/api', (req: Request, res: Response) => {
+app.post('/automata', (req: Request, res: Response) => {
     const json = JSON.stringify(req.body, null);
     console.log(json);
     console.log(automata_exec);
@@ -27,9 +27,17 @@ app.post('/api', (req: Request, res: Response) => {
     });
 })
 
+app.post('/pda', (req: Request, res: Response) => {
+    const json = JSON.stringify(req.body, null);
+    child_process.exec(`echo '${json}' | ${automata_exec} pdas`, {cwd: '..'}, (error, stdout, stderr) => {
+        if (error) res.status(500).send(stderr);
+        else res.status(200).send(stdout);
+    });
+})
+
 app.post('/generate-tests', (req: Request, res: Response) => {
     const json = JSON.stringify(req.body, null);
-    child_process.exec(`echo '${json}' | cargo run tests`, {cwd: '..'}, (error, stdout, stderr) => {
+    child_process.exec(`echo '${json}' | ${automata_exec} tests`, {cwd: '..'}, (error, stdout, stderr) => {
         if (error) res.status(500).send(stderr);
         else res.status(200).send(stdout);
     });
