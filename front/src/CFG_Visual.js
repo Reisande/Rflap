@@ -363,9 +363,15 @@ function CFG_Visual() {
         });
         // array_of_rules.push(productions)
       });
-      let grammar_with_funcs = Grammar(
+      let grammar_with_funcs;
+      if(array_of_rules == null || array_of_rules == undefined || array_of_rules == []){
+        alert("MAKE RULES!");
+      }
+      else{
+       grammar_with_funcs = Grammar(
         array_of_rules
       )
+      }
       user_input_row_collection = [
         ...Array(HTMLCol_to_array(row_ref_container.current.children).length)
       ];
