@@ -15,10 +15,24 @@ import error_image from "./error.svg";
 import success_image from "./success.svg";
 import idle_svg from "./button.svg";
 import add_perfect from "./plus.svg";
+import g from "cfgrammar-tool"
 import Popup from "reactjs-popup";
 // import WarningSign from './WarningSing'
 
 let CFG_Visual_Context_Index = -1;
+
+
+let types = g.types;
+    let parser = g.parser;
+    let generator = g.generator;
+    
+    
+    let Grammar = types.Grammar;
+    let Rule_Dec= types.Rule;
+    
+    let T = types.T;
+    let NT = types.NT;
+  
 
 function CFG_Visual() {
   const formArea = useRef(null);
@@ -173,6 +187,20 @@ function CFG_Visual() {
     set_UIN_input(true);
   };
   useEffect(() => {
+    
+    
+    //template on creating grammar: 
+    // let  exprGrammar = Grammar([
+    //     Rule('E', [NT('E'), T('+'), NT('T')]),
+    //     Rule('E', [NT('T')]),
+    //     Rule('T', [NT('T'), T('*'), NT('F')]),
+    //     Rule('T', [NT('F')]),
+    //     Rule('F', [T('('), NT('E'), T(')')]),
+    //     Rule('F', [T('n')])
+    //   ]);
+      // let bool = parser.parse(exprGrammar, 'n*(n+n)').length > 0; // true
+      // // parser.parse(exprGrammar, 'n(n+n)').length > 0; // false
+      // console.log(bool);
     // Fired whenever input box changes
     // use this to update grammar table componenet/textarea in the center of the page.
     document.addEventListener("input", e => {
@@ -180,6 +208,12 @@ function CFG_Visual() {
       if(e.target.id == "rule_terminal" || e.target.id == "rule_non-terminal"){
       // formArea.current.value = "";
 
+
+     
+      
+        
+        
+      
       // console.log(master_context.grammar_obj);
       let rule_to_table = "";
       let textarea_text = "";
@@ -220,7 +254,15 @@ function CFG_Visual() {
   //test api functionality:
   const HTMLCol_to_array = html_collection => Array.prototype.slice.call(html_collection);
 
-  
+  const process_userinput = (row_table_DOM_node, id) => {
+    // console.log("PROCESSING")
+    // console.log(id);
+    user_input_row_collection[id] = HTMLCol_to_array(
+      row_table_DOM_node.children
+    )[0].value;
+    // console.log("PROCESSING")
+  };
+
   const preprocessor = ()=>{
       let error_found = false;
       let packet;
@@ -285,135 +327,62 @@ function CFG_Visual() {
       return packet;
   }
 
-   async function  on_click_CFG_api(e) {
+    function  on_click_CFG_api(e) {
       e.preventDefault();
-      let error_found = false;
-      let alphabet = {
-        terminals: new Set(),
-        non_terminals: new Set(),
-      };
-      // get user inputted tests
+
+      let object_description = preprocessor();
+      // console.log("----");
+      // console.log(object_description);
+      // console.log("----");
+      let array_of_rules = [];
+      object_description.non_term.forEach( (NON_TERM_CHAR)=>{
+        let rule_to_append;
+        let non_term_for_lib;
+        object_description.productions[NON_TERM_CHAR].forEach((rule_atom)=>{
+          non_term_for_lib = NON_TERM_CHAR;
+          let production_for_lib = [];
+          rule_atom.forEach((char)=>{
+
+            if(char == "!"){
+              // console.log("E" +  "\u025B");
+              production_for_lib.push();
+            }
+            else if(char == char.toUpperCase()){
+              // console.log("up" + char);
+              production_for_lib.push(NT(char));
+            }
+            
+            else{
+              // console.log("down" + char);
+
+              production_for_lib.push(T(char));
+            }
+          })
+          // console.log("NON_term: " + NON_TERM_CHAR + "arr: " +production_for_lib);
+         array_of_rules.push(Rule_Dec(NON_TERM_CHAR,production_for_lib));
+        });
+        // array_of_rules.push(productions)
+      });
+      let grammar_with_funcs = Grammar(
+        array_of_rules
+      )
       user_input_row_collection = [
         ...Array(HTMLCol_to_array(row_ref_container.current.children).length)
+      ];
+      HTMLCol_to_array(row_ref_container.current.children).map(process_userinput);
+      let input_strings_CFG = [];
+      user_input_row_collection.forEach((_, id) => {
+  
+        input_strings_CFG.push(_);
+      });
+      let bool_results = []
+      input_strings_CFG.forEach(  (test_string)=>{
+        bool_results.push( (parser.parse(grammar_with_funcs, test_string).length > 0) ? 2 : 0 ); // true
 
-      ]
-      user_input_row_collection.forEach((_, id) => { packet_to_misha_the_fasting_juggernaut.user_input.push(_);});
-      packet_to_misha_the_fasting_juggernaut = {
-        term: [], // set of terminals
-        non_term:[], // set of non-temrinals
-        productions:{
-         //{'A':[[array_of_chars],[]]} [array_of_rules[]]
-        },
-        user_input: []
-      };      //proess object/gramma rules to send to the fasting jugger
-      master_context.grammar_obj.forEach( (rule_obj,id) => {
-        // let production_blueprint = {"A":[[]]}
-        let production_blueprint = {}
-        rule_obj.NON_TERM = rule_obj.NON_TERM.trim();
-        if(rule_obj.NON_TERM.length != 1){
-          alert("Rule with non-terminal that has more th  an one character!")
-          error_found = true;
-          return;
-        }
-        if(rule_obj.TERM.trim().length == 0){
-          alert("Rule with empty body!");
-          error_found = true;
-          return;
-        }
-        
-        let NON_TERM = rule_obj.NON_TERM;
-        alphabet.non_terminals.add(NON_TERM);
-        if(packet_to_misha_the_fasting_juggernaut.productions[NON_TERM] == undefined || packet_to_misha_the_fasting_juggernaut.productions[NON_TERM] == null) packet_to_misha_the_fasting_juggernaut.productions[NON_TERM] = [];
-        let arr_of_arr_of_chars = [];
-        let arr_of_rules = rule_obj.TERM.split("|").forEach((string,index)=>{
-          arr_of_arr_of_chars.push(Array.from(string.trim()));
-          alphabet.terminals.add(string);
-        });
-        
-        packet_to_misha_the_fasting_juggernaut.productions[NON_TERM] = packet_to_misha_the_fasting_juggernaut.productions[NON_TERM].concat(arr_of_arr_of_chars);
-        
-      } );
-
-      // Check alphabet
-      // implement function definition when time permits, to catch more errors/faulty grammars.
-      // const check_alphabet = (alphabet_obj)=>{
-      //   const capital_terminals = alphabet_obj.terminals.filter( (terminal)=> (terminal == terminal.toUpperCase())).forEach((terminal)=>{})
-        
-      //   alphabet_obj.non_terminals.forEach( ()=>{
-
-      //   }); 
-      // }
-      // check_alphabet(alphabet);
-      packet_to_misha_the_fasting_juggernaut.term = alphabet.terminals;
-      packet_to_misha_the_fasting_juggernaut.non_term = alphabet.non_terminals;
-      // console.log(packet_to_misha_the_fasting_juggernaut);
-      if(error_found) return;
-
-      // functionality for updating state of tests
-      try {
-        // console.log("Post")
-        const callback = await postToRustApi();
-        // console.log("----")
-        // console.log(callback);
-        // console.log("----")
+      })
+      set_row_entries([...bool_results]);
+    }
   
-        if (callback == null) {
-          // console.log("EXITING . . .")
-          return;
-        }
-  
-        if (
-          callback["hint"] != "" &&
-          master_context.mode == "Determinstic Finite Automata"
-        ) {
-          alert("Invalid determinism!\n" + callback["hint"]);
-          let mounting_array = [];
-          for (let i = 0; i < row_entry_array.length; i++) {
-            mounting_array.push(1);
-          }
-          set_row_entries([...mounting_array]);
-        } else {
-          // console.log("CALBACK")
-          // console.log(callback);
-          // console.log("CALBACK")
-  
-          let new_array;
-  
-          if (row_entry_array.length == 1) {
-            // console.log("row_entry = 1");
-            callback.list_of_strings[0][1]
-              ? (new_array = [2])
-              : (new_array = [0]);
-            // console.log(callback.list_of_strings[0][0])
-            set_row_entries([...new_array]);
-            // console.log("SINGLE row entry api call: ");
-            // console.log( callback);
-          } else {
-            let array_to_mount = [];
-            // console.log("YOLO")
-            // console.log("ENSEMBLE row entries api call");
-            // console.log(callback);
-            //iterate through each array for each row index and declare it either rejected or accepted
-            // console.log("---")
-  
-            for (let i = 0; i < row_entry_array.length; i++) {
-              // console.log(callback.list_of_strings[i][1]);
-              if (callback.list_of_strings[i][1]) {
-                array_to_mount.push(2);
-              } else {
-                array_to_mount.push(0);
-              }
-            }
-            // console.log("---")
-            // console.log(array_to_mount);
-            set_row_entries([...array_to_mount]);
-          }
-        }
-      } catch (e) {
-        // console.log(e);
-      }
-      
-  }
   return (
     <div id="row_container_CFG">
       <Row>
@@ -457,14 +426,14 @@ function CFG_Visual() {
         <Col md={{ span: 5 }}>
           <Row>
           <Col md={{offset:-1}}>
-          {/* <Button 
+          <Button 
             id="api_button_CFG"
             onClick={event => on_click_CFG_api(event)}
             variant="info"
             size="sm"
           >
             Test
-          </Button> */}
+          </Button>
           </Col>
             <Col md={{ span: 0, offset:0 }}>
               <h4>Tests</h4>
