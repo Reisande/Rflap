@@ -13,34 +13,38 @@ function Rule(props) {
   const non_terminal = useRef(null);
   const definition = useRef(null);
   const master_context = useContext(AutomataContext);
-  let mount_text = "";
-  props.text == null ? (mount_text = "  ") : (mount_text = props.text);
+  let mount_text = "  ";
+  props.index == 0 ? (mount_text = "S") : (mount_text = mount_text);
 
 
-
+  
   useEffect(() => {
+    let a;
+    const set_S = ()=>{
+      master_context.grammar_obj[0].NON_TERM = mount_text;
+      non_terminal.current.readOnly = true;
+    };
 
+    (props.index == 0) ? set_S():  a = 1;  
     
+
   }, []);
 
   const update_grammar_table = (e, E_formtype_value) => {
     let text_input = e.target.value.replace(/\s/g, "")    ;
-    console.log("UPDATE_GRAMMAR_TABLE");
-    console.log(master_context.grammar_obj);
-    console.log(props.index);
     switch (E_formtype_value) {
       case E_formtype.NON_TERM:
-        console.log("transformation of context grammar: " + E_formtype.NON_TERM + "\nRow Number: " +  props.index);
+        // console.log("transformation of context grammar: " + E_formtype.NON_TERM + "\nRow Number: " +  props.index);
         master_context.grammar_obj[props.index].NON_TERM = text_input;
         break;
       case E_formtype.TERM:
-        console.log("transformation of context grammar: " + E_formtype.TERM + "\nRow Number: " +  props.index);
+        // console.log("transformation of context grammar: " + E_formtype.TERM + "\nRow Number: " +  props.index);
 
         master_context.grammar_obj[props.index].TERM = text_input;
         console.log(master_context.grammar_obj);
         break;
       default:
-        console.log("NON-TYPE (neither terminal or non-terminal");
+        // console.log("NON-TYPE (neither terminal or non-terminal");
     }
   };
 
@@ -49,6 +53,7 @@ function Rule(props) {
       <Form.Row>
         <Col md={{ span: 2, offset: 1 }}>
           <Form.Control
+            ref= {non_terminal}
             onChange={e => update_grammar_table(e, E_formtype.NON_TERM)}
             defaultValue={mount_text.charAt(0)}
             as="input"
