@@ -1,3 +1,7 @@
+
+
+// EXAMPLE GRAMMAR IMPLEMENTATION FROM EARLY PARSER cfg-grammar-toolbar.s
+
 import g from "cfgrammar-tool"
 
 
@@ -22,5 +26,5 @@ let  exprGrammar = Grammar([
     Rule('F', [T('n')])
   ]);
 
-  
+
   

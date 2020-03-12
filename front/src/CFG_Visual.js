@@ -20,7 +20,7 @@ import Popup from "reactjs-popup";
 // import WarningSign from './WarningSing'
 
 let CFG_Visual_Context_Index = -1;
-
+let bool_first_mount = false;
 
 let types = g.types;
     let parser = g.parser;
@@ -96,6 +96,9 @@ function CFG_Visual() {
       NON_TERM: " ",
       index: CFG_Visual_Context_Index
     };
+    (!bool_first_mount) ? bool_first_mount = true: bool_first_mount = bool_first_mount;
+    bool_first_mount = true;
+    
     array_to_mount.push(grammar_table_line);
     set_definition_entry_array([...array_to_mount]);
     master_context.grammar_obj = definition_entry_array;
@@ -288,8 +291,13 @@ function CFG_Visual() {
         // let production_blueprint = {"A":[[]]}
         let production_blueprint = {}
         rule_obj.NON_TERM = rule_obj.NON_TERM.trim();
-        if(rule_obj.NON_TERM.length != 1){
-          alert("Rule with non-terminal that has more th  an one character!")
+        if(rule_obj.NON_TERM.length > 1){
+          alert("Rule with non-terminal that has more than one character!")
+          error_found = true;
+          return;
+        }
+        if(rule_obj.NON_TERM != rule_obj.NON_TERM.toUpperCase()){
+          alert("terminal (lower-case letter or numeric) in left-hand non-terminal position!")
           error_found = true;
           return;
         }
@@ -335,17 +343,24 @@ function CFG_Visual() {
       // console.log(object_description);
       // console.log("----");
       let array_of_rules = [];
+      const is_numeric = (str)=>{
+        return /^\d+$/.test(str);
+      }
       object_description.non_term.forEach( (NON_TERM_CHAR)=>{
         let rule_to_append;
         let non_term_for_lib;
         object_description.productions[NON_TERM_CHAR].forEach((rule_atom)=>{
           non_term_for_lib = NON_TERM_CHAR;
           let production_for_lib = [];
+          
           rule_atom.forEach((char)=>{
 
             if(char == "!"){
               // console.log("E" +  "\u025B");
               production_for_lib.push();
+            }
+            else if(is_numeric(char)){
+              production_for_lib.push(T(char));
             }
             else if(char == char.toUpperCase()){
               // console.log("up" + char);
@@ -364,8 +379,9 @@ function CFG_Visual() {
         // array_of_rules.push(productions)
       });
       let grammar_with_funcs;
-      if(array_of_rules == null || array_of_rules == undefined || array_of_rules == []){
+      if(array_of_rules == null || array_of_rules == undefined || array_of_rules.length == 0){
         alert("MAKE RULES!");
+        return;
       }
       else{
        grammar_with_funcs = Grammar(
