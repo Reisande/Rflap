@@ -4,20 +4,26 @@ import "./HeaderMenu.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Navbar, Nav, NavDropdown, Col, Button } from "react-bootstrap";
 import { AutomataContext } from "./AutomataContext.js";
-import not_ferris from "./rFlapLogo.png";
 
+/* Machine Enum used in App.js
 const CURRENT_MACHINE = {
   DFA: 0,
   NFA: 1,
   CFG: 2,
   TM: 3
 };
-
+*/
 function HeaderMenu(props) {
+  
   const master_context = useContext(AutomataContext);
+
+
 
   const runbutton = useRef();
 
+  /*
+  Reference tag to get html tag of particular DFA/NFA/TM/PDA/CFG/REG in nav.dropdown.menu
+  */
   const DFA = useRef();
   const NFA = useRef();
   const TM = useRef();
@@ -26,33 +32,48 @@ function HeaderMenu(props) {
   const REG = useRef();
 
   useEffect(() => {
-    //edit the colors of the right menu drop down buttons and run button
     document.querySelector("a.dropdown-toggle.nav-link").style.color =
       "#e25b4b";
+
+
     master_context.mode = machine_select;
+
+    /* 
+    Check of master_context.mode (what ought be current machine mode) and hide
+    Run button if in CFG || TM mode as no sidebar component is needed for either.
+    */
     if (
       master_context.mode == "Context-free Grammar" ||
       master_context.mode == "Turing Machine"
-    ) {
+    )
+    {
+      
       runbutton.current.style.visibility = "hidden";
-    } else {
+    } 
+    else {
       runbutton.current.style.visibility = "visible";
     }
   });
 
-  const [machine_select, set_machine_title] = useState(
-    "Deterministic Finite Automata"
-  );
+    /*
 
-  // console.log("master context "  + master_context['test_value']);
+  STATE VARIABLE: machine_select (string)
+  machine_select:<title of state machine> => Sets header's title to the state machine
 
-  function propagateEvent(event, language) {
-    let name = language["current"].text;
-    // console.log(event);
-    // console.log(name);
+  */
+  const [machine_select, set_machine_title] = useState("Deterministic Finite Automata");
+
+  /*
+    nav_menu_dropdown_click(e, machine : useRef object)
+
+    Desc: Sets title of machine to the menu click and updates master_context to the machine chosen
+
+  */
+
+  function nav_menu_dropdown_click(e, machine) {
+    let name = machine["current"].text;
     set_machine_title(name);
     master_context.mode = name;
-    // console.log("In propogateEvent");
   }
 
   return (
@@ -76,12 +97,6 @@ function HeaderMenu(props) {
           </b>
         </Navbar.Brand>
       </Col>
-      {/* <Navbar.Brand> <img
-      src={not_ferris}
-      height = "75px"
-      width= "100px"
-    /></Navbar.Brand> */}
-      {/* add xs field for release */}
       <Col md={3}></Col>
       <Col md={3}>
         <Col>{machine_select}</Col>
@@ -97,7 +112,7 @@ function HeaderMenu(props) {
           >
             <NavDropdown.Item
               id="DFA"
-              onClick={event => propagateEvent(event, DFA)}
+              onClick={event => nav_menu_dropdown_click(event, DFA)}
               ref={DFA}
               href=""
             >
@@ -105,7 +120,7 @@ function HeaderMenu(props) {
             </NavDropdown.Item>
             <NavDropdown.Item
               id="NFA"
-              onClick={event => propagateEvent(event, NFA)}
+              onClick={event => nav_menu_dropdown_click(event, NFA)}
               ref={NFA}
               href=""
             >
@@ -114,7 +129,7 @@ function HeaderMenu(props) {
             </NavDropdown.Item>
             <NavDropdown.Item
               id="CFG"
-              onClick={event => propagateEvent(event, CFG)}
+              onClick={event => nav_menu_dropdown_click(event, CFG)}
               ref={CFG}
               href=""
             >
@@ -122,18 +137,13 @@ function HeaderMenu(props) {
             </NavDropdown.Item>
             <NavDropdown.Item
               id="PDA"
-              onClick={event => propagateEvent(event, PDA)}
+              onClick={event => nav_menu_dropdown_click(event, PDA)}
               ref={PDA}
               href=""
             >
               Push-down Automata
             </NavDropdown.Item>
-            {/* <NavDropdown.Item id = "TM" onClick={(event) => propagateEvent(event,TM)} ref= {TM}href="">Turing Machine</NavDropdown.Item> */}
-
-            {/* <NavDropdown.Item onClick={(event) => propagateEvent(event,TM)} id = "TM" ref= {TM}href="">Turing Machine</NavDropdown.Item> */}
-            {/* <NavDropdown.Item onClick={(event) => propagateEvent(event,TM)} ref= {TM}href="">Turing Machine</NavDropdown.Item>
-        <NavDropdown.Item onClick={(event) => propagateEvent(event,PDA)} ref= {PDA}href="">Push-down Automata</NavDropdown.Item>
-        <NavDropdown.Item onClick={(event) => propagateEvent(event,REG)} ref= {REG} href="">Regular Expression</NavDropdown.Item> */}
+            
           </NavDropdown>
           <Col></Col>
           <Nav>
