@@ -14,7 +14,7 @@ use std::iter::FromIterator;
 #[derive(Debug, Deserialize)]
 pub struct PdaJson {
     stack_alphabet: HashSet<char>,
-    transition_alphabet: HashSet<char>,
+    pub(crate) transition_alphabet: HashSet<char>,
     start_state: String,
     pub(crate) states: HashMap<String, bool>,
     // chars are: read, pop, push
@@ -32,7 +32,7 @@ pub struct Pda {
     // automata are defined as a 5 tuple of states, alphabet, transition function,
     // final, and start state
     stack_alphabet: HashSet<char>,
-    transition_alphabet: HashSet<char>,
+    pub transition_alphabet: HashSet<char>,
     start_state: String,
     // states are defined as a map from strings to bools, which determine if
     // they are accepting states

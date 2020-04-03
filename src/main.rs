@@ -45,8 +45,91 @@ fn tests(tests: generate_tests::TestsJson) -> Result<String> {
     Ok("".to_string())
 }
 
+pub enum Type {
+    pda,
+    automata,
+}
+
 // return is a tuple of number of passed test cases vs total cases
-fn grade(
+fn grade_pda(
+    source: &pda::PdaJson,
+    target: &pda::PdaJson,
+    num_tests: u16,
+) -> (
+    u16,
+    u16,
+    std::vec::Vec<std::string::String>,
+    std::vec::Vec<u8>,
+    std::vec::Vec<std::string::String>,
+    std::vec::Vec<u8>,
+    bool,
+) {
+    // generate TestsJson array
+
+    let mut alphabet = target.transition_alphabet.to_owned();
+    alphabet.remove(&'Ɛ');
+
+    let test_strings_deterministic = generate_tests::generate_tests(generate_tests::TestsJson {
+        alphabet: alphabet.to_owned(),
+        size: (num_tests * 4) / 5, // how many strings for non deterministic
+        length: 10,                // longest string
+        random: false,
+    })
+    .return_vec;
+    // then take out the first num_tests/2 elements from the vector
+
+    let test_strings_nondeterministic = generate_tests::generate_tests(generate_tests::TestsJson {
+        alphabet: alphabet.to_owned(),
+        size: (num_tests) / 5, // how many strings for non deterministic
+        length: 10,            // longest string
+        random: true,
+    })
+    .return_vec;
+    // run tests on source and target, check that the result is equal
+
+    let source: pda::Pda = pda::Pda::new_from_json(&source).0;
+    let target: pda::Pda = pda::Pda::new_from_json(&target).0;
+
+    let mut deterministic_scores: Vec<u8> = Vec::new();
+    let mut nondeterministic_scores: Vec<u8> = Vec::new();
+
+    let mut passed: u16 = 0;
+
+    for test in &test_strings_deterministic {
+        let (accepted_source, _, _, _) = source.validate_string(test.to_string());
+        let (accepted_target, _, _, _) = target.validate_string(test.to_string());
+
+        if accepted_source == accepted_target {
+            passed += 1;
+        }
+
+        deterministic_scores.push((accepted_source == accepted_target) as u8);
+    }
+
+    for test in &test_strings_nondeterministic {
+        let (accepted_source, _, _, _) = source.validate_string(test.to_string());
+        let (accepted_target, _, _, _) = target.validate_string(test.to_string());
+
+        if accepted_source == accepted_target {
+            passed += 1;
+        }
+
+        nondeterministic_scores.push((accepted_source == accepted_target) as u8);
+    }
+
+    (
+        passed,
+        num_tests,
+        test_strings_deterministic,
+        deterministic_scores,
+        test_strings_nondeterministic,
+        nondeterministic_scores,
+        true,
+    )
+}
+
+// return is a tuple of number of passed test cases vs total cases
+fn grade_automata(
     source: &finite_automaton::FiniteAutomatonJson,
     target: &finite_automaton::FiniteAutomatonJson,
     num_tests: u16,
@@ -134,7 +217,7 @@ struct Tests {
     visibility: String,
 }
 
-pub fn endpoint_grade(buffer: String, args: Vec<String>) -> io::Result<()> {
+pub fn endpoint_grade(buffer: String, args: Vec<String>, automata_type: &Type) -> io::Result<()> {
     // answer file will be passed in the second command line argument
     let buffer_answer = fs::read_to_string(&args[2])?;
 
@@ -142,12 +225,9 @@ pub fn endpoint_grade(buffer: String, args: Vec<String>) -> io::Result<()> {
     let determinism_weight: Option<f64> = Option::from(args[7].to_string().parse::<f64>().unwrap());
     let supposed_to_be_deterministic = determinism_weight != None;
     // for the actual grading, we should show like 20 shorter strings and hide 80,
-    let source =
-        &serde_json::de::from_str::<finite_automaton::FiniteAutomatonJson>(&buffer).unwrap();
-    let target =
-        &serde_json::de::from_str::<finite_automaton::FiniteAutomatonJson>(&buffer_answer).unwrap();
-    let mut public_tests = grade(source, target, 10, supposed_to_be_deterministic);
-    let hidden_tests = grade(source, target, 90, supposed_to_be_deterministic);
+
+    let mut public_tests;
+    let mut hidden_tests;
 
     // then initialize a data structure which follows the output of results.json
     // the only members out of results.json which matter are score and tests
@@ -156,36 +236,57 @@ pub fn endpoint_grade(buffer: String, args: Vec<String>) -> io::Result<()> {
 
     let problem_number: String = args[4].to_owned();
 
-    // STATIC TESTS
+    match automata_type {
+        Type::automata => {
+            let source =
+                &serde_json::de::from_str::<finite_automaton::FiniteAutomatonJson>(&buffer)
+                    .unwrap();
+            let target =
+                &serde_json::de::from_str::<finite_automaton::FiniteAutomatonJson>(&buffer_answer)
+                    .unwrap();
 
-    // size of the automata in number of states, added as a test to public_tests
-    let original_size: Option<u8> = Option::from(args[5].to_string().parse::<u8>().unwrap());
-    let minimal_size = target.states.len();
-    let size_weight: f64 = f64::from(args[6].to_string().parse::<f64>().unwrap());
+            public_tests = grade_automata(source, target, 10, supposed_to_be_deterministic);
+            hidden_tests = grade_automata(source, target, 90, supposed_to_be_deterministic);
 
-    // determinism
-    if public_tests.6 {
-        tests.push(Tests {
-            score: -determinism_weight.unwrap(),
-            name: "determinism".to_string(),
-            number: problem_number.to_owned(),
-            visibility: "visible".to_string(),
-        });
-    }
-    // minimal size
-    match original_size {
-        Some(v) => {
-            let size_score = -(size_weight
-                * ((source.states.len() - target.states.len()) / (v as usize - target.states.len()))
-                    as f64);
-            tests.push(Tests {
-                score: size_score,
-                name: "size".to_string(),
-                number: problem_number.to_owned(),
-                visibility: "visible".to_string(),
-            });
+            // STATIC TESTS
+
+            // size of the automata in number of states, added as a test to public_tests
+            let original_size: Option<u8> =
+                Option::from(args[5].to_string().parse::<u8>().unwrap());
+            let size_weight: f64 = f64::from(args[6].to_string().parse::<f64>().unwrap());
+
+            // determinism
+            if public_tests.6 {
+                tests.push(Tests {
+                    score: -determinism_weight.unwrap(),
+                    name: "determinism".to_string(),
+                    number: problem_number.to_owned(),
+                    visibility: "visible".to_string(),
+                });
+            }
+            // minimal size
+            match original_size {
+                Some(v) => {
+                    let size_score = -(size_weight
+                        * ((source.states.len() - target.states.len())
+                            / (v as usize - target.states.len())) as f64);
+                    tests.push(Tests {
+                        score: size_score,
+                        name: "size".to_string(),
+                        number: problem_number.to_owned(),
+                        visibility: "visible".to_string(),
+                    });
+                }
+                _ => {}
+            }
         }
-        _ => {}
+        Type::pda => {
+            let source = &serde_json::de::from_str::<pda::PdaJson>(&buffer).unwrap();
+            let target = &serde_json::de::from_str::<pda::PdaJson>(&buffer_answer).unwrap();
+
+            public_tests = grade_pda(source, target, 10);
+            hidden_tests = grade_pda(source, target, 90);
+        }
     }
 
     // DYNAMIC TESTS
@@ -266,9 +367,11 @@ fn main() -> io::Result<()> {
     } else if &args[1] == "tests" {
         tests(serde_json::de::from_str::<generate_tests::TestsJson>(&buffer).unwrap());
     } else if &args[1] == "grade" {
-        endpoint_grade(buffer, args);
+        endpoint_grade(buffer, args, &Type::automata);
+    } else if &args[1] == "grade_pdas" {
+        endpoint_grade(buffer, args, &Type::pda);
     } else if &args[1] == "pdas" {
-        pda((serde_json::de::from_str::<pda::PdaJson>(&buffer).unwrap()));
+        pda(serde_json::de::from_str::<pda::PdaJson>(&buffer).unwrap());
     }
 
     Ok(())
