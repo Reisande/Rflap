@@ -18,6 +18,15 @@ let node_id_global = 0;
 let height = window.innerHeight - 80;
 let img_bar_status_did_mount = false;
 
+    //for R
+    const rflapBlue = "#2f9399"
+    //canvas background 
+    const rflapGray = "#b1cad1";
+    //node edges, texts, insides
+    const rflapRed = "#E25B4B";
+    //nodeBorderColors
+    const rflapBlack = "#64778D"
+    
 /*Creating vs.DataSet objects (arrays of object {id;labels;from;to;arrows;}*/
 
 /* 
@@ -133,10 +142,9 @@ function Visual() {
 
 
 
-
     //graph event listeners here:
 
-    /*
+     /*
   hoverNode listener
   Desc: Takes node added in addNode
   */
@@ -179,8 +187,17 @@ function Visual() {
       edgesDS.update([{ id: edge_identifier, arrows: "to" }]);
     });
 
+/*
 
-
+    afterDrawing
+    Desc: Ensures canvas has been drawn, apply CSS stylings for css background here.
+*/
+    network.on("afterDrawing",(params)=>{
+    let canvasDOM = document.getElementsByTagName('canvas')[0];
+    canvasDOM.style.background = rflapGray; 
+    document.getElementById("group-holder").style.borderColor = rflapGray;
+    document.getElementById("non-header-div").style.background = rflapGray; 
+    });
 
 
     network.on("select", params => {
@@ -258,6 +275,7 @@ function Visual() {
         img_status.current.src = passive_bar;
       }
     });
+
     //remove event listeners
     return () => {
       network.off("select");
