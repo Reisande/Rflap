@@ -1,23 +1,11 @@
 import React, { useEffect, useState, useRef, useCallback } from "react";
-import logo from "./logo.svg";
 import "./App.css";
-import { Graph } from "react-d3-graph";
 import Visual from "./Visual.js";
 import HeaderMenu from "./HeaderMenu.js";
 import { AutomataContext } from "./AutomataContext.js";
 import Run from "./Run.js";
 import Sidebar from "react-sidebar";
 import PDA_Visual from "./PDA_Visual.js";
-import {
-  Button,
-  Table,
-  InputGroup,
-  FormControl,
-  Row,
-  Col
-} from "react-bootstrap";
-import { ContextMenu, MenuItem, ContextMenuTrigger } from "react-contextmenu";
-import Popup from "reactjs-popup";
 import CFG_Visual from "./CFG_Visual.js";
 import "bootstrap/dist/css/bootstrap.min.css";
 
@@ -26,16 +14,6 @@ let master_context = {
   grammar_obj: [{TERM:"",NON_TERM:""}], // CFG_MODULE: array of arrays, where each array is a grammar rule from "Definition"
   pushdown: false, // for Push Down Automatas
 };
-
-// const disable_handler= (e) =>{
-//   e.stopPropagation();
-//   e.preventDefault();
-// }
-// const disable_click = (duration) =>{
-//   document.removeEventListener("click");
-//   window.setTimeout(document.addEventListener("click",disable_handler),3000)
-//   document.removeEventListener()
-// }
 
 const CURRENT_MACHINE = {
   DFA: 0,
@@ -46,26 +24,44 @@ const CURRENT_MACHINE = {
 };
 
 function App() {
-  let toggle_menu = useRef();
+
+  /*
+
+  STATE VARIABLE: sidebar_display (bool)
+  sidebar_display:true => SideBar component renders
+  sidebar_display:false => component unmounts
+  Passed as second argument to App component's useEffect(()=>{}, [sidebar_display] ) 
+
+  */
   const [sidebar_display, set_sidebar_display] = useState(false);
-  const [machine_displayed, set_menu_item] = useState(CURRENT_MACHINE.DFA);
-  const [modal_state, set_modal_state] = useState(false);
-  const [render_visual, set_render_visual] = useState(false);
-  const [render_CFG, set_render_CFG] = useState(false);
-  const [menu_array, set_menu_array] = useState(CURRENT_MACHINE.DFA);
+  
+  /*
+
+  STATE VARIABLE: machine_displayed (CURRENT_MACHINE) 
+  machine_displayed: CURRENT_MACHINE.DFA  => Renders 
+  sidebar_display:false => component unmounts
+  Passed as second argument to App component's useEffect(()=>{}, [sidebar_display] ) 
+
+  */  
+  const [machine_displayed, set_machine_displayed] = useState(CURRENT_MACHINE.DFA);
+
   // Lock Run Button temporarily as to not cause infinite loop between sidebar appearing and not appearing
   let lock_run_button = false;
-  // Catch run click and load sidebar:
+
+
+  // useCallback on set_sidebar_display so that text boxes inputted by user are not erased
   const render_sidebar_callback = useCallback(display_lock => {
     set_sidebar_display(display_lock);
   }, []);
 
-  const render_visual_callback = useCallback(() => {
-    set_render_visual(true);
-  }, []);
+/*
+  Instantiated @ 
+
+  Desc: Called when useEffect click listener is not a menu click.
+  Updates state of sidebar_display to trigger rerender and mount the Sidebar
+*/
+
   const click_run_handler = e => {
-    // Check if event is not null, then continue
-    // toggle_menu.handleContextClick(e);
     if (e == null || e.target == null || e.target.lastChild == null) {
       return;
     }
@@ -94,68 +90,73 @@ function App() {
       render_sidebar_callback(false);
     }
   };
-  const click_CFG_handler = () =>{
 
-  }
   useEffect(() => {
-    // render_visual_callback();
-    // console.log("RENDER")
+    /*
+    Click event listener
+    Desc: Handles machine menu clicks by checking e type, if DFA|NFA|CFG|PDA|TM sets
+    machine_displayed via set_machine_displayed.
 
+    */
     window.addEventListener("click", e => {
       if(e.target.id == "temp_anchor") return;
       e.preventDefault();
+
       // menu handler
       if (e.target != null) {
         if(e.target.id == "DFA"){
-          set_menu_item(CURRENT_MACHINE.DFA);
+          set_machine_displayed(CURRENT_MACHINE.DFA);
 
         }
-        if(e.target.id == "NFA"){
-          set_menu_item(CURRENT_MACHINE.NFA);
+        else if(e.target.id == "NFA"){
+          set_machine_displayed(CURRENT_MACHINE.NFA);
 
         }
-        if (e.target.id == "CFG") {
-          set_menu_item(CURRENT_MACHINE.CFG);
+        else if (e.target.id == "CFG") {
+          set_machine_displayed(CURRENT_MACHINE.CFG);
         }
-        if(e.target.id == "PDA"){
-          set_menu_item(CURRENT_MACHINE.PDA);
+        else if(e.target.id == "PDA"){
+          set_machine_displayed(CURRENT_MACHINE.PDA);
         }
-         if(e.target.id == "TM"){
-         set_menu_item(CURRENT_MACHINE.TM); 
+        else if(e.target.id == "TM"){
+          set_machine_displayed(CURRENT_MACHINE.TM); 
         }
       }
+      
+      
       click_run_handler(e);
-      setTimeout(()=>{
+      setTimeout(()=>{ },1)
 
-
-      },1)
     });
     return () => {
       window.removeEventListener("click", e => click_run_handler(e));
     };
-  }, [sidebar_display, modal_state, render_visual]);
+  }, 
+  // rerender if and only if sidebar_display changes to false, which means unmount sidebar
+  [sidebar_display]);
+ 
+  /*
+  Instantiated @ 195 
+  Desc: On rerender of state from set_machine_displayed, this function renders
+  the graphical body of the selected machine based by enums in CURRENT_MACHINE
+  */
+  function render_machine_display(){
+    switch (machine_displayed){
+      case CURRENT_MACHINE.DFA:
+        return <Visual />;
+      case CURRENT_MACHINE.NFA:
+        return <Visual />;
+      case CURRENT_MACHINE.CFG:
+        return <CFG_Visual/>;
+      case CURRENT_MACHINE.PDA:
+        return <PDA_Visual/>
+      case CURRENT_MACHINE.TM:
+        return <h1>Turing Machine! :(</h1>
 
-  // modal, called by contex_menu first one.
-  function openModal(e, data) {
-    set_modal_state(true);
-  }
-  function add_node(e, data) {
-    // console.log(e,data);
-  }
-  function change_node_name(e) {
-    // console.log("E"+ e.target.value);
-  }
+    }
+}
 
-  function handleClick(e, data) {
-    // console.log('------HANDLECLICK-------');
-    // console.log(e);
-    // console.log(data);
-    // console.log('////////HANDLECLICK///////');
-  }
-  const CFG_modal_open = () => {
-    return <div>{render_CFG ? <CFG_Visual /> : <React.Fragment />}</div>;
-  };
-
+/* Renders */
   return (
     <div className="App">
       <AutomataContext.Provider value={master_context}>
@@ -177,23 +178,8 @@ function App() {
             }}
           ></Sidebar>
         ) : null}
-
         <HeaderMenu />
-            
-        {(function() {
-          switch (machine_displayed) {
-            case CURRENT_MACHINE.DFA:
-              return <Visual />;
-            case CURRENT_MACHINE.NFA:
-              return <Visual />;
-            case CURRENT_MACHINE.CFG:
-              return <CFG_Visual/>;
-            case CURRENT_MACHINE.PDA:
-              return <PDA_Visual/>
-            case CURRENT_MACHINE.TM:
-              return <h1>Turing Machine! :(</h1>
-          }
-        })()}
+        {render_machine_display()}
       </AutomataContext.Provider>
     </div>
   );
