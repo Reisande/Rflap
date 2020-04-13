@@ -42,100 +42,65 @@ let graph = {nodes: nodesDS,
   edges: edgesDS};
 
   let options = {
-    autoResize : true,
-    height: height.toString(),
-    width: window.innerWidth.toString(),
-    locale: 'en',
-   
-    
-    nodes:{
-      physics:{
-        enabled:false,
-      },
-      label: undefined,
+  autoResize: true,
+  height: height.toString(),
+  width: window.innerWidth.toString(),
+  locale: "en",
+
+  // turn off nodes physics
+  nodes: {
+    physics: false,
+    label: undefined,
     title: undefined,
-      shape: "circle",
-      borderWidth: 0,
-      borderWidthSelected: -1,
+    shape: "circle",
+    borderWidth: 0,
+    borderWidthSelected: -1,
 
-      scaling:{
-        label:{
-          enabled: true,
-        }
-      },
-      color:{
-        border: "#64778D",
-        background: "#E25B4B",
-        highlight:{
-          border:"#64778D",
-          background: '#B22222'	,
-          
-        },
-        hover:{
-          border:"#64778D",
-          background: '#B22222'	,
-          
-        }
-
-      },
-      font:{
-        color: "#DCDCDC",
-        face:"sans serif",
-        
-        
-        size: 12,
-        bold:{
-          face:"sans serif",
-          size: 20,
-
-        }
-      },
-      // shadow:{
-      //   size:0
-      // },
-
-    },
-    edges:{
-      // font: '12px arial #ff0000',
-      // smooth:true,
-       physics:{
-      // maxVelocity: 1,
-      enabled: true,
-      forceAtlas2Based:{
-        centralGravity: 0,
-        // gravitationalConstant:  30,
-        springLength: 50,
-        springConstant: 1,
-        // damping: 0,
-      },
-      
-      
-      solver: "forceAtlas2Based",
-      
-     
-    },
-    stabilization: {
-      enabled: true,
-      iterations: 1000,
-      updateInterval: 100,
-      onlyDynamicEdges: false,
-      fit: true
-    },
-      color:"skyblue",
-      // length: 85,
-      scaling:{
-        label:true,
-      },
-      font:{
-        size: 16 ,
+    scaling: {
+      label: {
+        enabled: true
       }
     },
-    interaction:{
-      hover:true,
+    color: {
+      border: "#64778D",
+      background: "#E25B4B",
+      highlight: {
+        border: "#64778D",
+        background: "#B22222"
+      },
+      hover: {
+        border: "#64778D",
+        background: "#B22222"
+      }
+    },
+    font: {
+      color: "#DCDCDC",
+      face: "sans serif",
 
+      size: 12,
+      bold: {
+        face: "sans serif",
+        size: 20
+      }
     }
+  },
+  // keep edges physics on as to not overlay two transitions over each other
+  edges: {
+    physics: true,
 
+    color: "skyblue",
+    scaling: {
+      label: true
+    },
+    font: {
+      size: 16
+    }
+  },
+  interaction: {
+    hover: true
+  }
 };
+
 function PDA_Visual() {
   const  master_context = useContext(AutomataContext);
   master_context.graphobj = graph;
