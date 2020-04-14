@@ -1,11 +1,15 @@
 import React, { useEffect, useRef, useState, useContext } from "react";
+  /*graphing library*/
 import vis from "vis-network";
+  /*react bootstrap components*/
 import { Button, ButtonGroup, Col, Row } from "react-bootstrap";
-import logo from "./logo.svg";
+  /*import css and react bootstrap css */
 import "./App.css";
 import "./Visual.css";
 import "bootstrap/dist/css/bootstrap.min.css";
+  /*grab app-wide context*/
 import { AutomataContext } from "./AutomataContext.js";
+   /* resource images */
 import accept_bar from "./accept.svg";
 import add_bar from "./add-bar.svg";
 import points_bar from "./points.svg";
@@ -14,6 +18,13 @@ import transition_bar from "./transition.svg";
 import blank_svg_bar from "./blank.svg";
 import passive_bar from "./delete.svg";
 import remove_bar from "./remove.svg";
+  /*Network options object and Hex's in js*/
+import {Hex} from "./res/HexColors.js";
+import {NetworkOptions} from "./res/NetworkOptions";
+
+
+//Component-wide state variable to track total number of Ids on client side,
+//seperate from nodesDS (vis.DataSet() object) because of leaky abstractions
 let node_id_global = 0;
 let height = window.innerHeight - 80;
 let img_bar_status_did_mount = false;
@@ -41,65 +52,6 @@ let edgesDS = new vis.DataSet([]);
 */
 let graph = { nodes: nodesDS, edges: edgesDS };
 
-let options = {
-  autoResize: true,
-  height: height.toString(),
-  width: window.innerWidth.toString(),
-  locale: "en",
-
-  // turn off nodes physics
-  nodes: {
-    physics: false,
-    label: undefined,
-    title: undefined,
-    shape: "circle",
-    borderWidth: 0,
-    borderWidthSelected: -1,
-
-    scaling: {
-      label: {
-        enabled: true
-      }
-    },
-    color: {
-      border: "#64778D",
-      background: "#E25B4B",
-      highlight: {
-        border: "#64778D",
-        background: "#B22222"
-      },
-      hover: {
-        border: "#64778D",
-        background: "#B22222"
-      }
-    },
-    font: {
-      color: "#DCDCDC",
-      face: "sans serif",
-
-      size: 12,
-      bold: {
-        face: "sans serif",
-        size: 20
-      }
-    }
-  },
-  // keep edges physics on as to not overlay two transitions over each other
-  edges: {
-    physics: true,
-
-    color: "skyblue",
-    scaling: {
-      label: true
-    },
-    font: {
-      size: 16
-    }
-  },
-  interaction: {
-    hover: true
-  }
-};
 function Visual() {
   const master_context = useContext(AutomataContext);
   master_context.graphobj = graph;
@@ -127,16 +79,15 @@ function Visual() {
     const HTMLCol_to_array = html_collection =>
       Array.prototype.slice.call(html_collection);
 
-    network = new vis.Network(wrapper.current, graph, options);
+    network = new vis.Network(wrapper.current, graph, NetworkOptions(height.toString(),window.innerWidth.toString()));
     //context-click for graph
     network.on("showPopup", params => {});
 
 
 
-
     //graph event listeners here:
 
-    /*
+     /*
   hoverNode listener
   Desc: Takes node added in addNode
   */
@@ -179,8 +130,17 @@ function Visual() {
       edgesDS.update([{ id: edge_identifier, arrows: "to" }]);
     });
 
+/*
 
-
+    afterDrawing
+    Desc: Ensures canvas has been drawn, apply CSS stylings for css background here.
+*/
+    network.on("afterDrawing",(params)=>{
+    let canvasDOM = document.getElementsByTagName('canvas')[0];
+    canvasDOM.style.background = Hex.Canvas; 
+    document.getElementById("group-holder").style.borderColor = Hex.Canvas;
+    document.getElementById("non-header-div").style.background = Hex.Canvas; 
+    });
 
 
     network.on("select", params => {
@@ -237,8 +197,8 @@ function Visual() {
         });
         let final_border = 3;
         let border_width_a = 3;
-        let border_width_b = 0;
-
+        let border_width_b = 1;
+          //checks if in accepting state (found_node has border width of 3)
         if (found_node.borderWidth == border_width_a) {
           final_border = border_width_b;
         } else {
@@ -258,6 +218,7 @@ function Visual() {
         img_status.current.src = passive_bar;
       }
     });
+
     //remove event listeners
     return () => {
       network.off("select");

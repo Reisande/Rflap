@@ -1,11 +1,15 @@
 import React,{useEffect,useRef,useState,useContext} from 'react';
+//graphing library
 import vis from 'vis-network';
+//react-bootstrap component imports
 import {Button, ButtonGroup,Col,Row} from 'react-bootstrap'
-import logo from './logo.svg';
+//css (bootstrap)
 import './App.css';
 import './Visual.css'
 import 'bootstrap/dist/css/bootstrap.min.css';
+//context import
 import {AutomataContext} from './AutomataContext.js'
+//image imports
 import accept_bar from './accept.svg';
 import add_bar from './add-bar.svg';
 import points_bar from './points.svg';
@@ -13,167 +17,34 @@ import reject_bar from './reject.svg';
 import transition_bar from './transition.svg';
 import blank_svg_bar from './blank.svg';
 import passive_bar from "./delete.svg";
-import remove_bar from "./remove.svg"
-//Yo
+import remove_bar from "./remove.svg";
+
+//Network,Hex's (js)
+import {NetworkOptions} from "./res/NetworkOptions"
+import {Hex} from "./res/HexColors";
 /*hieght and width make dimensions of graph fill screen*/
 let node_id_global = 0;
 let height = window.innerHeight -80;
-let width = window.innerWidth;
 let img_bar_status_did_mount = false;
 
 /*Beggining node and edge informaiton*/
 let nodesDS = new vis.DataSet([
-  // {id: 1, label: ' Q 1 '},
-  // {id: 2, label: ' Q 2 '},
-  // {id: 3, label: ' Q 3 '},
-  // {id: 4, label: ' Q 4 '},
-  // {id: 5, label: ' Q 5 '},
 ]);
 let edgesDS = new vis.DataSet( [
-  // { from: 1, to: 2, label: "a", id: "b",arrows:"to" },
-  // { from: 2, to: 1, label: "a", id: "a",arrows:"to"}
-  // { from: 3, to: 1, label:"c" ,id:"c",arrows:"to"},
-  // { from: 2, to: 2, label:"2>2",id: "2->2" ,arrows:"to"},
-  // { from: 4, to: 2, label:"2>2",id: "4->2" ,arrows:"to"}
-
 ]);
 
 let graph = {nodes: nodesDS,
   edges: edgesDS};
 
-  let options = {
-    autoResize : true,
-    height: height.toString(),
-    width: window.innerWidth.toString(),
-    locale: 'en',
-   
-    
-    nodes:{
-      physics:{
-        enabled:false,
-      },
-      label: undefined,
-    title: undefined,
-      shape: "circle",
-      borderWidth: 0,
-      borderWidthSelected: -1,
-
-      scaling:{
-        label:{
-          enabled: true,
-        }
-      },
-      color:{
-        border: "#64778D",
-        background: "#E25B4B",
-        highlight:{
-          border:"#64778D",
-          background: '#B22222'	,
-          
-        },
-        hover:{
-          border:"#64778D",
-          background: '#B22222'	,
-          
-        }
-
-      },
-      font:{
-        color: "#DCDCDC",
-        face:"sans serif",
-        
-        
-        size: 12,
-        bold:{
-          face:"sans serif",
-          size: 20,
-
-        }
-      },
-      // shadow:{
-      //   size:0
-      // },
-
-    },
-    edges:{
-      // font: '12px arial #ff0000',
-      // smooth:true,
-       physics:{
-      // maxVelocity: 1,
-      enabled: true,
-      forceAtlas2Based:{
-        centralGravity: 0,
-        // gravitationalConstant:  30,
-        springLength: 50,
-        springConstant: 1,
-        // damping: 0,
-      },
-      
-      
-      solver: "forceAtlas2Based",
-      
-     
-    },
-    stabilization: {
-      enabled: true,
-      iterations: 1000,
-      updateInterval: 100,
-      onlyDynamicEdges: false,
-      fit: true
-    },
-      color:"skyblue",
-      // length: 85,
-      scaling:{
-        label:true,
-      },
-      font:{
-        size: 16 ,
-      }
-    },
-    interaction:{
-      hover:true,
-
-    }
-
-};
 function PDA_Visual() {
   const  master_context = useContext(AutomataContext);
   master_context.graphobj = graph;
   let in_add_node_mode = false;
   let in_accepting_mode_ = false,in_initial_mode = false;
-  let display_popup = false;
-  let node_id_clicked,state_field, string_field;
   let img_index = 0;
   let img_array = [blank_svg_bar ,accept_bar,add_bar,points_bar,reject_bar,transition_bar];
-
   const wrapper = useRef(null) //Display graph in div "wrapper"
-  // const [img_array_index,set_img_array_index] = useState(0);//change to enums
   const img_status = useRef(null);
-  // const find_node_clicked = (node_ids,node_postions,userX,userY) =>{
-  //   let return_id = -1;
-  //   node_ids.forEach((id)=>{
-  //     let node_x = node_postions[id].x;
-  //     let node_y = node_postions[id].y;  
-  //     // Approximating area of node.
-  //     let offset_bound = 30;
-  //     let lower_x = node_x - offset_bound;
-  //     let upper_x = node_x + offset_bound;
-  //     let upper_y = node_y+offset_bound;
-  //     let lower_y = node_y -offset_bound;
-  //     // * debugging * 
-  //     // console.log("Node: " + node_ids[id]);
-  //     // console.log("x:"+node_x+ "y"+node_y);
-  //     // console.log("cx:" + params.pointer.canvas.x + "cy" + params.pointer.canvas.y); 
-  //     if(  ((userX< upper_x) && (userX> lower_x)) && ( (userY < upper_y) && (userY > lower_y)  )){
-  //     return_id = id;        
-  //     node_id_clicked = return_id;
-  //     }  
-  //     });
-
-  //   return return_id;
- 
-
-  // }
 
 let network;
 
@@ -181,14 +52,25 @@ useEffect( ()=>{
     img_status.current.src = passive_bar;
     const HTMLCol_to_array = (html_collection) => Array.prototype.slice.call(html_collection);
     master_context.PDA = true;
-        // let yager = HTMLCol_to_array(wrapper.current.childNodes);
-        // console.log(HTMLCol_to_array(wrapper.current.childNodes));
-        // console.log(yager)
-  network = new vis.Network(wrapper.current,graph,options);
-  // console.log("Event: " + network);
-  //context-click for graph
+
+  network = new vis.Network(wrapper.current,graph, NetworkOptions(height.toString(),window.innerWidth.toString()));
+  /* graph event listeners */
   network.on("showPopup", (params)=>{
   });
+/*
+
+    afterDrawing
+    Desc: Ensures canvas has been drawn, apply CSS stylings for css background here.
+*/
+    network.on("afterDrawing",(params)=>{
+    let canvasDOM = document.getElementsByTagName('canvas')[0];
+    canvasDOM.style.background = Hex.Canvas; 
+    document.getElementById("group-holder").style.borderColor = Hex.Canvas;
+    document.getElementById("non-header-div").style.background = Hex.Canvas; 
+    });
+
+
+
   //graph event listeners here:
   network.on("hoverNode", (params)=>{
     // console.log("hoverNode: ");
@@ -259,9 +141,8 @@ useEffect( ()=>{
         } );
       let final_border = 3;
       let border_width_a = 3;
-      let border_width_b = 0;
+      let border_width_b = 1;
 
-      // console.log()
       if(found_node.borderWidth == border_width_a){
         final_border = border_width_b;
       }
