@@ -15,6 +15,11 @@ import blank_svg_bar from "./blank.svg";
 import passive_bar from "./delete.svg";
 import remove_bar from "./remove.svg";
 import {Hex} from "./res/HexColors.js";
+import {NetworkOptions} from "./res/NetworkOptions";
+
+
+//Component-wide state variable to track total number of Ids on client side,
+//seperate from nodesDS (vis.DataSet() object) because of leaky abstractions
 let node_id_global = 0;
 let height = window.innerHeight - 80;
 let img_bar_status_did_mount = false;
@@ -42,7 +47,7 @@ let edgesDS = new vis.DataSet([]);
 */
 let graph = { nodes: nodesDS, edges: edgesDS };
 
-let options = {
+/*let options = {
   autoResize: true,
   height: height.toString(),
   width: window.innerWidth.toString(),
@@ -57,7 +62,7 @@ let options = {
     //TODO: Add soft black border around 
     // default nodes (better looking)
         
-    borderWidth: 1,
+h: 1,
 
     scaling: {
       label: {
@@ -112,6 +117,7 @@ let options = {
     hover: true
   }
 };
+*/
 function Visual() {
   const master_context = useContext(AutomataContext);
   master_context.graphobj = graph;
@@ -139,7 +145,7 @@ function Visual() {
     const HTMLCol_to_array = html_collection =>
       Array.prototype.slice.call(html_collection);
 
-    network = new vis.Network(wrapper.current, graph, options);
+    network = new vis.Network(wrapper.current, graph, NetworkOptions(height.toString(),window.innerWidth.toString()));
     //context-click for graph
     network.on("showPopup", params => {});
 
