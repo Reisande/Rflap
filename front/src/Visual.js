@@ -292,7 +292,9 @@ function Visual() {
   }
 
   /* @@@ */
+  
   function mount_styling() {
+    return;  
     let url = "https://worldclockapi.com/api/json/est/now";
     let postingObject = {
       method: "GET"
@@ -304,6 +306,7 @@ function Visual() {
       });
     });
   }
+  
   /* 
   populateNode() => props:null
     Desc: adds Node when the plus button is clicked.
