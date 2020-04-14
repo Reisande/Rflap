@@ -18,15 +18,6 @@ let node_id_global = 0;
 let height = window.innerHeight - 80;
 let img_bar_status_did_mount = false;
 
-    //for R
-    const rflapBlue = "#2f9399"
-    //canvas background 
-    const rflapGray = "#b1cad1";
-    //node edges, texts, insides
-    const rflapRed = "#E25B4B";
-    //nodeBorderColors
-    const rflapBlack = "#64778D"
-    
 /*Creating vs.DataSet objects (arrays of object {id;labels;from;to;arrows;}*/
 
 /* 
