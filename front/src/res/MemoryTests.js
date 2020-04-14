@@ -33,8 +33,19 @@ function measurementInterval() {
       // Rethrow other errors.
       throw error;
     }
+    const stringifyHeapUse = (result)=>{
+        const toMb = (Bytes) => {
+            return (parseFloat(Bytes) * .000001)
+            .toFixed(2)
+            .toString();
+        }
+        let lowerBound = result.total.jsMemoryRange[0];
+        let upperBound = result.total.jsMemoryRange[1];
+        return "Between "+ toMb(lowerBound) + " MB" + " and " + toMb(upperBound) + " MB\n"
+
+    }
     // 2. Record the result.
-    console.log("Memory usage:", result);
+    console.log("(Memory usage)", stringifyHeapUse(result));
     // 3. Schedule the next measurement.
     scheduleMeasurement();
   }
