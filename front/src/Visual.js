@@ -14,6 +14,7 @@ import transition_bar from "./transition.svg";
 import blank_svg_bar from "./blank.svg";
 import passive_bar from "./delete.svg";
 import remove_bar from "./remove.svg";
+import {Hex} from "./res/HexColors.js";
 let node_id_global = 0;
 let height = window.innerHeight - 80;
 let img_bar_status_did_mount = false;
@@ -185,9 +186,9 @@ function Visual() {
 */
     network.on("afterDrawing",(params)=>{
     let canvasDOM = document.getElementsByTagName('canvas')[0];
-    canvasDOM.style.background = rflapGray; 
-    document.getElementById("group-holder").style.borderColor = rflapGray;
-    document.getElementById("non-header-div").style.background = rflapGray; 
+    canvasDOM.style.background = Hex.Canvas; 
+    document.getElementById("group-holder").style.borderColor = Hex.Canvas;
+    document.getElementById("non-header-div").style.background = Hex.Canvas; 
     });
 
 

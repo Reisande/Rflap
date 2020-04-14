@@ -15,7 +15,7 @@ export const Hex = {
   NodeBorder: rflapBlack,
   Canvas: rflapGray,
   EdgeColor: rflapRed,
-  Rcolor = rflapBlue,
+  Rcolor : rflapBlue,
     
 };
 
