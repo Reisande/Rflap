@@ -54,28 +54,35 @@ let options = {
     label: undefined,
     title: undefined,
     shape: "circle",
-    borderWidth: 0,
-    borderWidthSelected: -1,
+    //TODO: Add soft black border around 
+    // default nodes (better looking)
+        
+    // borderWidth: 1,
 
     scaling: {
       label: {
         enabled: true
       }
     },
+    //removes both hover state 
+    // and select state
+    chosen: false,
+
     color: {
-      border: "#64778D",
-      background: "#E25B4B",
+      border: Hex.NodeBorder,
+      background:Hex.NodeInner, 
       highlight: {
-        border: "#64778D",
-        background: "#B22222"
+        border: Hex.NodeBorder,
+        background: Hex.NodeInner
       },
       hover: {
-        border: "#64778D",
-        background: "#B22222"
+        border: Hex.NodeBorder,
+        background: Hex.NodeInner
+    
       }
     },
     font: {
-      color: "#DCDCDC",
+      color:Hex.NodeInnerText,
       face: "sans serif",
 
       size: 12,
