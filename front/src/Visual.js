@@ -96,12 +96,16 @@ let options = {
   edges: {
     physics: true,
 
-    color: "skyblue",
+    color: Hex.EdgeColor,
     scaling: {
       label: true
     },
+    chosen: false,
     font: {
-      size: 16
+      color: Hex.EdgeInnerText,
+      size: 16,
+      strokeWidth: 3,
+      strokeColor: Hex.EdgeInnerTextStroke
     }
   },
   interaction: {
