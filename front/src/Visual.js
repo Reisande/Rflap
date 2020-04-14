@@ -57,7 +57,7 @@ let options = {
     //TODO: Add soft black border around 
     // default nodes (better looking)
         
-    // borderWidth: 1,
+    borderWidth: 1,
 
     scaling: {
       label: {
@@ -69,7 +69,7 @@ let options = {
     chosen: false,
 
     color: {
-      border: Hex.NodeBorder,
+     border: Hex.NodeBorder,
       background:Hex.NodeInner, 
       highlight: {
         border: Hex.NodeBorder,
@@ -257,8 +257,8 @@ function Visual() {
         });
         let final_border = 3;
         let border_width_a = 3;
-        let border_width_b = 0;
-
+        let border_width_b = 1;
+          //checks if in accepting state (found_node has border width of 3)
         if (found_node.borderWidth == border_width_a) {
           final_border = border_width_b;
         } else {
