@@ -1,11 +1,15 @@
 import React, { useEffect, useRef, useState, useContext } from "react";
+  /*graphing library*/
 import vis from "vis-network";
+  /*react bootstrap components*/
 import { Button, ButtonGroup, Col, Row } from "react-bootstrap";
-import logo from "./logo.svg";
+  /*import css and react bootstrap css */
 import "./App.css";
 import "./Visual.css";
 import "bootstrap/dist/css/bootstrap.min.css";
+  /*grab app-wide context*/
 import { AutomataContext } from "./AutomataContext.js";
+   /* resource images */
 import accept_bar from "./accept.svg";
 import add_bar from "./add-bar.svg";
 import points_bar from "./points.svg";
@@ -14,6 +18,7 @@ import transition_bar from "./transition.svg";
 import blank_svg_bar from "./blank.svg";
 import passive_bar from "./delete.svg";
 import remove_bar from "./remove.svg";
+  /*Network options object and Hex's in js*/
 import {Hex} from "./res/HexColors.js";
 import {NetworkOptions} from "./res/NetworkOptions";
 
@@ -47,77 +52,6 @@ let edgesDS = new vis.DataSet([]);
 */
 let graph = { nodes: nodesDS, edges: edgesDS };
 
-/*let options = {
-  autoResize: true,
-  height: height.toString(),
-  width: window.innerWidth.toString(),
-  locale: "en",
-
-  // turn off nodes physics
-  nodes: {
-    physics: false,
-    label: undefined,
-    title: undefined,
-    shape: "circle",
-    //TODO: Add soft black border around 
-    // default nodes (better looking)
-        
-h: 1,
-
-    scaling: {
-      label: {
-        enabled: true
-      }
-    },
-    //removes both hover state 
-    // and select state
-    chosen: false,
-
-    color: {
-     border: Hex.NodeBorder,
-      background:Hex.NodeInner, 
-      highlight: {
-        border: Hex.NodeBorder,
-        background: Hex.NodeInner
-      },
-      hover: {
-        border: Hex.NodeBorder,
-        background: Hex.NodeInner
-    
-      }
-    },
-    font: {
-      color:Hex.NodeInnerText,
-      face: "sans serif",
-
-      size: 12,
-      bold: {
-        face: "sans serif",
-        size: 20
-      }
-    }
-  },
-  // keep edges physics on as to not overlay two transitions over each other
-  edges: {
-    physics: true,
-
-    color: Hex.EdgeColor,
-    scaling: {
-      label: true
-    },
-    chosen: false,
-    font: {
-      color: Hex.EdgeInnerText,
-      size: 16,
-      strokeWidth: 3,
-      strokeColor: Hex.EdgeInnerTextStroke
-    }
-  },
-  interaction: {
-    hover: true
-  }
-};
-*/
 function Visual() {
   const master_context = useContext(AutomataContext);
   master_context.graphobj = graph;
