@@ -1,8 +1,14 @@
+/* 
+  Does resource memory checking on total amount of memory used 
+  by the app via random intervaled tests
+*/
+
 function measurementInterval() {
     const MEAN_INTERVAL_IN_MS = 5 * 60 * 1000;
     return -Math.log(Math.random()) * MEAN_INTERVAL_IN_MS;
   }
-  function scheduleMeasurement() {
+
+  export const scheduleMeasurement = ()=> {
     if (!performance.measureMemory) {
       console.log("performance.measureMemory() is not available.");
       return;
@@ -13,10 +19,6 @@ function measurementInterval() {
     setTimeout(performMeasurement, interval);
   }
   
-  // Start measurements after page load on the main window.
-  window.onload = function () {
-    scheduleMeasurement();
-  }
   async function performMeasurement() {
     // 1. Invoke performance.measureMemory().
     let result;
@@ -36,3 +38,5 @@ function measurementInterval() {
     // 3. Schedule the next measurement.
     scheduleMeasurement();
   }
+
+ export default scheduleMeasurement; 
