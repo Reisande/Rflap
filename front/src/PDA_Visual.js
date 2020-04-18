@@ -19,7 +19,7 @@ import blank_svg_bar from './blank.svg';
 import passive_bar from "./delete.svg";
 import remove_bar from "./remove.svg";
 
-//Network,Hex's (js)
+//Network, Hex's (js)
 import {NetworkOptions} from "./res/NetworkOptions"
 import {Hex} from "./res/HexColors";
 /*hieght and width make dimensions of graph fill screen*/
