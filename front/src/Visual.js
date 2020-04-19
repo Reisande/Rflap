@@ -21,7 +21,9 @@ import remove_bar from "./remove.svg";
   /*Network options object and Hex's in js*/
 import {Hex} from "./res/HexColors.js";
 import {NetworkOptions} from "./res/NetworkOptions";
+  /*Hotkey dependency*/
 
+import {useHotKeys} from "react-hotkeys-hook";
 
 //Component-wide state variable to track total number of Ids on client side,
 //seperate from nodesDS (vis.DataSet() object) because of leaky abstractions
@@ -36,7 +38,8 @@ let img_bar_status_did_mount = false;
     nodesDS and edgesDS 
 
     Desc:
-      Contain all information of Nodes and Edges to be displayed on the graph via module vis's contstrucot DataSet()
+      Contain all information of Nodes and Edgstring, callback: (event: KeyboardEvent, handler: HotkeysEvent) => void, options: Options = {}, deps: any[] = [])
+The callback function takes the exaes to be displayed on the graph via module vis's contstrucot DataSet()
 
 */
 
