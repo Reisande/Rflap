@@ -73,8 +73,6 @@ function Visual() {
   const img_status = useRef(null);
   let network;
 
-
-  /*Hotkeys*/
   useEffect(() => {
     img_status.current.src = passive_bar;
     const HTMLCol_to_array = (html_collection) =>
@@ -145,70 +143,69 @@ function Visual() {
     });
 
     /*Empty Canvas Click event handler initiated on network.on(click)*/
-    const emptyCanvasClickHandler = (params) =>{
+    const emptyCanvasClickHandler = (params) => {
       let addedNode = node_id_global;
-      const noNodesClicked = (params) => (params.nodes.length=== 0 ? true : false);
-      const noEdgesClicked = (params) => (params.edges.length === 0 ? true : false);
+      const noNodesClicked = (params) =>
+        params.nodes.length === 0 ? true : false;
+      const noEdgesClicked = (params) =>
+        params.edges.length === 0 ? true : false;
       const BoundsCheck = (params) =>
         params.pointer.canvas.x != undefined || params.pointer.canvas.y != null;
-      const getXY = (params) => [params.pointer.canvas.x, params.pointer.canvas.y];
+      const getXY = (params) => [
+        params.pointer.canvas.x,
+        params.pointer.canvas.y,
+      ];
       const [x, y] = BoundsCheck(params) ? getXY(params) : [null, null];
       const populateNodeAt = (x, y) => {
         node_id_global += 1;
         nodesDS.add([
           { id: node_id_global, label: " Q " + graph.nodes.get().length + " " },
         ]);
-        network.moveNode(
-          node_id_global,
-          x, 
-         y 
-         
-        );
+        network.moveNode(node_id_global, x, y);
       };
       let _ =
-        ( noNodesClicked(params) && noEdgesClicked(params) && (x != null && y != null))
+        noNodesClicked(params) &&
+        noEdgesClicked(params) &&
+        x != null &&
+        y != null
           ? populateNodeAt(x, y)
           : () => {
               return;
             };
       return addedNode != node_id_global ? true : false;
-        
-    }
+    };
 
     /* to get hotkey designations from ctrl,shift, and alt:
         params.event.srcEvent.<csa>Key */
 
-  /*   deleteNodeWithCtrl -> params -> bool 
+    /*   deleteNodeWithCtrl -> params -> bool 
       Remove a node with ctrl hotkey pressed hotkey on network.on(click)*/
 
-    const deleteNodeWithCtrl = (params) =>{
-      if(params.event.srcEvent.ctrlKey){
+    const deleteNodeWithCtrl = (params) => {
+      if (params.event.srcEvent.ctrlKey) {
         network.deleteSelected();
         return true;
       }
       return false;
-    }
+    };
 
     /*Shift click event listeners */
     //called by keydown, enables editing edges when nodes are clicked.
-    let shiftHeldDown = false;
-    const handleShiftClick = (event) =>{
-
-      if(event.key === "Shift"){
-      network.enableEditMode();
-      network.addEdgeMode();
-        }
+    const handleShiftClick = (event) => {
+      if (event.key === "Shift") {
+        network.enableEditMode();
+        network.addEdgeMode();
       }
+    };
     // Shift click event listeners, keydown calls handleShiftClick(e)
     // to enable edit edge mode
-    window.addEventListener("keydown",handleShiftClick); 
+    window.addEventListener("keydown", handleShiftClick);
 
     network.on("click", (params) => {
-      if (emptyCanvasClickHandler(params)){
+      if (emptyCanvasClickHandler(params)) {
         return;
-      }
-      else if(deleteNodeWithCtrl(params)){
-        return; 
+      } else if (deleteNodeWithCtrl(params)) {
+        return;
       }
     });
     network.on("select", (params) => {
@@ -285,7 +282,6 @@ function Visual() {
         ChangeEdgeText(user_input_string, edge_id);
         img_status.current.src = passive_bar;
       }
-
     });
 
     //remove event listeners
@@ -295,6 +291,7 @@ function Visual() {
       network.off("hoverNode");
       network.off("showPopup");
       network.destroy();
+      window.removeEventListener('keydown',handleShiftClick);
     };
   });
   const deselectAllModes = () => {

@@ -79,6 +79,74 @@ function PDA_Visual() {
       document.getElementById("non-header-div").style.background = Hex.Canvas;
     });
 
+    const emptyCanvasClickHandler = (params) => {
+      let addedNode = node_id_global;
+      const noNodesClicked = (params) =>
+        params.nodes.length === 0 ? true : false;
+      const noEdgesClicked = (params) =>
+        params.edges.length === 0 ? true : false;
+      const BoundsCheck = (params) =>
+        params.pointer.canvas.x != undefined || params.pointer.canvas.y != null;
+      const getXY = (params) => [
+        params.pointer.canvas.x,
+        params.pointer.canvas.y,
+      ];
+      const [x, y] = BoundsCheck(params) ? getXY(params) : [null, null];
+      const populateNodeAt = (x, y) => {
+        node_id_global += 1;
+        nodesDS.add([
+          { id: node_id_global, label: " Q " + graph.nodes.get().length + " " },
+        ]);
+        network.moveNode(node_id_global, x, y);
+      };
+      let _ =
+        noNodesClicked(params) &&
+        noEdgesClicked(params) &&
+        x != null &&
+        y != null
+          ? populateNodeAt(x, y)
+          : () => {
+              return;
+            };
+      return addedNode != node_id_global ? true : false;
+    };
+
+    /* to get hotkey designations from ctrl,shift, and alt:
+        params.event.srcEvent.<csa>Key */
+
+    /*   deleteNodeWithCtrl -> params -> bool 
+      Remove a node with ctrl hotkey pressed hotkey on network.on(click)*/
+
+      const deleteNodeWithCtrl = (params) => {
+        if (params.event.srcEvent.ctrlKey) {
+          network.deleteSelected();
+          return true;
+        }
+        return false;
+      };
+
+
+    /*Shift click event listeners */
+    //called by keydown, enables editing edges when nodes are clicked.
+    const handleShiftClick = (event) => {
+      if (event.key === "Shift") {
+        network.enableEditMode();
+        network.addEdgeMode();
+      }
+    };
+    // Shift click event listeners, keydown calls handleShiftClick(e)
+    // to enable edit edge mode
+    window.addEventListener("keydown", handleShiftClick);
+
+    network.on("click", (params) => {
+      if (emptyCanvasClickHandler(params)) {
+        return;
+      } else if (deleteNodeWithCtrl(params)) {
+        return;
+      }
+    });
+
+
     //graph event listeners here:
     network.on("hoverNode", (params) => {
       // console.log("hoverNode: ");
@@ -195,6 +263,8 @@ function PDA_Visual() {
       network.off("showPopup");
       network.destroy();
       master_context.PDA = false;
+      window.removeEventListener('keydown',handleShiftClick);
+
     };
   });
   const deselectAllModes = () => {
