@@ -19,6 +19,7 @@ export const Hex = {
   //for R
   NodeInner: rflapRed,
   NodeInnerText: rflapIce,
+  NodeInnerTextStroke: rflapBlack,
   NodeBorder: rflapBlack,
   Canvas: rflapGray,
   EdgeColor: rflapRed,

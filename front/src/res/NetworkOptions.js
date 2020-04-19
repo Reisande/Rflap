@@ -41,8 +41,9 @@ export const NetworkOptions = (height,width)=> {
       font: {
         color:Hex.NodeInnerText,
         face: "sans serif",
-  
-        size: 12,
+        strokeWidth: 2,
+        strokeColor: Hex.NodeInnerTextStroke,
+        size: 13,
         bold: {
           face: "sans serif",
           size: 20

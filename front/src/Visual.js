@@ -1,15 +1,15 @@
 import React, { useEffect, useRef, useState, useContext } from "react";
-  /*graphing library*/
+/*graphing library*/
 import vis from "vis-network";
-  /*react bootstrap components*/
+/*react bootstrap components*/
 import { Button, ButtonGroup, Col, Row } from "react-bootstrap";
-  /*import css and react bootstrap css */
+/*import css and react bootstrap css */
 import "./App.css";
 import "./Visual.css";
 import "bootstrap/dist/css/bootstrap.min.css";
-  /*grab app-wide context*/
+/*grab app-wide context*/
 import { AutomataContext } from "./AutomataContext.js";
-   /* resource images */
+/* resource images */
 import accept_bar from "./accept.svg";
 import add_bar from "./add-bar.svg";
 import points_bar from "./points.svg";
@@ -18,10 +18,9 @@ import transition_bar from "./transition.svg";
 import blank_svg_bar from "./blank.svg";
 import passive_bar from "./delete.svg";
 import remove_bar from "./remove.svg";
-  /*Network options object and Hex's in js*/
-import {Hex} from "./res/HexColors.js";
-import {NetworkOptions} from "./res/NetworkOptions";
-
+/*Network options object and Hex's in js*/
+import { Hex } from "./res/HexColors.js";
+import { NetworkOptions } from "./res/NetworkOptions";
 
 //Component-wide state variable to track total number of Ids on client side,
 //seperate from nodesDS (vis.DataSet() object) because of leaky abstractions
@@ -36,7 +35,8 @@ let img_bar_status_did_mount = false;
     nodesDS and edgesDS 
 
     Desc:
-      Contain all information of Nodes and Edges to be displayed on the graph via module vis's contstrucot DataSet()
+      Contain all information of Nodes and Edgstring, callback: (event: KeyboardEvent, handler: HotkeysEvent) => void, options: Options = {}, deps: any[] = [])
+The callback function takes the exaes to be displayed on the graph via module vis's contstrucot DataSet()
 
 */
 
@@ -51,7 +51,6 @@ let edgesDS = new vis.DataSet([]);
 
 */
 let graph = { nodes: nodesDS, edges: edgesDS };
-
 function Visual() {
   const master_context = useContext(AutomataContext);
   master_context.graphobj = graph;
@@ -67,7 +66,7 @@ function Visual() {
     add_bar,
     points_bar,
     reject_bar,
-    transition_bar
+    transition_bar,
   ];
 
   const wrapper = useRef(null); //Display graph in div "wrapper"
@@ -76,23 +75,25 @@ function Visual() {
 
   useEffect(() => {
     img_status.current.src = passive_bar;
-    const HTMLCol_to_array = html_collection =>
+    const HTMLCol_to_array = (html_collection) =>
       Array.prototype.slice.call(html_collection);
 
-    network = new vis.Network(wrapper.current, graph, NetworkOptions(height.toString(),window.innerWidth.toString()));
+    network = new vis.Network(
+      wrapper.current,
+      graph,
+      NetworkOptions(height.toString(), window.innerWidth.toString())
+    );
     //context-click for graph
-    network.on("showPopup", params => {});
-
-
+    network.on("showPopup", (params) => {});
 
     //graph event listeners here:
 
-     /*
+    /*
   hoverNode listener
   Desc: Takes node added in addNode
   */
 
-    network.on("hoverNode", params => {
+    network.on("hoverNode", (params) => {
       let node_id_clicked = params.node;
 
       if (in_add_node_mode) {
@@ -100,7 +101,7 @@ function Visual() {
         let new_id = node_id_global;
         node_id_global += 1;
         nodesDS.add([
-          { id: new_id, label: " Q " + graph.nodes.get().length + " " }
+          { id: new_id, label: " Q " + graph.nodes.get().length + " " },
         ]);
         network.moveNode(
           new_id,
@@ -113,14 +114,13 @@ function Visual() {
       }
     });
 
-
     /* 
     
     controlNodeDragEnd
     Desc: Catches end of add transition event, and updates edges with newly added edges.
 
     */
-    network.on("controlNodeDragEnd", params => {
+    network.on("controlNodeDragEnd", (params) => {
       network.disableEditMode();
       let edge_identifier = findEdgeByNodes(
         params.controlEdge.from,
@@ -130,20 +130,85 @@ function Visual() {
       edgesDS.update([{ id: edge_identifier, arrows: "to" }]);
     });
 
-/*
+    /*
 
     afterDrawing
     Desc: Ensures canvas has been drawn, apply CSS stylings for css background here.
 */
-    network.on("afterDrawing",(params)=>{
-    let canvasDOM = document.getElementsByTagName('canvas')[0];
-    canvasDOM.style.background = Hex.Canvas; 
-    document.getElementById("group-holder").style.borderColor = Hex.Canvas;
-    document.getElementById("non-header-div").style.background = Hex.Canvas; 
+    network.on("afterDrawing", (params) => {
+      let canvasDOM = document.getElementsByTagName("canvas")[0];
+      canvasDOM.style.background = Hex.Canvas;
+      document.getElementById("group-holder").style.borderColor = Hex.Canvas;
+      document.getElementById("non-header-div").style.background = Hex.Canvas;
     });
 
+    /*Empty Canvas Click event handler initiated on network.on(click)*/
+    const emptyCanvasClickHandler = (params) => {
+      let addedNode = node_id_global;
+      const noNodesClicked = (params) =>
+        params.nodes.length === 0 ? true : false;
+      const noEdgesClicked = (params) =>
+        params.edges.length === 0 ? true : false;
+      const BoundsCheck = (params) =>
+        params.pointer.canvas.x != undefined || params.pointer.canvas.y != null;
+      const getXY = (params) => [
+        params.pointer.canvas.x,
+        params.pointer.canvas.y,
+      ];
+      const [x, y] = BoundsCheck(params) ? getXY(params) : [null, null];
+      const populateNodeAt = (x, y) => {
+        node_id_global += 1;
+        nodesDS.add([
+          { id: node_id_global, label: " Q " + graph.nodes.get().length + " " },
+        ]);
+        network.moveNode(node_id_global, x, y);
+      };
+      let _ =
+        noNodesClicked(params) &&
+        noEdgesClicked(params) &&
+        x != null &&
+        y != null
+          ? populateNodeAt(x, y)
+          : () => {
+              return;
+            };
+      return addedNode != node_id_global ? true : false;
+    };
 
-    network.on("select", params => {
+    /* to get hotkey designations from ctrl,shift, and alt:
+        params.event.srcEvent.<csa>Key */
+
+    /*   deleteNodeWithCtrl -> params -> bool 
+      Remove a node with ctrl hotkey pressed hotkey on network.on(click)*/
+
+    const deleteNodeWithCtrl = (params) => {
+      if (params.event.srcEvent.ctrlKey) {
+        network.deleteSelected();
+        return true;
+      }
+      return false;
+    };
+
+    /*Shift click event listeners */
+    //called by keydown, enables editing edges when nodes are clicked.
+    const handleShiftClick = (event) => {
+      if (event.key === "Shift") {
+        network.enableEditMode();
+        network.addEdgeMode();
+      }
+    };
+    // Shift click event listeners, keydown calls handleShiftClick(e)
+    // to enable edit edge mode
+    window.addEventListener("keydown", handleShiftClick);
+
+    network.on("click", (params) => {
+      if (emptyCanvasClickHandler(params)) {
+        return;
+      } else if (deleteNodeWithCtrl(params)) {
+        return;
+      }
+    });
+    network.on("select", (params) => {
       if (
         params != null &&
         in_initial_mode &&
@@ -152,7 +217,7 @@ function Visual() {
         let node_id_clicked = params.nodes[0];
         let found_node;
         //find node given
-        graph.nodes.get().forEach(node => {
+        graph.nodes.get().forEach((node) => {
           if (node.id == node_id_clicked) {
             found_node = node;
           }
@@ -173,11 +238,11 @@ function Visual() {
         }
         if (found_node.init == true) {
           nodesDS.update([
-            { id: found_node.id, shape: final_state, init: false }
+            { id: found_node.id, shape: final_state, init: false },
           ]);
         } else {
           nodesDS.update([
-            { id: found_node.id, shape: final_state, init: true }
+            { id: found_node.id, shape: final_state, init: true },
           ]);
         }
       }
@@ -190,7 +255,7 @@ function Visual() {
       ) {
         let found_node;
         let node_id_clicked = params.nodes[0];
-        graph.nodes.get().forEach(node => {
+        graph.nodes.get().forEach((node) => {
           if (node.id == node_id_clicked) {
             found_node = node;
           }
@@ -198,7 +263,7 @@ function Visual() {
         let final_border = 3;
         let border_width_a = 3;
         let border_width_b = 1;
-          //checks if in accepting state (found_node has border width of 3)
+        //checks if in accepting state (found_node has border width of 3)
         if (found_node.borderWidth == border_width_a) {
           final_border = border_width_b;
         } else {
@@ -226,6 +291,7 @@ function Visual() {
       network.off("hoverNode");
       network.off("showPopup");
       network.destroy();
+      window.removeEventListener('keydown',handleShiftClick);
     };
   });
   const deselectAllModes = () => {
@@ -234,7 +300,7 @@ function Visual() {
     in_initial_mode = false;
   };
   const ChangeEdgeText = (userInput, edgeID) => {
-    graph.edges.forEach(edge => {
+    graph.edges.forEach((edge) => {
       if (edge.id == edgeID) {
         edge.label = userInput;
         if (userInput == " " || userInput == "") {
@@ -292,10 +358,12 @@ function Visual() {
   }
 
   /* @@@ */
+
   function mount_styling() {
+    return;
     let url = "https://worldclockapi.com/api/json/est/now";
     let postingObject = {
-      method: "GET"
+      method: "GET",
     };
     let current_time;
     fetch(url, postingObject).then((callback, error) => {
@@ -304,6 +372,7 @@ function Visual() {
       });
     });
   }
+
   /* 
   populateNode() => props:null
     Desc: adds Node when the plus button is clicked.
@@ -317,7 +386,7 @@ function Visual() {
     node_id_global += 1;
 
     nodesDS.add([
-      { id: node_id_global, label: " Q " + graph.nodes.get().length + " " }
+      { id: node_id_global, label: " Q " + graph.nodes.get().length + " " },
     ]);
     network.moveNode(
       node_id_global,
