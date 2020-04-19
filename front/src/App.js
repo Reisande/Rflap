@@ -8,7 +8,7 @@ import Sidebar from "react-sidebar";
 import PDA_Visual from "./PDA_Visual.js";
 import CFG_Visual from "./CFG_Visual.js";
 import "bootstrap/dist/css/bootstrap.min.css";
-//resource managment libraries:
+    /*resource managment libraries: */
 import {scheduleMeasurement} from './res/MemoryTests';
 
 let master_context = {
@@ -26,6 +26,7 @@ const CURRENT_MACHINE = {
 };
 
 function App() {
+
   // Start measurements after page load on the main window.
   window.onload = function () {
     scheduleMeasurement();
@@ -67,7 +68,7 @@ function App() {
 */
 
   const click_run_handler = e => {
-    if (e == null || e.target == null || e.target.lastChild == null) {
+    if (e.target.lastChild == null) {
       return;
     }
     e.preventDefault();
@@ -96,6 +97,7 @@ function App() {
     }
   };
 
+
   useEffect(() => {
     /*
     Click event listener
@@ -104,7 +106,8 @@ function App() {
 
     */
     window.addEventListener("click", e => {
-      if(e.target.id == "temp_anchor") return;
+      
+      if(e.target.id == "temp_anchor" || e.hotkeyApplication) return;
       e.preventDefault();
 
       // menu handler
@@ -127,8 +130,7 @@ function App() {
           set_machine_displayed(CURRENT_MACHINE.TM); 
         }
       }
-      
-      
+
       click_run_handler(e);
       setTimeout(()=>{ },1)
 
