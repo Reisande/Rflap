@@ -73,10 +73,8 @@ function Visual() {
   const img_status = useRef(null);
   let network;
 
+
   /*Hotkeys*/
-  const handleHotkeys = (event) => {
-    if (event.shiftKey()) return;
-  };
   useEffect(() => {
     img_status.current.src = passive_bar;
     const HTMLCol_to_array = (html_collection) =>
@@ -145,9 +143,10 @@ function Visual() {
       document.getElementById("group-holder").style.borderColor = Hex.Canvas;
       document.getElementById("non-header-div").style.background = Hex.Canvas;
     });
-    /* to get hotkey designations from ctrl,shift, and alt:
-        params.event.srcEvent.<csa>Key */
-    network.on("click", (params) => {
+
+    /*Empty Canvas Click event handler initiated on network.on(click)*/
+    const emptyCanvasClickHandler = (params) =>{
+      let addedNode = node_id_global;
       const noNodesClicked = (params) => (params.nodes.length=== 0 ? true : false);
       const noEdgesClicked = (params) => (params.edges.length === 0 ? true : false);
       const BoundsCheck = (params) =>
@@ -165,18 +164,54 @@ function Visual() {
          y 
          
         );
-          console.log("populated node");
       };
-      let z =
+      let _ =
         ( noNodesClicked(params) && noEdgesClicked(params) && (x != null && y != null))
           ? populateNodeAt(x, y)
           : () => {
               return;
             };
-    console.log('temrinating with x,y: ' +  x + "," + y)
+      return addedNode != node_id_global ? true : false;
+        
+    }
+
+    /* to get hotkey designations from ctrl,shift, and alt:
+        params.event.srcEvent.<csa>Key */
+
+  /*   deleteNodeWithCtrl -> params -> bool 
+      Remove a node with ctrl hotkey pressed hotkey on network.on(click)*/
+
+    const deleteNodeWithCtrl = (params) =>{
+      if(params.event.srcEvent.ctrlKey){
+        network.deleteSelected();
+        return true;
+      }
+      return false;
+    }
+
+    /*Shift click event listeners */
+    //called by keydown, enables editing edges when nodes are clicked.
+    let shiftHeldDown = false;
+    const handleShiftClick = (event) =>{
+
+      if(event.key === "Shift"){
+      network.enableEditMode();
+      network.addEdgeMode();
+        }
+      }
+    // Shift click event listeners, keydown calls handleShiftClick(e)
+    // to enable edit edge mode
+    window.addEventListener("keydown",handleShiftClick); 
+
+    network.on("click", (params) => {
+      if (emptyCanvasClickHandler(params)){
+        return;
+      }
+      else if(deleteNodeWithCtrl(params)){
+        return; 
+      }
     });
     network.on("select", (params) => {
-      console.log(params);
       if (
         params != null &&
         in_initial_mode &&
@@ -250,6 +285,7 @@ function Visual() {
         ChangeEdgeText(user_input_string, edge_id);
         img_status.current.src = passive_bar;
       }
+
     });
 
     //remove event listeners
