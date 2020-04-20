@@ -52,13 +52,13 @@ let edgesDS = new vis.DataSet([]);
 */
 let graph = { nodes: nodesDS, edges: edgesDS };
 function Visual() {
+
   const master_context = useContext(AutomataContext);
   master_context.graphobj = graph;
-  let in_add_node_mode = false;
+
+
   let in_accepting_mode_ = false,
     in_initial_mode = false;
-  let display_popup = false;
-  let node_id_clicked, state_field, string_field;
   let img_index = 0;
   let img_array = [
     blank_svg_bar,
@@ -94,24 +94,6 @@ function Visual() {
   */
 
     network.on("hoverNode", (params) => {
-      let node_id_clicked = params.node;
-
-      if (in_add_node_mode) {
-        nodesDS.remove({ id: node_id_clicked });
-        let new_id = node_id_global;
-        node_id_global += 1;
-        nodesDS.add([
-          { id: new_id, label: " Q " + graph.nodes.get().length + " " },
-        ]);
-        network.moveNode(
-          new_id,
-          (Math.random() - 0.6) * 200,
-          (Math.random() - 0.7) * 200
-        );
-
-        in_add_node_mode = false;
-        img_status.current.src = passive_bar;
-      }
     });
 
     /* 
@@ -296,7 +278,6 @@ function Visual() {
   });
   const deselectAllModes = () => {
     in_accepting_mode_ = false;
-    in_add_node_mode = false;
     in_initial_mode = false;
   };
   const ChangeEdgeText = (userInput, edgeID) => {
@@ -337,7 +318,6 @@ function Visual() {
     img_status.current.src = add_bar;
     network.enableEditMode();
     network.addNodeMode();
-    in_add_node_mode = true;
   }
   //
   function setInitial(props) {
@@ -372,7 +352,11 @@ function Visual() {
       });
     });
   }
+  const newNodeLabel = () =>{
+    let returnLabel = " Q ";
 
+
+  }
   /* 
   populateNode() => props:null
     Desc: adds Node when the plus button is clicked.
@@ -383,8 +367,11 @@ function Visual() {
       ? (master_context.did_mount = mount_styling())
       : (master_context.did_mount = master_context.did_mount);
     img_bar_status_did_mount = true;
+    //Node_id_global just to ensure ids are different each time
+    // used purely for the api library vis.network and not for node selection
+    // on the frontend-- label is used instead .
     node_id_global += 1;
-
+    let buildLabel = " Q " + graph.nodes.get().length + " ";
     nodesDS.add([
       { id: node_id_global, label: " Q " + graph.nodes.get().length + " " },
     ]);
