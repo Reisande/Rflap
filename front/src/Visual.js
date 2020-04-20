@@ -361,7 +361,6 @@ function Visual() {
     let nodesPresent = nodesDS.get().map((obj)=>{
       return parseLabel(obj.label);
     }).sort((a,b)=>a-b);
-    console.log(nodesPresent);
     nodesDS.get().forEach( (obj,index) =>{
        if(nodesPresent[index] != index && (!foundEmptyIndex)){
        nominalAppend= index.toString();
@@ -381,16 +380,16 @@ function Visual() {
     Adds nodes and ensures that id and displayname does not overlap with other nodes.
 */
   function populateNode(props) {
-    !img_bar_status_did_mount
-      ? (master_context.did_mount = mount_styling())
-      : (master_context.did_mount = master_context.did_mount);
+//    !img_bar_status_did_mount
+  //    ? (master_context.did_mount = mount_styling())
+    //  : (master_context.did_mount = master_context.did_mount);
     img_bar_status_did_mount = true;
     //Node_id_global just to ensure ids are different each time
     // used purely for the api library vis.network and not for node selection
     // on the frontend-- label is used instead .
     node_id_global += 1;
     nodesDS.add([
-      { id: node_id_global, label: + newNodeLabel() },
+      { id: node_id_global, label: newNodeLabel() },
     ]);
     network.moveNode(
       node_id_global,
