@@ -141,7 +141,7 @@ function Visual() {
       const populateNodeAt = (x, y) => {
         node_id_global += 1;
         nodesDS.add([
-          { id: node_id_global, label: " Q " + graph.nodes.get().length + " " },
+          { id: node_id_global, label: newNodeLabel() },
         ]);
         network.moveNode(node_id_global, x, y);
       };
@@ -354,9 +354,27 @@ function Visual() {
   }
   const newNodeLabel = () =>{
     let returnLabel = " Q ";
+    let nominalAppend =  nodesDS.get().length.toString();
+    const parseLabel = (label) =>
+            parseInt(label.replace(returnLabel,""),10)
+    let foundEmptyIndex = false;
+    let nodesPresent = nodesDS.get().map((obj)=>{
+      return parseLabel(obj.label);
+    }).sort((a,b)=>a-b);
+    console.log(nodesPresent);
+    nodesDS.get().forEach( (obj,index) =>{
+       if(nodesPresent[index] != index && (!foundEmptyIndex)){
+       nominalAppend= index.toString();
+       foundEmptyIndex = true;
+       return;
+       }
+      
+    })
+    //standardize end input to string lengths of size 5:
+     return (returnLabel+=nominalAppend).length == 4 ? returnLabel += " " : returnLabel; 
+    }
 
-
-  }
+  
   /* 
   populateNode() => props:null
     Desc: adds Node when the plus button is clicked.
@@ -371,9 +389,8 @@ function Visual() {
     // used purely for the api library vis.network and not for node selection
     // on the frontend-- label is used instead .
     node_id_global += 1;
-    let buildLabel = " Q " + graph.nodes.get().length + " ";
     nodesDS.add([
-      { id: node_id_global, label: " Q " + graph.nodes.get().length + " " },
+      { id: node_id_global, label: + newNodeLabel() },
     ]);
     network.moveNode(
       node_id_global,
