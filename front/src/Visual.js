@@ -18,10 +18,10 @@ import transition_bar from "./transition.svg";
 import blank_svg_bar from "./blank.svg";
 import passive_bar from "./delete.svg";
 import remove_bar from "./remove.svg";
+
 /*Network options object and Hex's in js*/
 import { Hex } from "./res/HexColors.js";
 import { NetworkOptions } from "./res/NetworkOptions";
-
 //Component-wide state variable to track total number of Ids on client side,
 //seperate from nodesDS (vis.DataSet() object) because of leaky abstractions
 let node_id_global = 0;
