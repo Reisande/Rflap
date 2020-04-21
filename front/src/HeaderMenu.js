@@ -4,7 +4,8 @@ import "./HeaderMenu.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Navbar, Nav, NavDropdown, Col, Button } from "react-bootstrap";
 import { AutomataContext } from "./AutomataContext.js";
-
+/*LOGO svg import*/
+import rflapsvg from "./rflapsvg.svg";
 /* Machine Enum used in App.js
 const CURRENT_MACHINE = {
   DFA: 0,
@@ -35,7 +36,23 @@ function HeaderMenu(props) {
     document.querySelector("a.dropdown-toggle.nav-link").style.color =
       "#e25b4b";
 
+function trimSvgWhitespace() {
 
+  // get all SVG objects in the DOM
+  var svgs = document.getElementById("rflapsvg-logo");
+
+  // go through each one and add a viewbox that ensures all children are visible
+  for (var i=0, l=svgs.length; i<l; i++) {
+
+    var svg = svgs[i],
+        box = svg.getBBox(), // <- get the visual boundary required to view all children
+        viewBox = [box.y, box.x, box.width, box.height].join(" ");
+
+    // set viewable area based on value above
+    svg.setAttribute("viewBox", viewBox);
+  }
+}
+//trimSvgWhitespace();
     master_context.mode = machine_select;
 
     /* 
@@ -79,14 +96,19 @@ function HeaderMenu(props) {
   return (
     <Navbar bg="primary" className="bg-dark" id="nav-header">
       {/* Space RFLAP title a bit to the right */}
-      <Col md={0}>
+      {/* <Col md={0}>
         <Col>
           <br></br>
         </Col>
-      </Col>
-      <Col>
-        <Navbar.Brand id="logo_text">
-          <b>
+      </Col> */}
+      <Col md={1}></Col>
+      <Col md={1} >
+        <Navbar.Brand href="http://www.github.com/Reisande/Rflap"id="logo_text">
+         <embed id="rflapsvg-logo" src= {rflapsvg}
+          width="140"
+          height="50"
+          />
+          {/* <b>
             {" "}
             <font size="5" color="#2f9399">
               R{" "}
@@ -94,11 +116,11 @@ function HeaderMenu(props) {
             <font size="5" color="#E25B4B">
               FLAP
             </font>
-          </b>
+          </b>  */}
         </Navbar.Brand>
       </Col>
       <Col md={3}></Col>
-      <Col md={3}>
+      <Col md={2}>
         <Col>{machine_select}</Col>
       </Col>
       <Navbar.Toggle aria-controls="responsive-navbar-nav" />

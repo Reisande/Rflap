@@ -22,3 +22,10 @@
 a.nav-link{
     color: #e25b4b !important;
 }
+#rflapsvg-logo{
+background-size: 20% 20% !important;
+}
+#logo-container{
+    min-width: 0% !important;
+    max-width: 20% !important;
+}

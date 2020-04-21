@@ -18,10 +18,10 @@ import transition_bar from "./transition.svg";
 import blank_svg_bar from "./blank.svg";
 import passive_bar from "./delete.svg";
 import remove_bar from "./remove.svg";
+
 /*Network options object and Hex's in js*/
 import { Hex } from "./res/HexColors.js";
 import { NetworkOptions } from "./res/NetworkOptions";
-
 //Component-wide state variable to track total number of Ids on client side,
 //seperate from nodesDS (vis.DataSet() object) because of leaky abstractions
 let node_id_global = 0;
@@ -54,11 +54,9 @@ let graph = { nodes: nodesDS, edges: edgesDS };
 function Visual() {
   const master_context = useContext(AutomataContext);
   master_context.graphobj = graph;
-  let in_add_node_mode = false;
+
   let in_accepting_mode_ = false,
     in_initial_mode = false;
-  let display_popup = false;
-  let node_id_clicked, state_field, string_field;
   let img_index = 0;
   let img_array = [
     blank_svg_bar,
@@ -93,26 +91,7 @@ function Visual() {
   Desc: Takes node added in addNode
   */
 
-    network.on("hoverNode", (params) => {
-      let node_id_clicked = params.node;
-
-      if (in_add_node_mode) {
-        nodesDS.remove({ id: node_id_clicked });
-        let new_id = node_id_global;
-        node_id_global += 1;
-        nodesDS.add([
-          { id: new_id, label: " Q " + graph.nodes.get().length + " " },
-        ]);
-        network.moveNode(
-          new_id,
-          (Math.random() - 0.6) * 200,
-          (Math.random() - 0.7) * 200
-        );
-
-        in_add_node_mode = false;
-        img_status.current.src = passive_bar;
-      }
-    });
+    network.on("hoverNode", (params) => {});
 
     /* 
     
@@ -158,9 +137,7 @@ function Visual() {
       const [x, y] = BoundsCheck(params) ? getXY(params) : [null, null];
       const populateNodeAt = (x, y) => {
         node_id_global += 1;
-        nodesDS.add([
-          { id: node_id_global, label: " Q " + graph.nodes.get().length + " " },
-        ]);
+        nodesDS.add([{ id: node_id_global, label: newNodeLabel() }]);
         network.moveNode(node_id_global, x, y);
       };
       let _ =
@@ -291,12 +268,11 @@ function Visual() {
       network.off("hoverNode");
       network.off("showPopup");
       network.destroy();
-      window.removeEventListener('keydown',handleShiftClick);
+      window.removeEventListener("keydown", handleShiftClick);
     };
   });
   const deselectAllModes = () => {
     in_accepting_mode_ = false;
-    in_add_node_mode = false;
     in_initial_mode = false;
   };
   const ChangeEdgeText = (userInput, edgeID) => {
@@ -337,7 +313,6 @@ function Visual() {
     img_status.current.src = add_bar;
     network.enableEditMode();
     network.addNodeMode();
-    in_add_node_mode = true;
   }
   //
   function setInitial(props) {
@@ -372,6 +347,29 @@ function Visual() {
       });
     });
   }
+  const newNodeLabel = () => {
+    let returnLabel = " Q ";
+    let nominalAppend = nodesDS.get().length.toString();
+    const parseLabel = (label) => parseInt(label.replace(returnLabel, ""), 10);
+    let foundEmptyIndex = false;
+    let nodesPresent = nodesDS
+      .get()
+      .map((obj) => {
+        return parseLabel(obj.label);
+      })
+      .sort((a, b) => a - b);
+    nodesDS.get().forEach((obj, index) => {
+      if (nodesPresent[index] != index && !foundEmptyIndex) {
+        nominalAppend = index.toString();
+        foundEmptyIndex = true;
+        return;
+      }
+    });
+    //standardize end input to string lengths of size 5:
+    return (returnLabel += nominalAppend).length == 4
+      ? (returnLabel += " ")
+      : returnLabel;
+  };
 
   /* 
   populateNode() => props:null
@@ -379,15 +377,15 @@ function Visual() {
     Adds nodes and ensures that id and displayname does not overlap with other nodes.
 */
   function populateNode(props) {
-    !img_bar_status_did_mount
-      ? (master_context.did_mount = mount_styling())
-      : (master_context.did_mount = master_context.did_mount);
+    //    !img_bar_status_did_mount
+    //    ? (master_context.did_mount = mount_styling())
+    //  : (master_context.did_mount = master_context.did_mount);
     img_bar_status_did_mount = true;
+    //Node_id_global just to ensure ids are different each time
+    // used purely for the api library vis.network and not for node selection
+    // on the frontend-- label is used instead .
     node_id_global += 1;
-
-    nodesDS.add([
-      { id: node_id_global, label: " Q " + graph.nodes.get().length + " " },
-    ]);
+    nodesDS.add([{ id: node_id_global, label: newNodeLabel() }]);
     network.moveNode(
       node_id_global,
       (Math.random() - 0.6) * 400,
