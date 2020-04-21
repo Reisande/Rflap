@@ -52,10 +52,8 @@ let edgesDS = new vis.DataSet([]);
 */
 let graph = { nodes: nodesDS, edges: edgesDS };
 function Visual() {
-
   const master_context = useContext(AutomataContext);
   master_context.graphobj = graph;
-
 
   let in_accepting_mode_ = false,
     in_initial_mode = false;
@@ -93,8 +91,7 @@ function Visual() {
   Desc: Takes node added in addNode
   */
 
-    network.on("hoverNode", (params) => {
-    });
+    network.on("hoverNode", (params) => {});
 
     /* 
     
@@ -140,9 +137,7 @@ function Visual() {
       const [x, y] = BoundsCheck(params) ? getXY(params) : [null, null];
       const populateNodeAt = (x, y) => {
         node_id_global += 1;
-        nodesDS.add([
-          { id: node_id_global, label: newNodeLabel() },
-        ]);
+        nodesDS.add([{ id: node_id_global, label: newNodeLabel() }]);
         network.moveNode(node_id_global, x, y);
       };
       let _ =
@@ -273,7 +268,7 @@ function Visual() {
       network.off("hoverNode");
       network.off("showPopup");
       network.destroy();
-      window.removeEventListener('keydown',handleShiftClick);
+      window.removeEventListener("keydown", handleShiftClick);
     };
   });
   const deselectAllModes = () => {
@@ -352,45 +347,45 @@ function Visual() {
       });
     });
   }
-  const newNodeLabel = () =>{
+  const newNodeLabel = () => {
     let returnLabel = " Q ";
-    let nominalAppend =  nodesDS.get().length.toString();
-    const parseLabel = (label) =>
-            parseInt(label.replace(returnLabel,""),10)
+    let nominalAppend = nodesDS.get().length.toString();
+    const parseLabel = (label) => parseInt(label.replace(returnLabel, ""), 10);
     let foundEmptyIndex = false;
-    let nodesPresent = nodesDS.get().map((obj)=>{
-      return parseLabel(obj.label);
-    }).sort((a,b)=>a-b);
-    nodesDS.get().forEach( (obj,index) =>{
-       if(nodesPresent[index] != index && (!foundEmptyIndex)){
-       nominalAppend= index.toString();
-       foundEmptyIndex = true;
-       return;
-       }
-      
-    })
+    let nodesPresent = nodesDS
+      .get()
+      .map((obj) => {
+        return parseLabel(obj.label);
+      })
+      .sort((a, b) => a - b);
+    nodesDS.get().forEach((obj, index) => {
+      if (nodesPresent[index] != index && !foundEmptyIndex) {
+        nominalAppend = index.toString();
+        foundEmptyIndex = true;
+        return;
+      }
+    });
     //standardize end input to string lengths of size 5:
-     return (returnLabel+=nominalAppend).length == 4 ? returnLabel += " " : returnLabel; 
-    }
+    return (returnLabel += nominalAppend).length == 4
+      ? (returnLabel += " ")
+      : returnLabel;
+  };
 
-  
   /* 
   populateNode() => props:null
     Desc: adds Node when the plus button is clicked.
     Adds nodes and ensures that id and displayname does not overlap with other nodes.
 */
   function populateNode(props) {
-//    !img_bar_status_did_mount
-  //    ? (master_context.did_mount = mount_styling())
+    //    !img_bar_status_did_mount
+    //    ? (master_context.did_mount = mount_styling())
     //  : (master_context.did_mount = master_context.did_mount);
     img_bar_status_did_mount = true;
     //Node_id_global just to ensure ids are different each time
     // used purely for the api library vis.network and not for node selection
     // on the frontend-- label is used instead .
     node_id_global += 1;
-    nodesDS.add([
-      { id: node_id_global, label: newNodeLabel() },
-    ]);
+    nodesDS.add([{ id: node_id_global, label: newNodeLabel() }]);
     network.moveNode(
       node_id_global,
       (Math.random() - 0.6) * 400,

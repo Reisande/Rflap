@@ -81,26 +81,30 @@ function PDA_Visual() {
 
     /* creates new label without intersecting node names (crashes api) */
 
-    const newNodeLabel = () =>{
+    const newNodeLabel = () => {
       let returnLabel = " Q ";
-      let nominalAppend =  nodesDS.get().length.toString();
+      let nominalAppend = nodesDS.get().length.toString();
       const parseLabel = (label) =>
-              parseInt(label.replace(returnLabel,""),10)
+        parseInt(label.replace(returnLabel, ""), 10);
       let foundEmptyIndex = false;
-      let nodesPresent = nodesDS.get().map((obj)=>{
-        return parseLabel(obj.label);
-      }).sort((a,b)=>a-b);
-      nodesDS.get().forEach( (obj,index) =>{
-         if(nodesPresent[index] != index && (!foundEmptyIndex)){
-         nominalAppend= index.toString();
-         foundEmptyIndex = true;
-         return;
-         }
-        
-      })
+      let nodesPresent = nodesDS
+        .get()
+        .map((obj) => {
+          return parseLabel(obj.label);
+        })
+        .sort((a, b) => a - b);
+      nodesDS.get().forEach((obj, index) => {
+        if (nodesPresent[index] != index && !foundEmptyIndex) {
+          nominalAppend = index.toString();
+          foundEmptyIndex = true;
+          return;
+        }
+      });
       //standardize end input to string lengths of size 5:
-       return (returnLabel+=nominalAppend).length == 4 ? returnLabel += " " : returnLabel; 
-      }
+      return (returnLabel += nominalAppend).length == 4
+        ? (returnLabel += " ")
+        : returnLabel;
+    };
 
     const emptyCanvasClickHandler = (params) => {
       let addedNode = node_id_global;
@@ -117,9 +121,7 @@ function PDA_Visual() {
       const [x, y] = BoundsCheck(params) ? getXY(params) : [null, null];
       const populateNodeAt = (x, y) => {
         node_id_global += 1;
-        nodesDS.add([
-          { id: node_id_global, label: newNodeLabel()},
-        ]);
+        nodesDS.add([{ id: node_id_global, label: newNodeLabel() }]);
         network.moveNode(node_id_global, x, y);
       };
       let _ =
@@ -140,14 +142,13 @@ function PDA_Visual() {
     /*   deleteNodeWithCtrl -> params -> bool 
       Remove a node with ctrl hotkey pressed hotkey on network.on(click)*/
 
-      const deleteNodeWithCtrl = (params) => {
-        if (params.event.srcEvent.ctrlKey) {
-          network.deleteSelected();
-          return true;
-        }
-        return false;
-      };
-
+    const deleteNodeWithCtrl = (params) => {
+      if (params.event.srcEvent.ctrlKey) {
+        network.deleteSelected();
+        return true;
+      }
+      return false;
+    };
 
     /*Shift click event listeners */
     //called by keydown, enables editing edges when nodes are clicked.
@@ -169,10 +170,8 @@ function PDA_Visual() {
       }
     });
 
-
     //graph event listeners here:
-    network.on("hoverNode", (params) => {
-    });
+    network.on("hoverNode", (params) => {});
     network.on("controlNodeDragEnd", (params) => {
       network.disableEditMode();
       let edge_identifier = findEdgeByNodes(
@@ -266,8 +265,7 @@ function PDA_Visual() {
       network.off("showPopup");
       network.destroy();
       master_context.PDA = false;
-      window.removeEventListener('keydown',handleShiftClick);
-
+      window.removeEventListener("keydown", handleShiftClick);
     };
   });
   const deselectAllModes = () => {
@@ -349,8 +347,8 @@ function PDA_Visual() {
   //   );
   //  }
   function populateNode(props) {
-   // !img_bar_status_did_mount
-     // ? (master_context.did_mount = mount_styling())
+    // !img_bar_status_did_mount
+    // ? (master_context.did_mount = mount_styling())
     //  : (master_context.did_mount = master_context.did_mount);
     img_bar_status_did_mount = true;
     node_id_global += 1;
