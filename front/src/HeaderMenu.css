@@ -25,3 +25,7 @@ a.nav-link{
 #rflapsvg-logo{
 background-size: 20% 20% !important;
 }
+#logo-container{
+    min-width: 0% !important;
+    max-width: 20% !important;
+}

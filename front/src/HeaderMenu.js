@@ -96,12 +96,13 @@ function trimSvgWhitespace() {
   return (
     <Navbar bg="primary" className="bg-dark" id="nav-header">
       {/* Space RFLAP title a bit to the right */}
-      <Col md={0}>
+      {/* <Col md={0}>
         <Col>
           <br></br>
         </Col>
-      </Col>
-      <Col>
+      </Col> */}
+      <Col md={1}></Col>
+      <Col md={1} >
         <Navbar.Brand href="http://www.github.com/Reisande/Rflap"id="logo_text">
          <embed id="rflapsvg-logo" src= {rflapsvg}
           width="140"
@@ -119,7 +120,7 @@ function trimSvgWhitespace() {
         </Navbar.Brand>
       </Col>
       <Col md={3}></Col>
-      <Col md={3}>
+      <Col md={2}>
         <Col>{machine_select}</Col>
       </Col>
       <Navbar.Toggle aria-controls="responsive-navbar-nav" />
