@@ -159,7 +159,7 @@ function Visual() {
       Remove a node with ctrl hotkey pressed hotkey on network.on(click)*/
 
     const deleteNodeWithCtrl = (params) => {
-      if (params.event.srcEvent.ctrlKey) {
+      if (params.event.srcEvent.ctrlKey || params.event.srcEvent.metaKey) {
         network.deleteSelected();
         return true;
       }
@@ -186,6 +186,7 @@ function Visual() {
       }
     });
     network.on("select", (params) => {
+      // SET INITIAL MODE PRESS
       if (
         params != null &&
         in_initial_mode &&
@@ -407,7 +408,7 @@ function Visual() {
   return (
     <div id="non-header-div">
       <div class="div-inline-group-below-header">
-        <div id="trash_button" class="div-inline-group-below-header">
+        {/* <div id="trash_button" class="div-inline-group-below-header">
           <input
             id="trash_button_input"
             onClick={deleteNodeOrEdge}
@@ -417,7 +418,7 @@ function Visual() {
             height="33"
             name="remove_bar"
           />
-        </div>
+        </div> */}
         <div id="add_button_visual" class="div-inline-group-below-header">
           <input
             id="add_button_image"
