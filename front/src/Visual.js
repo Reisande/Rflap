@@ -159,7 +159,8 @@ function Visual() {
       Remove a node with ctrl hotkey pressed hotkey on network.on(click)*/
 
     const deleteNodeWithCtrl = (params) => {
-      if (params.event.srcEvent.ctrlKey) {
+      if (params.event.srcEvent.ctrlKey || params.event.srcEvent.metaKey) {
+        console.log(params.event.srcEvent.metaKey)
         network.deleteSelected();
         return true;
       }
