@@ -577,7 +577,7 @@ try{
     //     return null;
     // }
     if (error_object.no_initial_state) {
-      alert("\tNo Initial State!");
+      alert("No Initial State!");
       error_object = {
         multiple_initial_states: false,
         no_label_transition: false,
@@ -588,7 +588,7 @@ try{
       return null;
     }
     if(error_object.out_of_bounds){
-      alert("\tInvalid transitions");
+      alert("Invalid transitions");
       error_object = {
         multiple_initial_states:false,
         no_label_transition:false,
