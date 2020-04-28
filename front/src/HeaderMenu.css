@@ -5,9 +5,10 @@
     border-width: 5px;
     color: #e25b4b  !important;
     background-color: #ecfdff !important;
-    text-shadow: 0 0 1px rgb(156, 142, 142); /* horizontal-offset vertical-offset 'blur' colour */
-    -moz-text-shadow: 0 0 1px rgb(156, 142, 142);
-    -webkit-text-shadow: 0 0 1px rgb(156, 142, 142)000;
+    /*text border for header elements
+    /* text-shadow: 0 0 1px white horizontal-offset vertical-offset 'blur' colour */
+    /* -moz-text-shadow: 0 0 1px rgb(156, 142, 142); */
+    /* -webkit-text-shadow: 0 0 1px rgb(156, 142, 142)000; */
   
 }
 .nav-dropdown-text{
