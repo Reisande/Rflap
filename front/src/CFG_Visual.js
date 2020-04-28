@@ -171,6 +171,7 @@ function CFG_Visual() {
     set_row_entries([...new_array]);
   };
   const downloadObjectAsJson = (exportObj, exportName)=> {
+    console.log(exportObj);
     const exportation_nodes = node_style_dependency(input_val);
     var dataStr =
       "data:text/json;charset=utf-8," +
