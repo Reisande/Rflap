@@ -691,7 +691,7 @@ try{
 
       if (
         callback["hint"] != "" &&
-        master_context.mode == "Determinstic Finite Automata"
+        master_context.mode == "Deterministic Finite Automata"
       ) {
         alert("Invalid determinism!\n" + callback["hint"]);
         let mounting_array = [];
