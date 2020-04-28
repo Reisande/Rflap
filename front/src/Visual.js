@@ -160,7 +160,6 @@ function Visual() {
 
     const deleteNodeWithCtrl = (params) => {
       if (params.event.srcEvent.ctrlKey || params.event.srcEvent.metaKey) {
-        console.log(params.event.srcEvent.metaKey)
         network.deleteSelected();
         return true;
       }
@@ -187,6 +186,7 @@ function Visual() {
       }
     });
     network.on("select", (params) => {
+      // SET INITIAL MODE PRESS
       if (
         params != null &&
         in_initial_mode &&
