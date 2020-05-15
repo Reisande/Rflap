@@ -649,13 +649,17 @@ try{
     try {
       const callback = await postToRustApi();
       console.log(master_context.mode);
+      console.log(callback.list_of_strings[0][0])
       if (callback == null) {
         return;
       }
+      console.log(  (callback["hint"] != "" || !callback.list_of_strings[0][0]) &&
+      master_context.mode === "Deterministic Finite Automata")
       if (
         (callback["hint"] != "" || !callback.list_of_strings[0][0]) &&
-        master_context.mode == "Deterministic Finite Automata"
+        master_context.mode === "Deterministic Finite Automata"
       ) {
+      
         alert("Invalid determinism!\n" + callback["hint"]);
         let mounting_array = [];
         for (let i = 0; i < row_entry_array.length; i++) {

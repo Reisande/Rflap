@@ -35,6 +35,7 @@ function HeaderMenu(props) {
   useEffect(() => {
     document.querySelector("a.dropdown-toggle.nav-link").style.color =
       "#e25b4b";
+    
 
 function trimSvgWhitespace() {
 
@@ -90,6 +91,7 @@ function trimSvgWhitespace() {
   function nav_menu_dropdown_click(e, machine) {
     let name = machine["current"].text;
     set_machine_title(name);
+    console.log(name);
     master_context.mode = name;
   }
 
@@ -138,7 +140,7 @@ function trimSvgWhitespace() {
               ref={DFA}
               href=""
             >
-              Deterministic Finite Automata{" "}
+              Deterministic Finite Automata{""}
             </NavDropdown.Item>
             <NavDropdown.Item
               id="NFA"
@@ -147,7 +149,7 @@ function trimSvgWhitespace() {
               href=""
             >
               {" "}
-              Non-Deterministic Finite Automata{" "}
+              Non-Deterministic Finite Automata{""}
             </NavDropdown.Item>
             <NavDropdown.Item
               id="CFG"
