@@ -280,15 +280,9 @@ try{
       });
     });
 
-    // console.log("-----");
-    // console.log("FINAL ALPHABET:");
-    // console.log(alphabet_processed);
-    // console.log("FINAL ALPHABET:");
 
     packet_to_misha_the_microsoft_engineer.transition_alphabet = [...alpha];
     packet_to_misha_the_microsoft_engineer.stack_alphabet = [...stack_alpha];
-    // console.log(edgeObj);
-    // console.log("end of edgeProcess");
     }
 
     
@@ -632,24 +626,13 @@ try{
     let determinism_callback = listOfStringsCallback[1];
     let determinism_index = 1;
     let bool_check_for_determinism = false;
-    // console.log("-");
-    // console.log(listOfStringsCallback);
-    // console.log("-");
-    // console.log(listOfStringsCallback);
-    // console.log(single_entry);
     if (master_context["mode"] == "Determinstic Finite Automata") {
       if (single_entry == true) {
-        // console.log(listOfStringsCallback[0][1]);
-        // console.log("First");
-        // console.log(!listOfStringsCallback[0][1]);
         return !listOfStringsCallback[0][1];
       } else {
-        // console.log("Second");
 
         listOfStringsCallback.forEach((_, id) => {
           if (!_[determinism_index]) {
-            // console.log(_);
-            // console.log(_[determinism_index]);
             bool_check_for_determinism = true;
           }
         });
@@ -659,36 +642,20 @@ try{
   };
 
   async function onClickPingToApi() {
-    //    event.preventDefault();
     let empty_string = false;
-    // let dump_var;
     packet_to_misha_the_microsoft_engineer.input_strings = [];
-    // let process_empty_strings_array = [...row_entry_array];
     user_input_row_collection.forEach((_, id) => {
-      // (_ == "" ) ? packet_to_misha_the_microsoft_engineer.input_strings.push("null")  : packet_to_misha_the_microsoft_engineer.push(_);
-
       packet_to_misha_the_microsoft_engineer.input_strings.push(_);
-      // (_=="") ? empty_string = true : packet_to_misha_the_microsoft_engineer.input_strings.push(_);
-      // (empty_string) ?  process_empty_strings_array[id] = 1 : dump_var = 2;
     });
-    //    console.log(process_empty_strings_array);
-    //    set_row_entries([...process_empty_strings_array]);
 
-    //    console.log("USER INPUT STRINGS:" + (packet_to_misha_the_microsoft_engineer.input_strings));
 
     preprocess();
     try {
-      // console.log("Post")
       const callback = await postToRustApi();
-      // console.log("----")
-      // console.log(callback);
-      // console.log("----")
 
       if (callback == null) {
-        // console.log("EXITING . . .")
         return;
       }
-
       if (
         callback["hint"] != "" &&
         master_context.mode == "Deterministic Finite Automata"
@@ -700,33 +667,17 @@ try{
         }
         set_row_entries([...mounting_array]);
       } else {
-        // console.log("CALBACK")
-        // console.log(callback);
-        // console.log("CALBACK")
-
         let new_array;
-
         if (row_entry_array.length == 1) {
-          // console.log("row_entry = 1");
           let bool_result = master_context.PDA ? callback.list_of_strings[0][0] : callback.list_of_strings[0][1];
 
           bool_result
             ? (new_array = [2])
             : (new_array = [0]);
-          // console.log(callback.list_of_strings[0][0])
           set_row_entries([...new_array]);
-          // console.log("SINGLE row entry api call: ");
-          // console.log( callback);
         } else {
           let array_to_mount = [];
-          // console.log("YOLO")
-          // console.log("ENSEMBLE row entries api call");
-          // console.log(callback);
-          //iterate through each array for each row index and declare it either rejected or accepted
-          // console.log("---")
-
           for (let i = 0; i < row_entry_array.length; i++) {
-            
             let bool_result = master_context.PDA ? callback.list_of_strings[i][0] : callback.list_of_strings[i][1];
             if (bool_result) {
               array_to_mount.push(2);
@@ -734,47 +685,33 @@ try{
               array_to_mount.push(0);
             }
           }
-          // console.log("---")
-          // console.log(array_to_mount);
           set_row_entries([...array_to_mount]);
         }
       }
     } catch (e) {
-      // console.log(e);
     }
   }
   const HTMLCol_to_array = html_collection =>
     Array.prototype.slice.call(html_collection);
 
   const process_userinput = (row_table_DOM_node, id) => {
-    // console.log("PROCESSING")
-    // console.log(id);
     user_input_row_collection[id] = HTMLCol_to_array(
       row_table_DOM_node.children
     )[0].value;
-    // console.log("PROCESSING")
   };
 
   function on_click_test_api(event) {
-    // console.log(UIN_input);
 
     //reset list for each click to api with amount of rows
     //array that contains all the input strings from the user
     user_input_row_collection = [
       ...Array(HTMLCol_to_array(row_ref_container.current.children).length)
     ];
-    // console.log("ON_CLICK_API_TEST")
     event.preventDefault();
-    // console.log(event);
     HTMLCol_to_array(row_ref_container.current.children).map(process_userinput);
-    // console.log(user_input_row_collection);
-    // collection of all the
-    // row_ref_container.current.childNodes().map( (DOM_node,id)=>process_row_for_userinput(DOM_node,id));
-    // console.log("ON_CLICK_API_TEST")
     onClickPingToApi();
   }
   function addBar(e) {
-    // console.log(e.target);
     e.preventDefault();
   }
   function setInputVal(value) {
