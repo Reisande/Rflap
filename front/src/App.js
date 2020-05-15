@@ -31,6 +31,7 @@ function App() {
   // Start measurements after page load on the main window.
   window.onload = function () {
     scheduleMeasurement();
+    master_context.session = uuidv4();
    }
   /*
 

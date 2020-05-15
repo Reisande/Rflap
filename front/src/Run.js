@@ -93,7 +93,7 @@ function Run(props) {
   // error_object =
   const edgeProcess = (edgeObj, nodeObj) => {
     let transition_triple = [];
-    packet_to_misha_the_microsoft_engineer.determinism = master_context.mode == "Determinstic Finite Automata" ? true : false;
+    packet_to_misha_the_microsoft_engineer.determinism = master_context.mode == "Deterministic Finite Automata" ? true : false;
     packet_to_misha_the_microsoft_engineer.transition_function = [];
     let stack_alpha = new Set();
     let alpha = new Set();
@@ -578,18 +578,18 @@ try{
       };
       return null;
     }
-    if(error_object.out_of_bounds){
-      alert("Invalid transitions");
-      error_object = {
-        multiple_initial_states:false,
-        no_label_transition:false,
-        no_initial_state:false,
-        epsilon_on_DFA:false,
-        no_label_on_dfa:false,
-        out_of_bounds: false,
+    // if(error_object.out_of_bounds){
+    //   alert("Invalid transitions");
+    //   error_object = {
+    //     multiple_initial_states:false,
+    //     no_label_transition:false,
+    //     no_initial_state:false,
+    //     epsilon_on_DFA:false,
+    //     no_label_on_dfa:false,
+    //     out_of_bounds: false,
 
-      }
-    }
+    //   }
+    // }
     // if(error_object.no_label_on_dfa){
 
     //     alert("\tUnlabelled Transition!!");
@@ -622,7 +622,7 @@ try{
     let determinism_callback = listOfStringsCallback[1];
     let determinism_index = 1;
     let bool_check_for_determinism = false;
-    if (master_context["mode"] == "Determinstic Finite Automata") {
+    if (master_context.mode === "Deterministic Finite Automata") {
       if (single_entry == true) {
         return !listOfStringsCallback[0][1];
       } else {
@@ -647,14 +647,13 @@ try{
 
     preprocess();
     try {
-      console.log("Prior to api");
       const callback = await postToRustApi();
-
+      console.log(master_context.mode);
       if (callback == null) {
         return;
       }
       if (
-        callback["hint"] != "" &&
+        (callback["hint"] != "" || !callback.list_of_strings[0][0]) &&
         master_context.mode == "Deterministic Finite Automata"
       ) {
         alert("Invalid determinism!\n" + callback["hint"]);
