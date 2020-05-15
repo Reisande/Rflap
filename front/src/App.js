@@ -11,6 +11,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
     /*resource managment libraries: */
 import {scheduleMeasurement} from './res/MemoryTests';
 
+import { v4 as uuidv4 } from 'uuid';
 let master_context = {
   graphobj: null,    // DFA/NFA: holds graphing object, which declares parameters
   grammar_obj: [{TERM:"",NON_TERM:""}], // CFG_MODULE: array of arrays, where each array is a grammar rule from "Definition"
@@ -30,7 +31,7 @@ function App() {
   // Start measurements after page load on the main window.
   window.onload = function () {
     scheduleMeasurement();
-  }
+   }
   /*
 
   STATE VARIABLE: sidebar_display (bool)
@@ -75,6 +76,7 @@ function App() {
 
     // which href/button pressed, as Bootstrap navbar headers are link HREFS and not buttons
     let target_check = e.target.lastChild.data;
+
 
     // if lock run button is not true, then load - or unload - sidebar component
     // else skip, as infinite loading/unloading react component refresh cycle
