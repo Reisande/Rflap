@@ -478,15 +478,12 @@ try{
   };
 
   async function postToRustApi() {
-    // let name_of_window = this.window.location;
-    let endpoint = "";
-    master_context.PDA ? endpoint = "pda": endpoint = "automata"; 
-    //for testing:
-    // let url = "http://localhost:8080/"+ endpoint;
-    //for production
-    let url = `${window.location.origin}/` + endpoint;
-
-
+    let endpoint = master_context.PDA ? "pda" : "automata"; 
+    //  for testing:
+    let url = "https://rflap.acmuic.app/" + endpoint;
+    //  for production
+    //let url = `${window.location.origin}/` + endpoint;
+    console.log(url);
     if(packet_to_misha_the_microsoft_engineer.PDA){
       delete packet_to_misha_the_microsoft_engineer.state_names;
       delete packet_to_misha_the_microsoft_engineer.determinism;
@@ -619,7 +616,6 @@ try{
       no_initial_state: false,
       epsilon_on_DFA: false
     };
-
     return await Algorithms_are_the_computational_content_of_proofs.json();
   }
   const checkForProperDetermnism = (listOfStringsCallback, single_entry) => {
@@ -651,6 +647,7 @@ try{
 
     preprocess();
     try {
+      console.log("Prior to api");
       const callback = await postToRustApi();
 
       if (callback == null) {
