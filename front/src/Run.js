@@ -478,6 +478,8 @@ try{
   };
 
   async function postToRustApi() {
+    //put your dotnet api endpoint here
+    let dotnet_endpoint;
     let endpoint = master_context.PDA ? "pda" : "automata"; 
     //  for testing:
     let url = "https://rflap.acmuic.app/" + endpoint;
@@ -521,6 +523,20 @@ try{
       // referrer: "no-referrer",
       body: JSON.stringify(packet_to_misha_the_microsoft_engineer)
     };
+    const pad = (n, width, z) => {
+      z = z || '0';
+      n = n + '';
+      return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
+    }
+    
+    const toMins = (seconds) =>  Math.floor(seconds / 60).toString() + ":"+  (pad( Math.round(seconds %60),2 )).toString() ;
+    const getMinsIntoSession = (sessionStart, sessionPing) => toMins( (sessionPing - sessionStart)/1000)
+    console.log("master context object:")
+    console.log(master_context)
+    console.log("packet sent to api:");
+    console.log(packet_to_misha_the_microsoft_engineer);
+    console.log("Time (seconds) into session: ");
+    console.log(getMinsIntoSession(master_context.date, new Date()))
     
     // 
 
@@ -642,9 +658,9 @@ try{
     user_input_row_collection.forEach((_, id) => {
       packet_to_misha_the_microsoft_engineer.input_strings.push(_);
     });
+     preprocess();
 
-
-    preprocess();
+    
     try {
       const callback = await postToRustApi();
        if (callback == null) {
