@@ -459,7 +459,7 @@ try{
     
     if (multiple_initial_states_check == false) {
       error_object.no_initial_state = true;
-      return;
+      // return;
     }
     packet_to_misha_the_microsoft_engineer.start_state = sState;
     //boolean for accepting
@@ -547,8 +547,6 @@ try{
         }
         else {
           let map = { "Non-Deterministic Finite Automata": "NFA", "Deterministic Finite Automata": "DFA", "Push-down Automata": "PDA" };
-          console.log(map);
-          console.log(map[master_context.mode.trim()])
           return map[master_context.mode.trim()];
         }
       }
@@ -566,21 +564,34 @@ try{
 
       };
     }
-    console.log(createTestDotnet(testID));
-    
+    let letDotnetPost = {
+      method: "POST",
+      mode: "cors",
+      // cache:"no-cache",
+      // credentials: "same-origin",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      // redirect:"follow",
+      // referrer: "no-referrer",
+      body: JSON.stringify(createTestDotnet(testID))
+
+  }    
  
     
     //Check for Errors via the error_object
-    // if(error_object.multiple_initial_states){
-    //     alert("\tMultiple Initial States!");
-    //     //reset object for next API request
-    //     error_object = {
-    //         no_label_transition: false,
-    //         multiple_initial_states: false,
-    //         no_initial_state:false
+    if (error_object.multiple_initial_states) {
+      alert("\tMultiple Initial States!");
+      //reset object for next API request
+      error_object = {
+        no_label_transition: false,
+        multiple_initial_states: false,
+        no_initial_state: false
 
-    // }
-    // return null;
+      }
+    
+      return null;
+    }
     // if(error_object.epsilon_on_DFA){
     //     alert("Illegal Epsilon While in DFA-Mode");
     //     error_object = {
@@ -649,6 +660,7 @@ try{
 
     //     return null;
     // }
+    // fetch(urlDotNet,)
     let Algorithms_are_the_computational_content_of_proofs = await fetch(
       url,
       postingObject
