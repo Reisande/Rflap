@@ -91,7 +91,6 @@ function trimSvgWhitespace() {
   function nav_menu_dropdown_click(e, machine) {
     let name = machine["current"].text;
     set_machine_title(name);
-    console.log(name);
     master_context.mode = name;
   }
 

@@ -32,6 +32,7 @@ function App() {
   window.onload = function () {
     scheduleMeasurement();
     master_context.session = uuidv4();
+    master_context.date = new Date();
    }
   /*
 

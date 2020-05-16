@@ -63,7 +63,7 @@ function Run(props) {
   let entry_amount = 30;
   let array_of_row_refs = [];
 
-  // console.log(row_entry_array);
+  
   let packet_to_misha_the_microsoft_engineer = {
     PDA: false,
     alphabet: [],
@@ -83,7 +83,7 @@ function Run(props) {
     document
       .querySelector("#import_json_button_run")
       .addEventListener("change", e => {
-        // console.log(e.target.files[0]);
+        
       });
   });
 
@@ -218,7 +218,7 @@ try{
               transition_triple[1] == "ε" &&
               master_context.mode == "Non-Deterministic Finite Automata"
             ) {
-              // console.log("NULLED");
+              
               transition_triple[1] = null;
             }
             transition_triple.push(to_label);
@@ -273,7 +273,7 @@ try{
 
     });
     let alphabet_processed = [];
-    // console.log("-----");
+    
     [...new Set(toBePushed)].forEach((entry, id) => {
       entry.split("|").forEach(char => {
         alphabet_processed.push(char);
@@ -288,12 +288,12 @@ try{
     
     //NON_PDA
     else{
-      // console.log("NON_pda");
+      
       packet_to_misha_the_microsoft_engineer.PDA= false;
     edgeObj.forEach(edgeObj => {
       transition_triple = [];
       if (edgeObj.label == undefined) {
-        // console.log()
+        // 
         // error_object.no_label_transition = true;
         // return undefined;
       }
@@ -364,7 +364,7 @@ try{
               transition_triple[1] == "ε" &&
               master_context.mode == "Non-Deterministic Finite Automata"
             ) {
-              // console.log("NULLED");
+              
               transition_triple[1] = null;
             }
             transition_triple.push(to_label);
@@ -400,23 +400,23 @@ try{
       }
     });
     let alphabet_processed = [];
-    // console.log("-----");
+    
     [...new Set(toBePushed)].forEach((entry, id) => {
       entry.split(",").forEach(char => {
         alphabet_processed.push(char);
       });
     });
-    // console.log("-----");
-    // console.log("FINAL ALPHABET:");
-    // console.log(alphabet_processed);
-    // console.log("FINAL ALPHABET:");
+    
+    
+    
+    
 
     packet_to_misha_the_microsoft_engineer.alphabet = alphabet_processed;
     }
   };
   const nodeProcess = nodeObj => {
-    // console.log("node process");
-    // console.log(nodeObj);
+    
+    
     let start_state = "";
     let accepting_states = [];
     let states = [];
@@ -426,9 +426,9 @@ try{
     // accepting: #FF8632
     // intial: #00bfff
     let sState = "";
-    // console.log("LINEAR SEARCH:")
+    // 
     nodeObj.forEach(node => {
-      // console.log(node);
+      
       //Accumulates all states
       if (!states.includes(node.label)) {
         states.push("" + node.label.trim());
@@ -445,7 +445,7 @@ try{
       if (node.shape == "triangle") {
         start_state = node.label.trim();
 
-        // console.log("SETTING START_STATE" + start_state);
+        
       }
       //Accumulates the accepting states.
       if (node.borderWidth == 3) {
@@ -454,7 +454,7 @@ try{
         }
       }
     });
-    // console.log(multiple_initial_states_check);
+    
     if (multiple_initial_states_check == false) {
       error_object.no_initial_state = true;
       return;
@@ -483,7 +483,6 @@ try{
     let url = "https://rflap.acmuic.app/" + endpoint;
     //  for production
     //let url = `${window.location.origin}/` + endpoint;
-    console.log(url);
     if(packet_to_misha_the_microsoft_engineer.PDA){
       delete packet_to_misha_the_microsoft_engineer.state_names;
       delete packet_to_misha_the_microsoft_engineer.determinism;
@@ -508,8 +507,8 @@ try{
       })
 
       }
-      // console.log("Post:")
-      // console.log(packet_to_misha_the_microsoft_engineer);
+      // 
+      
     let postingObject = {
       method: "POST",
       mode: "cors",
@@ -522,10 +521,10 @@ try{
       // referrer: "no-referrer",
       body: JSON.stringify(packet_to_misha_the_microsoft_engineer)
     };
-    // console.log(JSON.stringify(packet_to_misha_the_microsoft_engineer));
-    // console.log("callback")
+    
+    // 
 
-    // console.log((packet_to_misha_the_microsoft_engineer));
+    
     //Check for Errors via the error_object
     // if(error_object.multiple_initial_states){
     //     alert("\tMultiple Initial States!");
@@ -648,13 +647,10 @@ try{
     preprocess();
     try {
       const callback = await postToRustApi();
-      console.log(master_context.mode);
-      console.log(callback.list_of_strings[0][0])
-      if (callback == null) {
+       if (callback == null) {
         return;
       }
-      console.log(  (callback["hint"] != "" || !callback.list_of_strings[0][0]) &&
-      master_context.mode === "Deterministic Finite Automata")
+ 
       if (
         (callback["hint"] != "" || !callback.list_of_strings[0][0]) &&
         master_context.mode === "Deterministic Finite Automata"
@@ -771,22 +767,22 @@ try{
   };
 
   function UIN_submit(event) {
-    //    console.log(UIN_textform.current.value);
-    //    console.log(text_form);
+    
+    
 
-    // console.log(input_val);
+    
     if (input_val.length == 9 && /^\d+$/.test(input_val)) {
       let append = Math.round(Math.random() * 1000);
       
       preprocess();
-      // console.log(packet_to_misha_the_microsoft_engineer.state_names);
+      
       packet_to_misha_the_microsoft_engineer.state_names =
         master_context.state_styles;
-      // console.log(packet_to_misha_the_microsoft_engineer)
-      // console.log(master_context.state_styles);
-      // console.log("----")
-      // console.log(packet_to_misha_the_microsoft_engineer);
-      // console.log("----")
+      // 
+      
+      // 
+      
+      // 
       if(packet_to_misha_the_microsoft_engineer.PDA){
       delete packet_to_misha_the_microsoft_engineer.state_names;
       delete packet_to_misha_the_microsoft_engineer.determinism;
@@ -811,13 +807,13 @@ try{
       })
 
       }
-      // console.log("Export:")
-      // console.log(packet_to_misha_the_microsoft_engineer);
+      // 
+      
       downloadObjectAsJson(
         packet_to_misha_the_microsoft_engineer,
         "RFLAP_" + input_val + "_" + append.toString()
       );
-      // console.log(packet_to_misha_the_microsoft_engineer);
+      
       set_UIN_input(false);
       set_warning_display(false);
     } else {
@@ -844,9 +840,9 @@ try{
     //necessary to ignore event listeners in useEffect in app.js
     downloadAnchorNode.setAttribute("id","temp_anchor")
     document.body.appendChild(downloadAnchorNode); // required for firefox
-    // console.log("click");
+    
     downloadAnchorNode.click();
-    // console.log("click");
+    
     downloadAnchorNode.remove();
 
   }
