@@ -407,12 +407,7 @@ try{
       entry.split(",").forEach(char => {
         alphabet_processed.push(char);
       });
-    });
-    
-    
-    
-    
-
+    }); 
     packet_to_misha_the_microsoft_engineer.alphabet = alphabet_processed;
     }
   };
@@ -532,13 +527,7 @@ try{
     }
     const toMins = (seconds) =>  Math.floor(seconds / 60).toString() + ":"+  (pad( Math.round(seconds %60),2 )).toString() ;
     const getMinsIntoSession = (sessionStart, sessionPing) => toMins( (sessionPing - sessionStart)/1000)
-    console.log("master context object:")
-    console.log(master_context)
-    console.log("packet sent to api:");
-    console.log(packet_to_misha_the_microsoft_engineer);
-    console.log("Time (seconds) into session: ");
-    console.log(getMinsIntoSession(master_context.date, new Date()))
-    testID = uuidv4()
+     testID = uuidv4()
     const createTestDotnet = (testID) => {
       const getNumAccepting = (statesMap) => Object.values(statesMap).reduce((t, bool) => t + (bool ? 1 : 0),0);
       const getMode = () => {
@@ -564,7 +553,7 @@ try{
 
       };
     }
-    let letDotnetPost = {
+    let dotnetPostTest = {
       method: "POST",
       mode: "cors",
       // cache:"no-cache",
@@ -577,8 +566,7 @@ try{
       body: JSON.stringify(createTestDotnet(testID))
 
   }    
- 
-    
+  
     //Check for Errors via the error_object
     if (error_object.multiple_initial_states) {
       alert("\tMultiple Initial States!");
@@ -588,7 +576,7 @@ try{
         multiple_initial_states: false,
         no_initial_state: false
 
-      }
+      };
     
       return null;
     }
@@ -665,6 +653,8 @@ try{
       url,
       postingObject
     );
+     //fetch(dotnet_endpoint, dotnetPostTest); 
+
     //reset error_object
     error_object = {
       multiple_initial_states: false,
@@ -824,10 +814,8 @@ try{
   };
 
   function UIN_submit(event) {
-    
-    
+    let dotnet_endpoint;
 
-    
     if (input_val.length == 9 && /^\d+$/.test(input_val)) {
       let append = Math.round(Math.random() * 1000);
       
@@ -835,11 +823,6 @@ try{
       
       packet_to_misha_the_microsoft_engineer.state_names =
         master_context.state_styles;
-      // 
-      
-      // 
-      
-      // 
       if(packet_to_misha_the_microsoft_engineer.PDA){
       delete packet_to_misha_the_microsoft_engineer.state_names;
       delete packet_to_misha_the_microsoft_engineer.determinism;
@@ -864,8 +847,55 @@ try{
       })
 
       }
-      // 
-      
+      const pad = (n, width, z) => {
+        z = z || '0';
+        n = n + '';
+        return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
+      }
+      const toMins = (seconds) =>  Math.floor(seconds / 60).toString() + ":"+  (pad( Math.round(seconds %60),2 )).toString() ;
+      const getMinsIntoSession = (sessionStart, sessionPing) => toMins( (sessionPing - sessionStart)/1000)
+  
+      const createExportDotnet = (testID) => {
+        const getNumAccepting = (statesMap) => Object.values(statesMap).reduce((t, bool) => t + (bool ? 1 : 0),0);
+        const getMode = () => {
+          if (master_context.PDA) {
+            return "PDA"
+          }
+          else {
+            let map = { "Non-Deterministic Finite Automata": "NFA", "Deterministic Finite Automata": "DFA", "Push-down Automata": "PDA" };
+            return map[master_context.mode.trim()];
+          }
+        }
+        return {
+          sessionID: master_context.session,
+          startTime: master_context.date,
+          exportTime: getMinsIntoSession(master_context.date, new Date()),
+          downloadPacket: packet_to_misha_the_microsoft_engineer,
+          mode: getMode(),
+          initialState: packet_to_misha_the_microsoft_engineer.start_state,
+          numStates: Object.keys(packet_to_misha_the_microsoft_engineer.states).length,
+          numAccepting: getNumAccepting(packet_to_misha_the_microsoft_engineer.states),
+          numTransitions: packet_to_misha_the_microsoft_engineer.transition_function.length,
+          testID: testID,
+          exportID: input_val
+
+        };
+      }
+  
+      let dotnetPostExport = {
+        method: "POST",
+        mode: "cors",
+        // cache:"no-cache",
+        // credentials: "same-origin",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        // redirect:"follow",
+        // referrer: "no-referrer",
+        body: JSON.stringify(packet_to_misha_the_microsoft_engineer)
+      };
+      console.log(createExportDotnet(testID));
+      //fetch(dotnet_endpoint, dotnetPostExport);
       downloadObjectAsJson(
         packet_to_misha_the_microsoft_engineer,
         "RFLAP_" + input_val + "_" + append.toString()
