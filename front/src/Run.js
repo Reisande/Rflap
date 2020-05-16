@@ -28,6 +28,7 @@ import RowInput from "./RowInput.js";
 import idle_svg from "./button.svg";
 import add_perfect from "./plus.svg";
 import NotPopUp from "./NotPopUp.js";
+import { v4 as uuidv4 } from 'uuid';
 
 var util = require("util");
 let bool_check = false;
@@ -41,6 +42,7 @@ let error_object = {
   no_label_on_dfa: false,
   out_of_bounds:false
 };
+let testID;
 function Run(props) {
   const master_context = useContext(AutomataContext);
   let popup_lock = false;
@@ -528,7 +530,6 @@ try{
       n = n + '';
       return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
     }
-    
     const toMins = (seconds) =>  Math.floor(seconds / 60).toString() + ":"+  (pad( Math.round(seconds %60),2 )).toString() ;
     const getMinsIntoSession = (sessionStart, sessionPing) => toMins( (sessionPing - sessionStart)/1000)
     console.log("master context object:")
@@ -537,9 +538,37 @@ try{
     console.log(packet_to_misha_the_microsoft_engineer);
     console.log("Time (seconds) into session: ");
     console.log(getMinsIntoSession(master_context.date, new Date()))
-    
-    // 
+    testID = uuidv4()
+    const createTestDotnet = (testID) => {
+      const getNumAccepting = (statesMap) => Object.values(statesMap).reduce((t, bool) => t + (bool ? 1 : 0),0);
+      const getMode = () => {
+        if (master_context.PDA) {
+          return "PDA"
+        }
+        else {
+          let map = { "Non-Deterministic Finite Automata": "NFA", "Deterministic Finite Automata": "DFA", "Push-down Automata": "PDA" };
+          console.log(map);
+          console.log(map[master_context.mode.trim()])
+          return map[master_context.mode.trim()];
+        }
+      }
+      return {
+        sessionID: master_context.session,
+        startTime: master_context.date,
+        testTime: getMinsIntoSession(master_context.date, new Date()),
+        rustPacket: packet_to_misha_the_microsoft_engineer,
+        mode: getMode(),
+        initialState: packet_to_misha_the_microsoft_engineer.start_state,
+        numStates: Object.keys(packet_to_misha_the_microsoft_engineer.states).length,
+        numAccepting: getNumAccepting(packet_to_misha_the_microsoft_engineer.states),
+        numTransitions: packet_to_misha_the_microsoft_engineer.transition_function.length,
+        testID: testID
 
+      };
+    }
+    console.log(createTestDotnet(testID));
+    
+ 
     
     //Check for Errors via the error_object
     // if(error_object.multiple_initial_states){
