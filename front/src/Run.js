@@ -549,10 +549,12 @@ try{
         numStates: Object.keys(packet_to_misha_the_microsoft_engineer.states).length,
         numAccepting: getNumAccepting(packet_to_misha_the_microsoft_engineer.states),
         numTransitions: packet_to_misha_the_microsoft_engineer.transition_function.length,
+        testStrings: packet_to_misha_the_microsoft_engineer.input_strings,
         testID: testID
 
       };
     }
+    // console.log(createTestDotnet(testID));
     let dotnetPostTest = {
       method: "POST",
       mode: "cors",
@@ -693,16 +695,51 @@ try{
 
     
     try {
+      let dotnet_endpoint;
       const callback = await postToRustApi();
        if (callback == null) {
         return;
       }
- 
+      const pad = (n, width, z) => {
+        z = z || '0';
+        n = n + '';
+        return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
+      }
+      const toMins = (seconds) =>  Math.floor(seconds / 60).toString() + ":"+  (pad( Math.round(seconds %60),2 )).toString() ;
+      const getMinsIntoSession = (sessionStart, sessionPing) => toMins( (sessionPing - sessionStart)/1000)
+  
+      const createTestCallbackPost = (testID,testStringsResultArray,callbackHint) => {
+
+        return {
+          sessionID: master_context.session,
+          testID: testID,
+          callbackTime: getMinsIntoSession(master_context.date, new Date()),
+          callbackPacket: callback,
+          callbackHint: callbackHint,
+          testStringsCorrect: testStringsResultArray,
+          numCorrect: testStringsResultArray.reduce( (sum, bool) => sum + (bool? 1 : 0), 0),
+          
+        };
+      }
+     let dotnetTestCallbackPost = {
+          method: "POST",
+          mode: "cors",
+          // cache:"no-cache",
+          // credentials: "same-origin",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          // redirect:"follow",
+          // referrer: "no-referrer",
+          // body: JSON.stringify(createTestCallbackPost(testID))
+        };
+      //fetch(dotnet_endpoint, create )
       if (
         (callback["hint"] != "" || !callback.list_of_strings[0][0]) &&
         master_context.mode === "Deterministic Finite Automata"
       ) {
-      
+        dotnetTestCallbackPost.body =JSON.stringify(  createTestCallbackPost(testID, [], callback["hint"]));
+        //fetch(dotnet_endpoint, createTestCallbackPost(testID,[],callback["hint"]))
         alert("Invalid determinism!\n" + callback["hint"]);
         let mounting_array = [];
         for (let i = 0; i < row_entry_array.length; i++) {
@@ -718,6 +755,9 @@ try{
             ? (new_array = [2])
             : (new_array = [0]);
           set_row_entries([...new_array]);
+          dotnetTestCallbackPost.body = JSON.stringify(  createTestCallbackPost(testID, [bool_result], ""));
+        //fetch(dotnet_endpoint,  createTestCallbackPost(testID, [bool_result], "")             )
+
         } else {
           let array_to_mount = [];
           for (let i = 0; i < row_entry_array.length; i++) {
@@ -729,6 +769,9 @@ try{
             }
           }
           set_row_entries([...array_to_mount]);
+          dotnetTestCallbackPost.body = JSON.stringify(  createTestCallbackPost(testID, array_to_mount.map(n => n > 0 ? true : false), ""));
+          //fetch(dotnet_endpoint, createTestCallbackPost(testID, array_to_mount.map(n => n > 0 ? true : false), "")          )
+
         }
       }
     } catch (e) {
@@ -892,9 +935,8 @@ try{
         },
         // redirect:"follow",
         // referrer: "no-referrer",
-        body: JSON.stringify(packet_to_misha_the_microsoft_engineer)
+        body: JSON.stringify(createExportDotnet(testID))
       };
-      console.log(createExportDotnet(testID));
       //fetch(dotnet_endpoint, dotnetPostExport);
       downloadObjectAsJson(
         packet_to_misha_the_microsoft_engineer,
