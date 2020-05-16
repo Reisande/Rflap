@@ -554,7 +554,6 @@ try{
 
       };
     }
-    // console.log(createTestDotnet(testID));
     let dotnetPostTest = {
       method: "POST",
       mode: "cors",
