@@ -543,13 +543,13 @@ try{
         sessionID: master_context.session,
         startTime: master_context.date,
         testTime: getMinsIntoSession(master_context.date, new Date()),
-        rustPacket: packet_to_misha_the_microsoft_engineer,
+        rustPacket: JSON.stringify(packet_to_misha_the_microsoft_engineer),
         mode: getMode(),
         initialState: packet_to_misha_the_microsoft_engineer.start_state,
         numStates: Object.keys(packet_to_misha_the_microsoft_engineer.states).length,
         numAccepting: getNumAccepting(packet_to_misha_the_microsoft_engineer.states),
         numTransitions: packet_to_misha_the_microsoft_engineer.transition_function.length,
-        testStrings: packet_to_misha_the_microsoft_engineer.input_strings,
+        testStrings: JSON.stringify(packet_to_misha_the_microsoft_engineer.input_strings),
         testID: testID
 
       };
@@ -567,8 +567,7 @@ try{
       body: JSON.stringify(createTestDotnet(testID))
 
   }    
-  
-    //Check for Errors via the error_object
+   //Check for Errors via the error_object
     if (error_object.multiple_initial_states) {
       alert("\tMultiple Initial States!");
       //reset object for next API request
@@ -655,7 +654,7 @@ try{
       postingObject
     );
      //fetch(dotnet_endpoint, dotnetPostTest); 
-
+    
     //reset error_object
     error_object = {
       multiple_initial_states: false,
@@ -732,7 +731,6 @@ try{
           // referrer: "no-referrer",
           // body: JSON.stringify(createTestCallbackPost(testID))
         };
-      //fetch(dotnet_endpoint, create )
       if (
         (callback["hint"] != "" || !callback.list_of_strings[0][0]) &&
         master_context.mode === "Deterministic Finite Automata"
@@ -755,6 +753,7 @@ try{
             : (new_array = [0]);
           set_row_entries([...new_array]);
           dotnetTestCallbackPost.body = JSON.stringify(  createTestCallbackPost(testID, [bool_result], ""));
+          console.log(createTestCallbackPost(testID, [bool_result], ""));
         //fetch(dotnet_endpoint,  createTestCallbackPost(testID, [bool_result], "")             )
 
         } else {
