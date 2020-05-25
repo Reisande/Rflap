@@ -476,12 +476,12 @@ try{
 
   async function postToRustApi() {
     //put your dotnet api endpoint here
-    let dotnet_endpoint;
+    let dotnet_endpoint = "https://metricsrflap.azurewebsites.net/api/Test/";
     let endpoint = master_context.PDA ? "pda" : "automata"; 
     //  for testing:
-    let url = "https://rflap.acmuic.app/" + endpoint;
-    //  for production
-    //let url = `${window.location.origin}/` + endpoint;
+    // let url = "https://rflap.acmuic.app/" + endpoint;
+    let url = `${window.location.origin}/` + endpoint; '
+    '
     if(packet_to_misha_the_microsoft_engineer.PDA){
       delete packet_to_misha_the_microsoft_engineer.state_names;
       delete packet_to_misha_the_microsoft_engineer.determinism;
@@ -510,7 +510,7 @@ try{
       
     let postingObject = {
       method: "POST",
-      mode: "cors",
+      mode: "no-cors",
       // cache:"no-cache",
       // credentials: "same-origin",
       headers: {
@@ -566,7 +566,8 @@ try{
       // referrer: "no-referrer",
       body: JSON.stringify(createTestDotnet(testID))
 
-  }    
+    }    
+    fetch(dotnet_endpoint, dotnetPostTest);
    //Check for Errors via the error_object
     if (error_object.multiple_initial_states) {
       alert("\tMultiple Initial States!");
@@ -693,7 +694,7 @@ try{
 
     
     try {
-      let dotnet_endpoint;
+      let dotnet_endpoint = "https://metricsrflap.azurewebsites.net/api/TestResult/";
       const callback = await postToRustApi();
        if (callback == null) {
         return;
@@ -729,14 +730,14 @@ try{
           },
           // redirect:"follow",
           // referrer: "no-referrer",
-          // body: JSON.stringify(createTestCallbackPost(testID))
+          body: ""
         };
       if (
         (callback["hint"] != "" || !callback.list_of_strings[0][0]) &&
         master_context.mode === "Deterministic Finite Automata"
       ) {
         dotnetTestCallbackPost.body =JSON.stringify(  createTestCallbackPost(testID, [], callback["hint"]));
-        //fetch(dotnet_endpoint, createTestCallbackPost(testID,[],callback["hint"]))
+        fetch(dotnet_endpoint, createTestCallbackPost(testID,[],callback["hint"]))
         alert("Invalid determinism!\n" + callback["hint"]);
         let mounting_array = [];
         for (let i = 0; i < row_entry_array.length; i++) {
@@ -753,8 +754,7 @@ try{
             : (new_array = [0]);
           set_row_entries([...new_array]);
           dotnetTestCallbackPost.body = JSON.stringify(  createTestCallbackPost(testID, [bool_result], ""));
-          console.log(createTestCallbackPost(testID, [bool_result], ""));
-        //fetch(dotnet_endpoint,  createTestCallbackPost(testID, [bool_result], "")             )
+        fetch(dotnet_endpoint,  createTestCallbackPost(testID, [bool_result], "")             )
 
         } else {
           let array_to_mount = [];
@@ -768,7 +768,7 @@ try{
           }
           set_row_entries([...array_to_mount]);
           dotnetTestCallbackPost.body = JSON.stringify(  createTestCallbackPost(testID, array_to_mount.map(n => n > 0 ? true : false), ""));
-          //fetch(dotnet_endpoint, createTestCallbackPost(testID, array_to_mount.map(n => n > 0 ? true : false), "")          )
+          fetch(dotnet_endpoint, createTestCallbackPost(testID, array_to_mount.map(n => n > 0 ? true : false), "")          )
 
         }
       }
@@ -922,10 +922,10 @@ try{
 
         };
       }
-  
+      dotnet_endpoint = "https://metricsrflap.azurewebsites.net/api/Export/";
       let dotnetPostExport = {
         method: "POST",
-        mode: "cors",
+        mode: "no-cors",
         // cache:"no-cache",
         // credentials: "same-origin",
         headers: {
@@ -935,7 +935,7 @@ try{
         // referrer: "no-referrer",
         body: JSON.stringify(createExportDotnet(testID))
       };
-      //fetch(dotnet_endpoint, dotnetPostExport);
+      fetch(dotnet_endpoint, dotnetPostExport);
       downloadObjectAsJson(
         packet_to_misha_the_microsoft_engineer,
         "RFLAP_" + input_val + "_" + append.toString()
