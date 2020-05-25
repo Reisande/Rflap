@@ -35,6 +35,7 @@ function HeaderMenu(props) {
   useEffect(() => {
     document.querySelector("a.dropdown-toggle.nav-link").style.color =
       "#e25b4b";
+    
 
 function trimSvgWhitespace() {
 
@@ -138,7 +139,7 @@ function trimSvgWhitespace() {
               ref={DFA}
               href=""
             >
-              Deterministic Finite Automata{" "}
+              Deterministic Finite Automata{""}
             </NavDropdown.Item>
             <NavDropdown.Item
               id="NFA"
@@ -147,7 +148,7 @@ function trimSvgWhitespace() {
               href=""
             >
               {" "}
-              Non-Deterministic Finite Automata{" "}
+              Non-Deterministic Finite Automata{""}
             </NavDropdown.Item>
             <NavDropdown.Item
               id="CFG"

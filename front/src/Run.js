@@ -28,6 +28,7 @@ import RowInput from "./RowInput.js";
 import idle_svg from "./button.svg";
 import add_perfect from "./plus.svg";
 import NotPopUp from "./NotPopUp.js";
+import { v4 as uuidv4 } from 'uuid';
 
 var util = require("util");
 let bool_check = false;
@@ -41,6 +42,7 @@ let error_object = {
   no_label_on_dfa: false,
   out_of_bounds:false
 };
+let testID;
 function Run(props) {
   const master_context = useContext(AutomataContext);
   let popup_lock = false;
@@ -63,7 +65,7 @@ function Run(props) {
   let entry_amount = 30;
   let array_of_row_refs = [];
 
-  // console.log(row_entry_array);
+  
   let packet_to_misha_the_microsoft_engineer = {
     PDA: false,
     alphabet: [],
@@ -83,7 +85,7 @@ function Run(props) {
     document
       .querySelector("#import_json_button_run")
       .addEventListener("change", e => {
-        // console.log(e.target.files[0]);
+        
       });
   });
 
@@ -93,7 +95,7 @@ function Run(props) {
   // error_object =
   const edgeProcess = (edgeObj, nodeObj) => {
     let transition_triple = [];
-    packet_to_misha_the_microsoft_engineer.determinism = master_context.mode == "Determinstic Finite Automata" ? true : false;
+    packet_to_misha_the_microsoft_engineer.determinism = master_context.mode == "Deterministic Finite Automata" ? true : false;
     packet_to_misha_the_microsoft_engineer.transition_function = [];
     let stack_alpha = new Set();
     let alpha = new Set();
@@ -218,7 +220,7 @@ try{
               transition_triple[1] == "ε" &&
               master_context.mode == "Non-Deterministic Finite Automata"
             ) {
-              // console.log("NULLED");
+              
               transition_triple[1] = null;
             }
             transition_triple.push(to_label);
@@ -273,33 +275,27 @@ try{
 
     });
     let alphabet_processed = [];
-    // console.log("-----");
+    
     [...new Set(toBePushed)].forEach((entry, id) => {
       entry.split("|").forEach(char => {
         alphabet_processed.push(char);
       });
     });
 
-    // console.log("-----");
-    // console.log("FINAL ALPHABET:");
-    // console.log(alphabet_processed);
-    // console.log("FINAL ALPHABET:");
 
     packet_to_misha_the_microsoft_engineer.transition_alphabet = [...alpha];
     packet_to_misha_the_microsoft_engineer.stack_alphabet = [...stack_alpha];
-    // console.log(edgeObj);
-    // console.log("end of edgeProcess");
     }
 
     
     //NON_PDA
     else{
-      // console.log("NON_pda");
+      
       packet_to_misha_the_microsoft_engineer.PDA= false;
     edgeObj.forEach(edgeObj => {
       transition_triple = [];
       if (edgeObj.label == undefined) {
-        // console.log()
+        // 
         // error_object.no_label_transition = true;
         // return undefined;
       }
@@ -370,7 +366,7 @@ try{
               transition_triple[1] == "ε" &&
               master_context.mode == "Non-Deterministic Finite Automata"
             ) {
-              // console.log("NULLED");
+              
               transition_triple[1] = null;
             }
             transition_triple.push(to_label);
@@ -406,23 +402,18 @@ try{
       }
     });
     let alphabet_processed = [];
-    // console.log("-----");
+    
     [...new Set(toBePushed)].forEach((entry, id) => {
       entry.split(",").forEach(char => {
         alphabet_processed.push(char);
       });
-    });
-    // console.log("-----");
-    // console.log("FINAL ALPHABET:");
-    // console.log(alphabet_processed);
-    // console.log("FINAL ALPHABET:");
-
+    }); 
     packet_to_misha_the_microsoft_engineer.alphabet = alphabet_processed;
     }
   };
   const nodeProcess = nodeObj => {
-    // console.log("node process");
-    // console.log(nodeObj);
+    
+    
     let start_state = "";
     let accepting_states = [];
     let states = [];
@@ -432,9 +423,9 @@ try{
     // accepting: #FF8632
     // intial: #00bfff
     let sState = "";
-    // console.log("LINEAR SEARCH:")
+    // 
     nodeObj.forEach(node => {
-      // console.log(node);
+      
       //Accumulates all states
       if (!states.includes(node.label)) {
         states.push("" + node.label.trim());
@@ -451,7 +442,7 @@ try{
       if (node.shape == "triangle") {
         start_state = node.label.trim();
 
-        // console.log("SETTING START_STATE" + start_state);
+        
       }
       //Accumulates the accepting states.
       if (node.borderWidth == 3) {
@@ -460,10 +451,10 @@ try{
         }
       }
     });
-    // console.log(multiple_initial_states_check);
+    
     if (multiple_initial_states_check == false) {
       error_object.no_initial_state = true;
-      return;
+      // return;
     }
     packet_to_misha_the_microsoft_engineer.start_state = sState;
     //boolean for accepting
@@ -484,15 +475,13 @@ try{
   };
 
   async function postToRustApi() {
-    // let name_of_window = this.window.location;
-    let endpoint = "";
-    master_context.PDA ? endpoint = "pda": endpoint = "automata"; 
-    //for testing:
-    // let url = "http://localhost:8080/"+ endpoint;
-    //for production
-    let url = `${window.location.origin}/` + endpoint;
-
-
+    //put your dotnet api endpoint here
+    let dotnet_endpoint = "https://metricsrflap.azurewebsites.net/api/Test/";
+    let endpoint = master_context.PDA ? "pda" : "automata"; 
+    //  for testing:
+    // let url = "https://rflap.acmuic.app/" + endpoint;
+    let url = `${window.location.origin}/` + endpoint; 
+    
     if(packet_to_misha_the_microsoft_engineer.PDA){
       delete packet_to_misha_the_microsoft_engineer.state_names;
       delete packet_to_misha_the_microsoft_engineer.determinism;
@@ -517,11 +506,11 @@ try{
       })
 
       }
-      // console.log("Post:")
-      // console.log(packet_to_misha_the_microsoft_engineer);
+      // 
+      
     let postingObject = {
       method: "POST",
-      mode: "cors",
+      mode: "no-cors",
       // cache:"no-cache",
       // credentials: "same-origin",
       headers: {
@@ -531,21 +520,67 @@ try{
       // referrer: "no-referrer",
       body: JSON.stringify(packet_to_misha_the_microsoft_engineer)
     };
-    // console.log(JSON.stringify(packet_to_misha_the_microsoft_engineer));
-    // console.log("callback")
+    const pad = (n, width, z) => {
+      z = z || '0';
+      n = n + '';
+      return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
+    }
+    const toMins = (seconds) =>  Math.floor(seconds / 60).toString() + ":"+  (pad( Math.round(seconds %60),2 )).toString() ;
+    const getMinsIntoSession = (sessionStart, sessionPing) => toMins( (sessionPing - sessionStart)/1000)
+     testID = uuidv4()
+    const createTestDotnet = (testID) => {
+      const getNumAccepting = (statesMap) => Object.values(statesMap).reduce((t, bool) => t + (bool ? 1 : 0),0);
+      const getMode = () => {
+        if (master_context.PDA) {
+          return "PDA"
+        }
+        else {
+          let map = { "Non-Deterministic Finite Automata": "NFA", "Deterministic Finite Automata": "DFA", "Push-down Automata": "PDA" };
+          return map[master_context.mode.trim()];
+        }
+      }
+      return {
+        sessionID: master_context.session,
+        startTime: master_context.date,
+        testTime: getMinsIntoSession(master_context.date, new Date()),
+        rustPacket: JSON.stringify(packet_to_misha_the_microsoft_engineer),
+        mode: getMode(),
+        initialState: packet_to_misha_the_microsoft_engineer.start_state,
+        numStates: Object.keys(packet_to_misha_the_microsoft_engineer.states).length,
+        numAccepting: getNumAccepting(packet_to_misha_the_microsoft_engineer.states),
+        numTransitions: packet_to_misha_the_microsoft_engineer.transition_function.length,
+        testStrings: JSON.stringify(packet_to_misha_the_microsoft_engineer.input_strings),
+        testID: testID
 
-    // console.log((packet_to_misha_the_microsoft_engineer));
-    //Check for Errors via the error_object
-    // if(error_object.multiple_initial_states){
-    //     alert("\tMultiple Initial States!");
-    //     //reset object for next API request
-    //     error_object = {
-    //         no_label_transition: false,
-    //         multiple_initial_states: false,
-    //         no_initial_state:false
+      };
+    }
+    let dotnetPostTest = {
+      method: "POST",
+      mode: "cors",
+      // cache:"no-cache",
+      // credentials: "same-origin",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      // redirect:"follow",
+      // referrer: "no-referrer",
+      body: JSON.stringify(createTestDotnet(testID))
 
-    // }
-    // return null;
+    }    
+    fetch(dotnet_endpoint, dotnetPostTest);
+   //Check for Errors via the error_object
+    if (error_object.multiple_initial_states) {
+      alert("\tMultiple Initial States!");
+      //reset object for next API request
+      error_object = {
+        no_label_transition: false,
+        multiple_initial_states: false,
+        no_initial_state: false
+
+      };
+    
+      return null;
+    }
     // if(error_object.epsilon_on_DFA){
     //     alert("Illegal Epsilon While in DFA-Mode");
     //     error_object = {
@@ -587,18 +622,18 @@ try{
       };
       return null;
     }
-    if(error_object.out_of_bounds){
-      alert("Invalid transitions");
-      error_object = {
-        multiple_initial_states:false,
-        no_label_transition:false,
-        no_initial_state:false,
-        epsilon_on_DFA:false,
-        no_label_on_dfa:false,
-        out_of_bounds: false,
+    // if(error_object.out_of_bounds){
+    //   alert("Invalid transitions");
+    //   error_object = {
+    //     multiple_initial_states:false,
+    //     no_label_transition:false,
+    //     no_initial_state:false,
+    //     epsilon_on_DFA:false,
+    //     no_label_on_dfa:false,
+    //     out_of_bounds: false,
 
-      }
-    }
+    //   }
+    // }
     // if(error_object.no_label_on_dfa){
 
     //     alert("\tUnlabelled Transition!!");
@@ -614,10 +649,13 @@ try{
 
     //     return null;
     // }
+    // fetch(urlDotNet,)
     let Algorithms_are_the_computational_content_of_proofs = await fetch(
       url,
       postingObject
     );
+     //fetch(dotnet_endpoint, dotnetPostTest); 
+    
     //reset error_object
     error_object = {
       multiple_initial_states: false,
@@ -625,31 +663,19 @@ try{
       no_initial_state: false,
       epsilon_on_DFA: false
     };
-
     return await Algorithms_are_the_computational_content_of_proofs.json();
   }
   const checkForProperDetermnism = (listOfStringsCallback, single_entry) => {
     let determinism_callback = listOfStringsCallback[1];
     let determinism_index = 1;
     let bool_check_for_determinism = false;
-    // console.log("-");
-    // console.log(listOfStringsCallback);
-    // console.log("-");
-    // console.log(listOfStringsCallback);
-    // console.log(single_entry);
-    if (master_context["mode"] == "Determinstic Finite Automata") {
+    if (master_context.mode === "Deterministic Finite Automata") {
       if (single_entry == true) {
-        // console.log(listOfStringsCallback[0][1]);
-        // console.log("First");
-        // console.log(!listOfStringsCallback[0][1]);
         return !listOfStringsCallback[0][1];
       } else {
-        // console.log("Second");
 
         listOfStringsCallback.forEach((_, id) => {
           if (!_[determinism_index]) {
-            // console.log(_);
-            // console.log(_[determinism_index]);
             bool_check_for_determinism = true;
           }
         });
@@ -659,40 +685,59 @@ try{
   };
 
   async function onClickPingToApi() {
-    //    event.preventDefault();
     let empty_string = false;
-    // let dump_var;
     packet_to_misha_the_microsoft_engineer.input_strings = [];
-    // let process_empty_strings_array = [...row_entry_array];
     user_input_row_collection.forEach((_, id) => {
-      // (_ == "" ) ? packet_to_misha_the_microsoft_engineer.input_strings.push("null")  : packet_to_misha_the_microsoft_engineer.push(_);
-
       packet_to_misha_the_microsoft_engineer.input_strings.push(_);
-      // (_=="") ? empty_string = true : packet_to_misha_the_microsoft_engineer.input_strings.push(_);
-      // (empty_string) ?  process_empty_strings_array[id] = 1 : dump_var = 2;
     });
-    //    console.log(process_empty_strings_array);
-    //    set_row_entries([...process_empty_strings_array]);
+     preprocess();
 
-    //    console.log("USER INPUT STRINGS:" + (packet_to_misha_the_microsoft_engineer.input_strings));
-
-    preprocess();
+    
     try {
-      // console.log("Post")
+      let dotnet_endpoint = "https://metricsrflap.azurewebsites.net/api/TestResult/";
       const callback = await postToRustApi();
-      // console.log("----")
-      // console.log(callback);
-      // console.log("----")
-
-      if (callback == null) {
-        // console.log("EXITING . . .")
+       if (callback == null) {
         return;
       }
+      const pad = (n, width, z) => {
+        z = z || '0';
+        n = n + '';
+        return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
+      }
+      const toMins = (seconds) =>  Math.floor(seconds / 60).toString() + ":"+  (pad( Math.round(seconds %60),2 )).toString() ;
+      const getMinsIntoSession = (sessionStart, sessionPing) => toMins( (sessionPing - sessionStart)/1000)
+  
+      const createTestCallbackPost = (testID,testStringsResultArray,callbackHint) => {
 
+        return {
+          sessionID: master_context.session,
+          testID: testID,
+          callbackTime: getMinsIntoSession(master_context.date, new Date()),
+          callbackPacket: callback,
+          callbackHint: callbackHint,
+          testStringsCorrect: testStringsResultArray,
+          numCorrect: testStringsResultArray.reduce( (sum, bool) => sum + (bool? 1 : 0), 0),
+          
+        };
+      }
+     let dotnetTestCallbackPost = {
+          method: "POST",
+          mode: "cors",
+          // cache:"no-cache",
+          // credentials: "same-origin",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          // redirect:"follow",
+          // referrer: "no-referrer",
+          body: ""
+        };
       if (
-        callback["hint"] != "" &&
-        master_context.mode == "Deterministic Finite Automata"
+        (callback["hint"] != "" || !callback.list_of_strings[0][0]) &&
+        master_context.mode === "Deterministic Finite Automata"
       ) {
+        dotnetTestCallbackPost.body =JSON.stringify(  createTestCallbackPost(testID, [], callback["hint"]));
+        fetch(dotnet_endpoint, createTestCallbackPost(testID,[],callback["hint"]))
         alert("Invalid determinism!\n" + callback["hint"]);
         let mounting_array = [];
         for (let i = 0; i < row_entry_array.length; i++) {
@@ -700,33 +745,20 @@ try{
         }
         set_row_entries([...mounting_array]);
       } else {
-        // console.log("CALBACK")
-        // console.log(callback);
-        // console.log("CALBACK")
-
         let new_array;
-
         if (row_entry_array.length == 1) {
-          // console.log("row_entry = 1");
           let bool_result = master_context.PDA ? callback.list_of_strings[0][0] : callback.list_of_strings[0][1];
 
           bool_result
             ? (new_array = [2])
             : (new_array = [0]);
-          // console.log(callback.list_of_strings[0][0])
           set_row_entries([...new_array]);
-          // console.log("SINGLE row entry api call: ");
-          // console.log( callback);
+          dotnetTestCallbackPost.body = JSON.stringify(  createTestCallbackPost(testID, [bool_result], ""));
+        fetch(dotnet_endpoint,  createTestCallbackPost(testID, [bool_result], "")             )
+
         } else {
           let array_to_mount = [];
-          // console.log("YOLO")
-          // console.log("ENSEMBLE row entries api call");
-          // console.log(callback);
-          //iterate through each array for each row index and declare it either rejected or accepted
-          // console.log("---")
-
           for (let i = 0; i < row_entry_array.length; i++) {
-            
             let bool_result = master_context.PDA ? callback.list_of_strings[i][0] : callback.list_of_strings[i][1];
             if (bool_result) {
               array_to_mount.push(2);
@@ -734,47 +766,36 @@ try{
               array_to_mount.push(0);
             }
           }
-          // console.log("---")
-          // console.log(array_to_mount);
           set_row_entries([...array_to_mount]);
+          dotnetTestCallbackPost.body = JSON.stringify(  createTestCallbackPost(testID, array_to_mount.map(n => n > 0 ? true : false), ""));
+          fetch(dotnet_endpoint, createTestCallbackPost(testID, array_to_mount.map(n => n > 0 ? true : false), "")          )
+
         }
       }
     } catch (e) {
-      // console.log(e);
     }
   }
   const HTMLCol_to_array = html_collection =>
     Array.prototype.slice.call(html_collection);
 
   const process_userinput = (row_table_DOM_node, id) => {
-    // console.log("PROCESSING")
-    // console.log(id);
     user_input_row_collection[id] = HTMLCol_to_array(
       row_table_DOM_node.children
     )[0].value;
-    // console.log("PROCESSING")
   };
 
   function on_click_test_api(event) {
-    // console.log(UIN_input);
 
     //reset list for each click to api with amount of rows
     //array that contains all the input strings from the user
     user_input_row_collection = [
       ...Array(HTMLCol_to_array(row_ref_container.current.children).length)
     ];
-    // console.log("ON_CLICK_API_TEST")
     event.preventDefault();
-    // console.log(event);
     HTMLCol_to_array(row_ref_container.current.children).map(process_userinput);
-    // console.log(user_input_row_collection);
-    // collection of all the
-    // row_ref_container.current.childNodes().map( (DOM_node,id)=>process_row_for_userinput(DOM_node,id));
-    // console.log("ON_CLICK_API_TEST")
     onClickPingToApi();
   }
   function addBar(e) {
-    // console.log(e.target);
     e.preventDefault();
   }
   function setInputVal(value) {
@@ -834,22 +855,15 @@ try{
   };
 
   function UIN_submit(event) {
-    //    console.log(UIN_textform.current.value);
-    //    console.log(text_form);
+    let dotnet_endpoint;
 
-    // console.log(input_val);
     if (input_val.length == 9 && /^\d+$/.test(input_val)) {
       let append = Math.round(Math.random() * 1000);
       
       preprocess();
-      // console.log(packet_to_misha_the_microsoft_engineer.state_names);
+      
       packet_to_misha_the_microsoft_engineer.state_names =
         master_context.state_styles;
-      // console.log(packet_to_misha_the_microsoft_engineer)
-      // console.log(master_context.state_styles);
-      // console.log("----")
-      // console.log(packet_to_misha_the_microsoft_engineer);
-      // console.log("----")
       if(packet_to_misha_the_microsoft_engineer.PDA){
       delete packet_to_misha_the_microsoft_engineer.state_names;
       delete packet_to_misha_the_microsoft_engineer.determinism;
@@ -874,13 +888,59 @@ try{
       })
 
       }
-      // console.log("Export:")
-      // console.log(packet_to_misha_the_microsoft_engineer);
+      const pad = (n, width, z) => {
+        z = z || '0';
+        n = n + '';
+        return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
+      }
+      const toMins = (seconds) =>  Math.floor(seconds / 60).toString() + ":"+  (pad( Math.round(seconds %60),2 )).toString() ;
+      const getMinsIntoSession = (sessionStart, sessionPing) => toMins( (sessionPing - sessionStart)/1000)
+  
+      const createExportDotnet = (testID) => {
+        const getNumAccepting = (statesMap) => Object.values(statesMap).reduce((t, bool) => t + (bool ? 1 : 0),0);
+        const getMode = () => {
+          if (master_context.PDA) {
+            return "PDA"
+          }
+          else {
+            let map = { "Non-Deterministic Finite Automata": "NFA", "Deterministic Finite Automata": "DFA", "Push-down Automata": "PDA" };
+            return map[master_context.mode.trim()];
+          }
+        }
+        return {
+          sessionID: master_context.session,
+          startTime: master_context.date,
+          exportTime: getMinsIntoSession(master_context.date, new Date()),
+          downloadPacket: packet_to_misha_the_microsoft_engineer,
+          mode: getMode(),
+          initialState: packet_to_misha_the_microsoft_engineer.start_state,
+          numStates: Object.keys(packet_to_misha_the_microsoft_engineer.states).length,
+          numAccepting: getNumAccepting(packet_to_misha_the_microsoft_engineer.states),
+          numTransitions: packet_to_misha_the_microsoft_engineer.transition_function.length,
+          testID: testID,
+          exportID: input_val
+
+        };
+      }
+      dotnet_endpoint = "https://metricsrflap.azurewebsites.net/api/Export/";
+      let dotnetPostExport = {
+        method: "POST",
+        mode: "no-cors",
+        // cache:"no-cache",
+        // credentials: "same-origin",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        // redirect:"follow",
+        // referrer: "no-referrer",
+        body: JSON.stringify(createExportDotnet(testID))
+      };
+      fetch(dotnet_endpoint, dotnetPostExport);
       downloadObjectAsJson(
         packet_to_misha_the_microsoft_engineer,
         "RFLAP_" + input_val + "_" + append.toString()
       );
-      // console.log(packet_to_misha_the_microsoft_engineer);
+      
       set_UIN_input(false);
       set_warning_display(false);
     } else {
@@ -907,9 +967,9 @@ try{
     //necessary to ignore event listeners in useEffect in app.js
     downloadAnchorNode.setAttribute("id","temp_anchor")
     document.body.appendChild(downloadAnchorNode); // required for firefox
-    // console.log("click");
+    
     downloadAnchorNode.click();
-    // console.log("click");
+    
     downloadAnchorNode.remove();
 
   }
