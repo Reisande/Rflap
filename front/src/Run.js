@@ -475,11 +475,11 @@ try{
   };
 
   async function postToRustApi() {
-    //put your dotnet api endpoint here
     let dotnet_endpoint = "https://metricsrflap.azurewebsites.net/api/Test/";
     let endpoint = master_context.PDA ? "pda" : "automata"; 
     //  for testing:
     // let url = "https://rflap.acmuic.app/" + endpoint;
+
     let url = `${window.location.origin}/` + endpoint; 
     
     if(packet_to_misha_the_microsoft_engineer.PDA){
@@ -510,7 +510,7 @@ try{
       
     let postingObject = {
       method: "POST",
-      mode: "no-cors",
+      mode: "cors",
       // cache:"no-cache",
       // credentials: "same-origin",
       headers: {
@@ -567,7 +567,7 @@ try{
       body: JSON.stringify(createTestDotnet(testID))
 
     }    
-    fetch(dotnet_endpoint, dotnetPostTest);
+    let rilke = await fetch(dotnet_endpoint, dotnetPostTest);
    //Check for Errors via the error_object
     if (error_object.multiple_initial_states) {
       alert("\tMultiple Initial States!");
@@ -649,12 +649,10 @@ try{
 
     //     return null;
     // }
-    // fetch(urlDotNet,)
     let Algorithms_are_the_computational_content_of_proofs = await fetch(
       url,
       postingObject
     );
-     //fetch(dotnet_endpoint, dotnetPostTest); 
     
     //reset error_object
     error_object = {
@@ -695,6 +693,7 @@ try{
     
     try {
       let dotnet_endpoint = "https://metricsrflap.azurewebsites.net/api/TestResult/";
+      let _;
       const callback = await postToRustApi();
        if (callback == null) {
         return;
@@ -737,7 +736,7 @@ try{
         master_context.mode === "Deterministic Finite Automata"
       ) {
         dotnetTestCallbackPost.body =JSON.stringify(  createTestCallbackPost(testID, [], callback["hint"]));
-        fetch(dotnet_endpoint, createTestCallbackPost(testID,[],callback["hint"]))
+        _ = await fetch(dotnet_endpoint, createTestCallbackPost(testID,[],callback["hint"]))
         alert("Invalid determinism!\n" + callback["hint"]);
         let mounting_array = [];
         for (let i = 0; i < row_entry_array.length; i++) {
@@ -754,7 +753,7 @@ try{
             : (new_array = [0]);
           set_row_entries([...new_array]);
           dotnetTestCallbackPost.body = JSON.stringify(  createTestCallbackPost(testID, [bool_result], ""));
-        fetch(dotnet_endpoint,  createTestCallbackPost(testID, [bool_result], "")             )
+        _ = await fetch(dotnet_endpoint,  createTestCallbackPost(testID, [bool_result], "")             )
 
         } else {
           let array_to_mount = [];
@@ -768,7 +767,7 @@ try{
           }
           set_row_entries([...array_to_mount]);
           dotnetTestCallbackPost.body = JSON.stringify(  createTestCallbackPost(testID, array_to_mount.map(n => n > 0 ? true : false), ""));
-          fetch(dotnet_endpoint, createTestCallbackPost(testID, array_to_mount.map(n => n > 0 ? true : false), "")          )
+          _ = await fetch(dotnet_endpoint, createTestCallbackPost(testID, array_to_mount.map(n => n > 0 ? true : false), "")          )
 
         }
       }
@@ -925,7 +924,7 @@ try{
       dotnet_endpoint = "https://metricsrflap.azurewebsites.net/api/Export/";
       let dotnetPostExport = {
         method: "POST",
-        mode: "no-cors",
+        mode: "cors",
         // cache:"no-cache",
         // credentials: "same-origin",
         headers: {
@@ -935,7 +934,7 @@ try{
         // referrer: "no-referrer",
         body: JSON.stringify(createExportDotnet(testID))
       };
-      fetch(dotnet_endpoint, dotnetPostExport);
+      let _  = fetch(dotnet_endpoint, dotnetPostExport);
       downloadObjectAsJson(
         packet_to_misha_the_microsoft_engineer,
         "RFLAP_" + input_val + "_" + append.toString()
