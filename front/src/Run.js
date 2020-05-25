@@ -934,7 +934,7 @@ try{
         // referrer: "no-referrer",
         body: JSON.stringify(createExportDotnet(testID))
       };
-      let _  = fetch(dotnet_endpoint, dotnetPostExport);
+      let _  = await fetch(dotnet_endpoint, dotnetPostExport);
       downloadObjectAsJson(
         packet_to_misha_the_microsoft_engineer,
         "RFLAP_" + input_val + "_" + append.toString()
