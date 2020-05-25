@@ -853,7 +853,7 @@ try{
     return <Badge variant="danger">Invalid UIN!</Badge>;
   };
 
-  function UIN_submit(event) {
+  async function  UIN_submit(event) {
     let dotnet_endpoint;
 
     if (input_val.length == 9 && /^\d+$/.test(input_val)) {
