@@ -712,9 +712,9 @@ try{
           sessionID: master_context.session,
           testID: testID,
           callbackTime: getMinsIntoSession(master_context.date, new Date()),
-          callbackPacket: callback,
+          callbackPacket: JSON.stringify(callback),
           callbackHint: callbackHint,
-          testStringsCorrect: testStringsResultArray,
+          testStringsCorrect: JSON.stringify(testStringsResultArray),
           numCorrect: testStringsResultArray.reduce( (sum, bool) => sum + (bool? 1 : 0), 0),
           
         };
@@ -853,7 +853,7 @@ try{
     return <Badge variant="danger">Invalid UIN!</Badge>;
   };
 
-  function UIN_submit(event) {
+  async function  UIN_submit(event) {
     let dotnet_endpoint;
 
     if (input_val.length == 9 && /^\d+$/.test(input_val)) {
@@ -910,7 +910,7 @@ try{
           sessionID: master_context.session,
           startTime: master_context.date,
           exportTime: getMinsIntoSession(master_context.date, new Date()),
-          downloadPacket: packet_to_misha_the_microsoft_engineer,
+          downloadPacket: JSON.stringify(packet_to_misha_the_microsoft_engineer),
           mode: getMode(),
           initialState: packet_to_misha_the_microsoft_engineer.start_state,
           numStates: Object.keys(packet_to_misha_the_microsoft_engineer.states).length,
@@ -934,7 +934,7 @@ try{
         // referrer: "no-referrer",
         body: JSON.stringify(createExportDotnet(testID))
       };
-      let _  = fetch(dotnet_endpoint, dotnetPostExport);
+      let _  = await fetch(dotnet_endpoint, dotnetPostExport);
       downloadObjectAsJson(
         packet_to_misha_the_microsoft_engineer,
         "RFLAP_" + input_val + "_" + append.toString()
