@@ -712,9 +712,9 @@ try{
           sessionID: master_context.session,
           testID: testID,
           callbackTime: getMinsIntoSession(master_context.date, new Date()),
-          callbackPacket: callback,
+          callbackPacket: JSON.stringify(callback),
           callbackHint: callbackHint,
-          testStringsCorrect: testStringsResultArray,
+          testStringsCorrect: JSON.stringify(testStringsResultArray),
           numCorrect: testStringsResultArray.reduce( (sum, bool) => sum + (bool? 1 : 0), 0),
           
         };
@@ -910,7 +910,7 @@ try{
           sessionID: master_context.session,
           startTime: master_context.date,
           exportTime: getMinsIntoSession(master_context.date, new Date()),
-          downloadPacket: packet_to_misha_the_microsoft_engineer,
+          downloadPacket: JSON.stringify(packet_to_misha_the_microsoft_engineer),
           mode: getMode(),
           initialState: packet_to_misha_the_microsoft_engineer.start_state,
           numStates: Object.keys(packet_to_misha_the_microsoft_engineer.states).length,
