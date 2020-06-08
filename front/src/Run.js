@@ -567,7 +567,12 @@ try{
       body: JSON.stringify(createTestDotnet(testID))
 
     }    
+    try{
     let rilke = await fetch(dotnet_endpoint, dotnetPostTest);
+    }
+    catch(err){
+      console.log("1");
+    }
    //Check for Errors via the error_object
     if (error_object.multiple_initial_states) {
       alert("\tMultiple Initial States!");
@@ -694,7 +699,13 @@ try{
     try {
       let dotnet_endpoint = "https://metricsrflap.azurewebsites.net/api/TestResult/";
       let _;
-      const callback = await postToRustApi();
+      let callback;
+      try{
+       callback = await postToRustApi();
+      }
+      catch(err){
+        console.log("10");
+      }
        if (callback == null) {
         return;
       }
@@ -736,7 +747,12 @@ try{
         master_context.mode === "Deterministic Finite Automata"
       ) {
         dotnetTestCallbackPost.body =JSON.stringify(  createTestCallbackPost(testID, [], callback["hint"]));
+        try{
         _ = await fetch(dotnet_endpoint, createTestCallbackPost(testID,[],callback["hint"]))
+        }
+        catch(err){
+          console.log("20");
+        }
         alert("Invalid determinism!\n" + callback["hint"]);
         let mounting_array = [];
         for (let i = 0; i < row_entry_array.length; i++) {
@@ -753,7 +769,12 @@ try{
             : (new_array = [0]);
           set_row_entries([...new_array]);
           dotnetTestCallbackPost.body = JSON.stringify(  createTestCallbackPost(testID, [bool_result], ""));
+          try{
         _ = await fetch(dotnet_endpoint,  createTestCallbackPost(testID, [bool_result], "")             )
+          }
+          catch(err){
+            console.log("21");
+          }
 
         } else {
           let array_to_mount = [];
@@ -767,7 +788,12 @@ try{
           }
           set_row_entries([...array_to_mount]);
           dotnetTestCallbackPost.body = JSON.stringify(  createTestCallbackPost(testID, array_to_mount.map(n => n > 0 ? true : false), ""));
+          try{
           _ = await fetch(dotnet_endpoint, createTestCallbackPost(testID, array_to_mount.map(n => n > 0 ? true : false), "")          )
+          }
+          catch(err){
+            console.log("22");
+          }
 
         }
       }
