@@ -166,6 +166,10 @@ function Visual() {
       return false;
     };
 
+    network.on("release",() => {
+      img_status.current.src = passive_bar;
+    });
+ 
     /*Shift click event listeners */
     //called by keydown, enables editing edges when nodes are clicked.
     const handleShiftClick = (event) => {
@@ -176,19 +180,10 @@ function Visual() {
     // Shift click event listeners, keydown calls handleShiftClick(e)
     // to enable edit edge mode
     window.addEventListener("keydown", handleShiftClick);
-    network.on("dragEnd",()=>{
+
+   network.on("click", (params) => {
       img_status.current.src = passive_bar;
-    })
-    network.on("release",() => {
-      img_status.current.src = passive_bar;
-    });
-    network.on("click", (params) => {
-      img_status.current.src = passive_bar;
-      if (emptyCanvasClickHandler(params)) {
-        return;
-      } else if (deleteNodeWithCtrl(params)) {
-        return;
-      }
+       (emptyCanvasClickHandler(params) || deleteNodeWithCtrl(params));
     });
     network.on("select", (params) => {
       // SET INITIAL MODE PRESS
