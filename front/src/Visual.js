@@ -170,15 +170,20 @@ function Visual() {
     //called by keydown, enables editing edges when nodes are clicked.
     const handleShiftClick = (event) => {
       if (event.key === "Shift") {
-        network.enableEditMode();
-        network.addEdgeMode();
+        toEditEdgeMode({});
       }
     };
     // Shift click event listeners, keydown calls handleShiftClick(e)
     // to enable edit edge mode
     window.addEventListener("keydown", handleShiftClick);
-
+    network.on("dragEnd",()=>{
+      img_status.current.src = passive_bar;
+    })
+    network.on("release",() => {
+      img_status.current.src = passive_bar;
+    });
     network.on("click", (params) => {
+      img_status.current.src = passive_bar;
       if (emptyCanvasClickHandler(params)) {
         return;
       } else if (deleteNodeWithCtrl(params)) {
@@ -258,11 +263,12 @@ function Visual() {
             : "Edit String! ([ ε ])";
         let user_input_string = prompt(Display_String);
         ChangeEdgeText(user_input_string, edge_id);
-        img_status.current.src = passive_bar;
       }
+
+        img_status.current.src = passive_bar;
     });
 
-    //remove event listeners
+    //cleaning up event listeners
     return () => {
       network.off("select");
       network.off("controlNodeDragEnd");
@@ -275,6 +281,7 @@ function Visual() {
   const deselectAllModes = () => {
     in_accepting_mode_ = false;
     in_initial_mode = false;
+    img_bar_status_did_mount = passive_bar; 
   };
   const ChangeEdgeText = (userInput, edgeID) => {
     graph.edges.forEach((edge) => {
@@ -335,20 +342,7 @@ function Visual() {
 
   /* @@@ */
 
-  function mount_styling() {
-    return;
-    let url = "https://worldclockapi.com/api/json/est/now";
-    let postingObject = {
-      method: "GET",
-    };
-    let current_time;
-    fetch(url, postingObject).then((callback, error) => {
-      callback.json().then((body, err) => {
-        master_context.state_styles = body.currentDateTime;
-      });
-    });
-  }
-  const newNodeLabel = () => {
+ const newNodeLabel = () => {
     let returnLabel = " Q ";
     let nominalAppend = nodesDS.get().length.toString();
     const parseLabel = (label) => parseInt(label.replace(returnLabel, ""), 10);
