@@ -57,7 +57,8 @@ function Run(props) {
   const [row_entry_array, set_row_entries] = useState([1]);
 
   const UIN_textform = useRef(null);
-
+  const test_button = useRef(null);
+  const status_ref = useRef(null);
   const add_button = useRef(null);
   const image_ref = useRef(null);
   const row_ref_container = useRef(null);
@@ -459,13 +460,16 @@ function Run(props) {
     );
     nodeProcess(master_context.graphobj.nodes.get());
   };
+const animateIntoNeutral = (status_ref,test_button_ref) =>{
 
-  async function postToRustApi() {
+        status_ref.current.classList.remove("spinner-border");
+        status_ref.current.classList.remove("spinner-border-sm");
+    }
+  async function postToRustApi(status_ref, test_button_ref) {
     let dotnet_endpoint = "https://metricsrflap.azurewebsites.net/api/Test/";
     let endpoint = master_context.PDA ? "pda" : "automata";
     //  for testing:
-     let url = "https://rflap.acmuic.app/" + endpoint;
-
+    let url = "https://rflap.acmuic.app/" + endpoint;
     //let url = `${window.location.origin}/` + endpoint;
 
     if (packet_to_misha_the_microsoft_engineer.PDA) {
@@ -629,6 +633,7 @@ function Run(props) {
         epsilon_on_DFA: false,
         no_label_on_dfa: false,
       };
+      animateIntoNeutral(status_ref,test_button_ref);
       return null;
     }
     // if(error_object.out_of_bounds){
@@ -658,10 +663,13 @@ function Run(props) {
 
     //     return null;
     // }
-    let Algorithms_are_the_computational_content_of_proofs = await fetch(
-      url,
-      postingObject
-    );
+    let Algorithms_are_the_computational_content_of_proofs;
+    try {
+      Algorithms_are_the_computational_content_of_proofs = await fetch(
+        url,
+        postingObject
+      );
+    } catch (e) {}
 
     //reset error_object
     error_object = {
@@ -690,8 +698,9 @@ function Run(props) {
     }
   };
 
-  async function onClickPingToApi() {
+  async function onClickPingToApi(status_ref,test_button_ref) {
     let empty_string = false;
+    
     packet_to_misha_the_microsoft_engineer.input_strings = [];
     user_input_row_collection.forEach((_, id) => {
       packet_to_misha_the_microsoft_engineer.input_strings.push(_);
@@ -704,7 +713,8 @@ function Run(props) {
       let _;
       let callback;
       try {
-        callback = await postToRustApi();
+        callback = await postToRustApi(status_ref,test_button_ref);
+        animateIntoNeutral(status_ref,test_button_ref)
       } catch (err) {
         console.log("10");
       }
@@ -840,16 +850,22 @@ function Run(props) {
       row_table_DOM_node.children
     )[0].value;
   };
-
-  function on_click_test_api(event) {
+  
+  function on_click_test_api(event, status_ref,test_button_ref) {
+    const animateIntoTesting = (status_ref,test_button_ref) =>{
+    status_ref.current.classList.add("spinner-border");
+    status_ref.current.classList.add("spinner-border-sm");
+    }
     //reset list for each click to api with amount of rows
     //array that contains all the input strings from the user
+    animateIntoTesting(status_ref,test_button_ref)
+
     user_input_row_collection = [
       ...Array(HTMLCol_to_array(row_ref_container.current.children).length),
     ];
     event.preventDefault();
     HTMLCol_to_array(row_ref_container.current.children).map(process_userinput);
-    onClickPingToApi();
+    onClickPingToApi(status_ref,test_button_ref);
   }
   function addBar(e) {
     e.preventDefault();
@@ -1014,11 +1030,9 @@ function Run(props) {
         // referrer: "no-referrer",
         body: JSON.stringify(createExportDotnet(testID)),
       };
-      try{
-      let _ = await fetch(dotnet_endpoint, dotnetPostExport);
-      }catch(e){
-
-      }
+      try {
+        let _ = await fetch(dotnet_endpoint, dotnetPostExport);
+      } catch (e) {}
       downloadObjectAsJson(
         packet_to_misha_the_microsoft_engineer,
         "RFLAP_" + input_val + "_" + append.toString()
@@ -1103,10 +1117,12 @@ function Run(props) {
           {true ? (
             <Button
               id="api_button"
-              onClick={(event) => on_click_test_api(event)}
-              variant="info"
+             variant="info"
+              onClick={(event) => on_click_test_api(event, status_ref,test_button)}
+              ref={test_button}
             >
-              Test
+              <span role="status"aria-hidden="true" ref={status_ref}></span>
+                  {" Test"}
             </Button>
           ) : (
             <></>
