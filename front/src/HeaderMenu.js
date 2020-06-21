@@ -18,8 +18,6 @@ function HeaderMenu(props) {
   
   const master_context = useContext(AutomataContext);
 
-
-
   const runbutton = useRef();
 
   /*
@@ -141,6 +139,15 @@ function trimSvgWhitespace() {
             >
               Deterministic Finite Automata{""}
             </NavDropdown.Item>
+            <NavDropdown.Item
+              id="REG"
+              onClick={event => nav_menu_dropdown_click(event, REG)}
+              ref={REG}
+              href=""
+            >
+              Regular Expressions{""}
+            </NavDropdown.Item>
+ 
             <NavDropdown.Item
               id="NFA"
               onClick={event => nav_menu_dropdown_click(event, NFA)}

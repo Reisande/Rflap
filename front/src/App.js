@@ -7,7 +7,9 @@ import Run from "./Run.js";
 import Sidebar from "react-sidebar";
 import PDA_Visual from "./PDA_Visual.js";
 import CFG_Visual from "./CFG_Visual.js";
+import Regex from "./Regex.js";
 import "bootstrap/dist/css/bootstrap.min.css";
+
     /*resource managment libraries: */
 import {scheduleMeasurement} from './res/MemoryTests';
 
@@ -23,7 +25,8 @@ const CURRENT_MACHINE = {
   NFA: 1,
   CFG: 2,
   TM: 3,
-  PDA:4
+  PDA:4,
+  REG:5
 };
 
 function App() {
@@ -52,7 +55,7 @@ function App() {
   Passed as second argument to App component's useEffect(()=>{}, [sidebar_display] ) 
 
   */  
-  const [machine_displayed, set_machine_displayed] = useState(CURRENT_MACHINE.DFA);
+  const [machine_displayed, set_machine_displayed] = useState(CURRENT_MACHINE.REG);
 
   // Lock Run Button temporarily as to not cause infinite loop between sidebar appearing and not appearing
   let lock_run_button = false;
@@ -133,6 +136,9 @@ function App() {
         else if(e.target.id == "TM"){
           set_machine_displayed(CURRENT_MACHINE.TM); 
         }
+        else if(e.target.id == "REG"){
+          set_machine_displayed(CURRENT_MACHINE.REG);
+        }
       }
 
       click_run_handler(e);
@@ -155,6 +161,8 @@ function App() {
     switch (machine_displayed){
       case CURRENT_MACHINE.DFA:
         return <Visual />;
+      case CURRENT_MACHINE.REG:
+        return <Regex/>;
       case CURRENT_MACHINE.NFA:
         return <Visual />;
       case CURRENT_MACHINE.CFG:

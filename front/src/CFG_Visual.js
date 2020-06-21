@@ -211,13 +211,6 @@ function CFG_Visual() {
 //make condition to specify this specific input 
       if(e.target.id == "rule_terminal" || e.target.id == "rule_non-terminal"){
       // formArea.current.value = "";
-
-
-     
-      
-        
-        
-      
       // console.log(master_context.grammar_obj);
       let rule_to_table = "";
       let textarea_text = "";
@@ -249,7 +242,7 @@ function CFG_Visual() {
 
         // textarea_text = textarea_text.replace(/|/g,"\u2588")
       });
-      if(formArea != null)
+      if(formArea != null && formArea.current != null)
       formArea.current.value = textarea_text;
     }
     });
