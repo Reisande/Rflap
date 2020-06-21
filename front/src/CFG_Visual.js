@@ -17,6 +17,7 @@ import idle_svg from "./button.svg";
 import add_perfect from "./plus.svg";
 import g from "cfgrammar-tool"
 import Popup from "reactjs-popup";
+import Hex from "./res/HexColors.js";
 // import WarningSign from './WarningSing'
 
 let CFG_Visual_Context_Index = -1;
@@ -398,7 +399,7 @@ function CFG_Visual() {
       })
       set_row_entries([...bool_results]);
     }
-  
+ console.log(Hex.Canvas); 
   return (
     <div id="row_container_CFG">
       <Row>

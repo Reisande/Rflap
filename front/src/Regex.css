@@ -1,3 +1,18 @@
 #row_container_reg{
-    margin-top: 10px;
+    margin-top: 20px;
 }
+
+.row_between{
+    margin-top:50px;
+}
+.accord_rules{
+    bottom: 0;
+    /* The box-shadow is added here now */
+    box-shadow: 1px 4px 12px rgba(0,0,0,0.3);
+    height: 94%;
+    left: 3%;
+    width: 94%;
+    z-index: -1;
+  
+}
+body{background-color: #F5F5F5;}

@@ -1,5 +1,4 @@
 import React, { useEffect, useState, useRef, useCallback } from "react";
-import "./App.css";
 import Visual from "./Visual.js";
 import HeaderMenu from "./HeaderMenu.js";
 import { AutomataContext } from "./AutomataContext.js";
@@ -9,7 +8,7 @@ import PDA_Visual from "./PDA_Visual.js";
 import CFG_Visual from "./CFG_Visual.js";
 import Regex from "./Regex.js";
 import "bootstrap/dist/css/bootstrap.min.css";
-
+import "./Regex.css";
     /*resource managment libraries: */
 import {scheduleMeasurement} from './res/MemoryTests';
 
