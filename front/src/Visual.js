@@ -190,8 +190,9 @@ function Visual() {
           delete_lock = true;
           return; 
         }
-        if (keyCode == "KeyT") {
+        else if (keyCode == "KeyT") {
           toEditEdgeMode();
+          return;
         }
         else {
           delete_lock = false;
