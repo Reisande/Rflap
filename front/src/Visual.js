@@ -54,7 +54,7 @@ let graph = { nodes: nodesDS, edges: edgesDS };
 function Visual() {
   const master_context = useContext(AutomataContext);
   master_context.graphobj = graph;
-
+  let delete_lock = false;
   let in_accepting_mode_ = false,
     in_initial_mode = false;
   let img_index = 0;
@@ -159,17 +159,18 @@ function Visual() {
       Remove a node with ctrl hotkey pressed hotkey on network.on(click)*/
 
     const deleteNodeWithCtrl = (params) => {
-      if (params.event.srcEvent.ctrlKey || params.event.srcEvent.metaKey) {
+      if (params.event.srcEvent.ctrlKey || params.event.srcEvent.metaKey ) {
+
         network.deleteSelected();
         return true;
       }
       return false;
     };
 
-    network.on("release",() => {
+    network.on("release", (p) => {
       img_status.current.src = passive_bar;
     });
- 
+
     /*Shift click event listeners */
     //called by keydown, enables editing edges when nodes are clicked.
     const handleShiftClick = (event) => {
@@ -179,14 +180,41 @@ function Visual() {
     };
     // Shift click event listeners, keydown calls handleShiftClick(e)
     // to enable edit edge mode
-    window.addEventListener("keydown", handleShiftClick);
 
-   network.on("click", (params) => {
-      img_status.current.src = passive_bar;
-       (emptyCanvasClickHandler(params) || deleteNodeWithCtrl(params));
+    //window.addEventListener("keydown", handleShiftClick);
+
+    window.addEventListener("keydown",(e) => {
+      const deleteNodeMode = (keyCode) => {
+        if (keyCode === "KeyD") {
+          img_status.current.src = remove_bar; 
+          delete_lock = true;
+          return; 
+        }
+        else {
+          delete_lock = false;
+          img_status.current.src = passive_bar;
+          return; 
+        }
+      };
+      deleteNodeMode(e.code); 
     });
+
+    network.on("click", (params) => {
+      
+      if (delete_lock && network.getSelectedNodes().length != 0 ) {
+        network.deleteSelected();
+        deselectAllModes()
+        return;
+      }
+      console.log("above deselect");
+      deselectAllModes();
+      emptyCanvasClickHandler(params) || deleteNodeWithCtrl(params);
+    });
+
     network.on("select", (params) => {
-      // SET INITIAL MODE PRESS
+          // SET INITIAL MODE PRESS
+      console.log("slect");
+          console.log(network.getSelectedNodes())
       if (
         params != null &&
         in_initial_mode &&
@@ -260,7 +288,7 @@ function Visual() {
         ChangeEdgeText(user_input_string, edge_id);
       }
 
-        img_status.current.src = passive_bar;
+      img_status.current.src = passive_bar;
     });
 
     //cleaning up event listeners
@@ -276,7 +304,10 @@ function Visual() {
   const deselectAllModes = () => {
     in_accepting_mode_ = false;
     in_initial_mode = false;
-    img_bar_status_did_mount = passive_bar; 
+    delete_lock = false;
+    if (img_status != null && img_status.current != null) {
+      img_status.current.src = passive_bar
+    }
   };
   const ChangeEdgeText = (userInput, edgeID) => {
     graph.edges.forEach((edge) => {
@@ -337,7 +368,7 @@ function Visual() {
 
   /* @@@ */
 
- const newNodeLabel = () => {
+  const newNodeLabel = () => {
     let returnLabel = " Q ";
     let nominalAppend = nodesDS.get().length.toString();
     const parseLabel = (label) => parseInt(label.replace(returnLabel, ""), 10);
@@ -397,7 +428,7 @@ function Visual() {
   return (
     <div id="non-header-div">
       <div class="div-inline-group-below-header">
-        {/* <div id="trash_button" class="div-inline-group-below-header">
+        <div id="trash_button" class="div-inline-group-below-header">
           <input
             id="trash_button_input"
             onClick={deleteNodeOrEdge}
@@ -407,7 +438,7 @@ function Visual() {
             height="33"
             name="remove_bar"
           />
-        </div> */}
+        </div>
         <div id="add_button_visual" class="div-inline-group-below-header">
           <input
             id="add_button_image"
