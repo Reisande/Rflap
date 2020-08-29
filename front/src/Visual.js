@@ -288,6 +288,8 @@ function Visual() {
           master_context.mode == "Determinstic Finite Automata"
             ? "Edit String!"
             : "Edit String! ([ ε ])";
+        console.log("params:");
+        console.log(params);
         let user_input_string = prompt(Display_String);
         ChangeEdgeText(user_input_string, edge_id);
       }
