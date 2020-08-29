@@ -190,6 +190,9 @@ function Visual() {
           delete_lock = true;
           return; 
         }
+        if (keyCode == "KeyT") {
+          toEditEdgeMode();
+        }
         else {
           delete_lock = false;
           img_status.current.src = passive_bar;
