@@ -54,6 +54,7 @@ let in_initial_mode = false;
 let in_accepting_mode_ = false;
 let delete_lock = false;
  let inputVal = "";
+let edgeDeletion = false;
 let graph = { nodes: nodesDS, edges: edgesDS };
 function Visual() {
   const [show, setShow] = useState({display: false, user_in: " _"});
@@ -82,7 +83,6 @@ function Visual() {
     let nav_header_height = document.querySelector("#nav-header") == null ? 0 : document.querySelector("#nav-header").offsetHeight;
     let bar_layout_height = document.querySelector("#bar_layout") == null ? 0 : document.querySelector("#bar_layout").offsetHeight;
    
-    console.log("RENDER")
     network = new vis.Network(
       wrapper.current,
       graph,
@@ -209,30 +209,38 @@ function Visual() {
     });
 
     network.on("click", (params) => {
-      
-      if (delete_lock && network.getSelectedNodes().length != 0) {
+      if (edgeDeletion) {
+        edgeDeletion = false;
+        return;
+      }
+      else if (delete_lock && network.getSelectedNodes().length != 0) {
         network.deleteSelected();
         deselectAllModes()
         return;
       }
-      console.log("above deselect");
+      else if (delete_lock && params.edges) {
+        graph.edges.remove(params.edges[0])
+        deselectAllModes();
+        return;
+      }
+
       deselectAllModes();
       emptyCanvasClickHandler(params) || deleteNodeWithCtrl(params);
     });
 
     network.on("select", (params) => {
       // SET INITIAL MODE PRESS
-      console.log("slect");
-      console.log(network.getSelectedNodes())
-      console.log(params);
-      console.log(in_initial_mode);
-      console.log()
+      if (delete_lock && params.edges) {
+        edgeDeletion = true;
+        graph.edges.remove(params.edges[0]);
+        deselectAllModes();
+        return;
+      }
       if (
         params != null &&
         in_initial_mode &&
         (params.nodes > 0 || params.nodes[0] != null)
       ) {
-        console.log('HERE')
         let node_id_clicked = params.nodes[0];
         let found_node;
         //find node given
@@ -297,21 +305,18 @@ function Visual() {
           master_context.mode == "Determinstic Finite Automata"
             ? "Edit String!"
             : "Edit String! ([ ε ])";
-        console.log("params:");
-        console.log(params);
         const openModal = (edgeDisplayInfo) => {
           if (edgeDisplayInfo == null) {
-          setShow({ display: true, user_in:"!"});
+            setShow({ display: true, user_in: "!" });
             return;
           }
           let from = edgeDisplayInfo.from, to = edgeDisplayInfo.to;
-          console.log(edgeDisplayInfo.edgeLabel);
           let currentEdgeText = edgeDisplayInfo.edgeLabel == null ? "" : edgeDisplayInfo.edgeLabel;
           inputVal = currentEdgeText
-          setShow({ display: true, from: "δ(" + from.trim() + ", ", edgeLabel: currentEdgeText, to: ") ="+ to, edgeId: edge_id});
+          setShow({ display: true, from: "δ(" + from.trim() + ", ", edgeLabel: currentEdgeText, to: ") =" + to, edgeId: edge_id });
         };
-        openModal(nodesOfEdgeId(params.edges[0]));
-        
+
+          openModal(nodesOfEdgeId(params.edges[0]));
         /*
         let user_input_string =  prompt(Display_String);
         ChangeEdgeText(user_input_string, edge_id);
@@ -365,7 +370,6 @@ function Visual() {
     return {edgeLabel: edgeText , from: fromLabel, to:toLabel }
   }
   const ChangeEdgeText = (userInput, edgeID) => {
-    console.log(userInput);
 
     graph.edges.forEach((edge) => {
       if (edge.id == edgeID) {
