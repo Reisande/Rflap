@@ -53,10 +53,10 @@ let edgesDS = new vis.DataSet([]);
 let in_initial_mode = false;
 let in_accepting_mode_ = false;
 let delete_lock = false;
+ let inputVal = "";
 let graph = { nodes: nodesDS, edges: edgesDS };
 function Visual() {
   const [show, setShow] = useState({display: false, user_in: " _"});
-  let inputVal = "";
   const master_context = useContext(AutomataContext);
   master_context.graphobj = graph;
 //  let delete_lock = false;
@@ -305,9 +305,10 @@ function Visual() {
             return;
           }
           let from = edgeDisplayInfo.from, to = edgeDisplayInfo.to;
-          let edgeLabel = edgeDisplayInfo.label == null ? "" : edgeDisplayInfo.edgeLabel;
-
-          setShow({ display: true, from: "δ(" + from.trim() + ", ", edgeLabel: edgeLabel, to: ") ="+ to, edgeId: edge_id});
+          console.log(edgeDisplayInfo.edgeLabel);
+          let currentEdgeText = edgeDisplayInfo.edgeLabel == null ? "" : edgeDisplayInfo.edgeLabel;
+          inputVal = currentEdgeText
+          setShow({ display: true, from: "δ(" + from.trim() + ", ", edgeLabel: currentEdgeText, to: ") ="+ to, edgeId: edge_id});
         };
         openModal(nodesOfEdgeId(params.edges[0]));
         
@@ -350,6 +351,7 @@ function Visual() {
       if (edge.id == edgeID) {
         nodeFromId = edge.from
         nodeToId = edge.to
+        edgeText = edge.label;
       }
     });
     graph.nodes.forEach((node) => {
@@ -398,6 +400,7 @@ function Visual() {
   function toEditEdgeMode(props) {
     deselectAllModes();
     img_status.current.src = transition_bar;
+    if (network == null) return;
     network.enableEditMode();
     network.addEdgeMode();
   }
@@ -405,6 +408,7 @@ function Visual() {
   function toAddNodeMode(props) {
     deselectAllModes();
     img_status.current.src = add_bar;
+    if (network == null) return;
     network.enableEditMode();
     network.addNodeMode();
   }
@@ -470,7 +474,7 @@ function Visual() {
     network.moveNode(
       node_id_global,
       (Math.random() - 0.6) * 400,
-      (Math.random() - 0.6) * 400
+      (Math.random() - 0.6) * 40>0
     );
   }
 
@@ -482,6 +486,7 @@ function Visual() {
 
   function deleteNodeOrEdge(props) {
     deselectAllModes();
+    if (network == null) return;
     network.deleteSelected();
   }
 
@@ -510,11 +515,10 @@ function Visual() {
         <Modal.Body>
           <Row>         <Col md={{ offset: 2 }}> 
         <input type="text" defaultValue= {show.from} size="3" disabled/>
-            <input type="text" size="4" onChange={(event) => {inputVal = event.target.value}} defaultValue={show.edgeLabel }/>
+            <input type="text" size="4" onChange={(event) => { inputVal = event.target.value }} defaultValue={ show.edgeLabel }/>
         <input type="text" defaultValue= {show.to} size="3" disabled/>
         </Col>
 </Row>
-
           </Modal.Body>
         <Modal.Footer>
           <Button variant="primary" onClick={() => ChangeEdgeText(inputVal,show.edgeId)}>
@@ -523,7 +527,7 @@ function Visual() {
         </Modal.Footer>
       </Modal>
       <div class="div-inline-group-below-header" id="bar_layout">
-        <div id="trash_button" class="div-inline-group-below-header">
+        {/* <div id="trash_button" class="div-inline-group-below-header">
           <input
             id="trash_button_input"
             onClick={deleteNodeOrEdge}
@@ -533,8 +537,8 @@ function Visual() {
             height="33"
             name="remove_bar"
           />
-        </div>
-        <div id="add_button_visual" class="div-inline-group-below-header">
+        </div> */}
+        {/* <div id="add_button_visual" class="div-inline-group-below-header">
           <input
             id="add_button_image"
             onClick={populateNode}
@@ -544,7 +548,7 @@ function Visual() {
             height="33"
             name="add_button"
           />
-        </div>
+        </div> */}
 
         <ButtonGroup id="group-holder" className="mr-2">
           <Button class="visual-button" variant="info" onClick={toEditEdgeMode}>

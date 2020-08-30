@@ -1,5 +1,4 @@
 
-/* DOESNT WORK, FIX! */
 
 #button-hold{
     height: 100px;
@@ -34,8 +33,19 @@ canvas{
     border: 2px solid yellow;
 }
 #group-holder{
-    border: 4px solid white;
+    /*border: 50px solid black;*/
 
+    margin-top: 1em;
+    margin-bottom:  1em;
+}
+.btn.btn-info{
+    box-shadow: 2px 2px 1px 1px  black ;
+    border: 1px solid black;
+}
+.btn.btn-info:active{
+
+    border: 1px solid black;
+    box-shadow: 2px 2px 1px 1px  black ;
 }
 /* #non-header-div{
     display:inline-block;
@@ -43,8 +53,10 @@ canvas{
 #bar_holder{
     /* justify-content: space-evenly; */
     display: inline-block;
-
-
+}
+#bar_layout{
+    /* margin-top: 100em; */
+    
 }
 .div-inline-group-below-header{
     display: inline;
