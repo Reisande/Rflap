@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState, useContext } from "react";
 /*graphing library*/
 import vis from "vis-network";
 /*react bootstrap components*/
-import { Button, ButtonGroup, Col, Row } from "react-bootstrap";
+import { Button, ButtonGroup, Col, Row, Modal} from "react-bootstrap";
 /*import css and react bootstrap css */
 import "./App.css";
 import "./Visual.css";
@@ -25,7 +25,7 @@ import { NetworkOptions } from "./res/NetworkOptions";
 //Component-wide state variable to track total number of Ids on client side,
 //seperate from nodesDS (vis.DataSet() object) because of leaky abstractions
 let node_id_global = 0;
-let height = window.innerHeight - 80;
+let height = window.innerHeight - 85 
 let img_bar_status_did_mount = false;
 
 /*Creating vs.DataSet objects (arrays of object {id;labels;from;to;arrows;}*/
@@ -52,6 +52,8 @@ let edgesDS = new vis.DataSet([]);
 */
 let graph = { nodes: nodesDS, edges: edgesDS };
 function Visual() {
+  const [show, setShow] = useState(false);
+
   const master_context = useContext(AutomataContext);
   master_context.graphobj = graph;
   let delete_lock = false;
@@ -75,14 +77,16 @@ function Visual() {
     img_status.current.src = passive_bar;
     const HTMLCol_to_array = (html_collection) =>
       Array.prototype.slice.call(html_collection);
+    console.log(document.querySelector("#nav-header").offsetHeight); 
+      console.log(height - document.querySelector("#nav-header").offsetHeight)
 
     network = new vis.Network(
       wrapper.current,
       graph,
-      NetworkOptions(height.toString(), window.innerWidth.toString())
+      NetworkOptions((height - document.querySelector("#nav-header").offsetHeight  - document.querySelector("#bar_header".offsetHeight) ).toString(), window.innerWidth.toString())
     );
     //context-click for graph
-    network.on("showPopup", (params) => {});
+    network.on("showPopup", (params) => { });
 
     //graph event listeners here:
 
@@ -91,7 +95,7 @@ function Visual() {
   Desc: Takes node added in addNode
   */
 
-    network.on("hoverNode", (params) => {});
+    network.on("hoverNode", (params) => { });
 
     /* 
     
@@ -142,13 +146,13 @@ function Visual() {
       };
       let _ =
         noNodesClicked(params) &&
-        noEdgesClicked(params) &&
-        x != null &&
-        y != null
+          noEdgesClicked(params) &&
+          x != null &&
+          y != null
           ? populateNodeAt(x, y)
           : () => {
-              return;
-            };
+            return;
+          };
       return addedNode != node_id_global ? true : false;
     };
 
@@ -159,7 +163,7 @@ function Visual() {
       Remove a node with ctrl hotkey pressed hotkey on network.on(click)*/
 
     const deleteNodeWithCtrl = (params) => {
-      if (params.event.srcEvent.ctrlKey || params.event.srcEvent.metaKey ) {
+      if (params.event.srcEvent.ctrlKey || params.event.srcEvent.metaKey) {
 
         network.deleteSelected();
         return true;
@@ -183,12 +187,12 @@ function Visual() {
 
     //window.addEventListener("keydown", handleShiftClick);
 
-    window.addEventListener("keydown",(e) => {
+    window.addEventListener("keydown", (e) => {
       const deleteNodeMode = (keyCode) => {
         if (keyCode === "KeyD") {
-          img_status.current.src = remove_bar; 
+          img_status.current.src = remove_bar;
           delete_lock = true;
-          return; 
+          return;
         }
         else if (keyCode == "KeyT") {
           toEditEdgeMode();
@@ -196,16 +200,18 @@ function Visual() {
         }
         else {
           delete_lock = false;
-          img_status.current.src = passive_bar;
-          return; 
+          if (img_status != null && img_status.current != null) {
+            img_status.current.src = passive_bar;
+          }
+          return;
         }
       };
-      deleteNodeMode(e.code); 
+      deleteNodeMode(e.code);
     });
 
     network.on("click", (params) => {
       
-      if (delete_lock && network.getSelectedNodes().length != 0 ) {
+      if (delete_lock && network.getSelectedNodes().length != 0) {
         network.deleteSelected();
         deselectAllModes()
         return;
@@ -216,9 +222,9 @@ function Visual() {
     });
 
     network.on("select", (params) => {
-          // SET INITIAL MODE PRESS
+      // SET INITIAL MODE PRESS
       console.log("slect");
-          console.log(network.getSelectedNodes())
+      console.log(network.getSelectedNodes())
       if (
         params != null &&
         in_initial_mode &&
@@ -290,8 +296,12 @@ function Visual() {
             : "Edit String! ([ ε ])";
         console.log("params:");
         console.log(params);
-        let user_input_string = prompt(Display_String);
+        setShow(true);
+
+        /*
+        let user_input_string =  prompt(Display_String);
         ChangeEdgeText(user_input_string, edge_id);
+        */
       }
 
       img_status.current.src = passive_bar;
@@ -306,7 +316,9 @@ function Visual() {
       network.destroy();
       window.removeEventListener("keydown", handleShiftClick);
     };
-  });
+  },[]);
+
+
   const deselectAllModes = () => {
     in_accepting_mode_ = false;
     in_initial_mode = false;
@@ -431,9 +443,38 @@ function Visual() {
     network.deleteSelected();
   }
 
+//  const graphComp = ({children}) => (
+    // <div
+    //   style={{ height: `${height}px` }}
+    //   id="graph-display"
+    //   className="Visual"
+    //   ref={wrapper}
+    // >{children}</div>
+
+  //const memoGraph = React.memo(graphComp);
+
+  const closeModal = () => {
+    setShow(false);
+    document.body.scrollTop = document.documentElement.scrollTop = 0;
+
+  }
   return (
     <div id="non-header-div">
-      <div class="div-inline-group-below-header">
+      <Modal show={show} onHide={() => { setShow(false);     document.body.scrollTop = document.documentElement.scrollTop = 0;}}>
+        <Modal.Header closeButton>
+          <Modal.Title>Modal heading</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>Woohoo, you're reading this text in a modal!</Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={closeModal}>
+            Close
+          </Button>
+          <Button variant="primary" onClick={() => setShow(false)}>
+            Save Changes
+          </Button>
+        </Modal.Footer>
+      </Modal>
+      <div class="div-inline-group-below-header" id="bar_layout">
         <div id="trash_button" class="div-inline-group-below-header">
           <input
             id="trash_button_input"
@@ -483,8 +524,9 @@ function Visual() {
         ></img>
       </div>
 
+      {/* <memoGraph ref={wrapper}> {"hi"}</memoGraph> */}
       <div
-        style={{ height: `${height}px` }}
+        style={{ height: `${height.toString()}px` }}
         id="graph-display"
         className="Visual"
         ref={wrapper}

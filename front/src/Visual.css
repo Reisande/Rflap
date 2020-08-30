@@ -7,7 +7,7 @@
 }
 
 #graph-display{
-        
+    overflow:hidden;
     outline:none;
     border:black !important;
 }
