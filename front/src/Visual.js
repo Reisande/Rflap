@@ -50,15 +50,17 @@ let edgesDS = new vis.DataSet([]);
       Graph object which is passed nodes and edges, and in turn is passed to populate vis.network (final canvas object). 
 
 */
+let in_initial_mode = false;
+let in_accepting_mode_ = false;
+let delete_lock = false;
 let graph = { nodes: nodesDS, edges: edgesDS };
 function Visual() {
-  const [show, setShow] = useState(false);
-
+  const [show, setShow] = useState({display: false, user_in: " _"});
+  let inputVal = "";
   const master_context = useContext(AutomataContext);
   master_context.graphobj = graph;
-  let delete_lock = false;
-  let in_accepting_mode_ = false,
-    in_initial_mode = false;
+//  let delete_lock = false;
+//  let in_accepting_mode_ = false;
   let img_index = 0;
   let img_array = [
     blank_svg_bar,
@@ -77,10 +79,10 @@ function Visual() {
     img_status.current.src = passive_bar;
     const HTMLCol_to_array = (html_collection) =>
       Array.prototype.slice.call(html_collection);
-
-    let nav_header_height = document.querySelector("#nav-header") == null ? 0 : document.querySelector("#nav-header");
-    let bar_layout_height = document.querySelector("#bar_layout") == null ? 0 : document.querySelector("#bar_layout");
-
+    let nav_header_height = document.querySelector("#nav-header") == null ? 0 : document.querySelector("#nav-header").offsetHeight;
+    let bar_layout_height = document.querySelector("#bar_layout") == null ? 0 : document.querySelector("#bar_layout").offsetHeight;
+   
+    console.log("RENDER")
     network = new vis.Network(
       wrapper.current,
       graph,
@@ -95,14 +97,10 @@ function Visual() {
   hoverNode listener
   Desc: Takes node added in addNode
   */
-
     network.on("hoverNode", (params) => { });
-
     /* 
-    
     controlNodeDragEnd
     Desc: Catches end of add transition event, and updates edges with newly added edges.
-
     */
     network.on("controlNodeDragEnd", (params) => {
       network.disableEditMode();
@@ -226,11 +224,15 @@ function Visual() {
       // SET INITIAL MODE PRESS
       console.log("slect");
       console.log(network.getSelectedNodes())
+      console.log(params);
+      console.log(in_initial_mode);
+      console.log()
       if (
         params != null &&
         in_initial_mode &&
         (params.nodes > 0 || params.nodes[0] != null)
       ) {
+        console.log('HERE')
         let node_id_clicked = params.nodes[0];
         let found_node;
         //find node given
@@ -297,15 +299,26 @@ function Visual() {
             : "Edit String! ([ ε ])";
         console.log("params:");
         console.log(params);
-        setShow(true);
+        const openModal = (edgeDisplayInfo) => {
+          if (edgeDisplayInfo == null) {
+          setShow({ display: true, user_in:"!"});
+            return;
+          }
+          let from = edgeDisplayInfo.from, to = edgeDisplayInfo.to;
+          let edgeLabel = edgeDisplayInfo.label == null ? "" : edgeDisplayInfo.edgeLabel;
 
+          setShow({ display: true, from: "δ(" + from.trim() + ", ", edgeLabel: edgeLabel, to: ") ="+ to, edgeId: edge_id});
+        };
+        openModal(nodesOfEdgeId(params.edges[0]));
+        
         /*
         let user_input_string =  prompt(Display_String);
         ChangeEdgeText(user_input_string, edge_id);
         */
       }
+     
+      //img_status.current.src = passive_bar;
 
-      img_status.current.src = passive_bar;
     });
 
     //cleaning up event listeners
@@ -320,6 +333,7 @@ function Visual() {
   },[]);
 
 
+
   const deselectAllModes = () => {
     in_accepting_mode_ = false;
     in_initial_mode = false;
@@ -328,7 +342,29 @@ function Visual() {
       img_status.current.src = passive_bar
     }
   };
+  const nodesOfEdgeId = (edgeID) => {
+    let fromLabel = "", toLabel = "", edgeText = "";
+    let nodeFromId, nodeToId;
+
+     graph.edges.forEach((edge) => {
+      if (edge.id == edgeID) {
+        nodeFromId = edge.from
+        nodeToId = edge.to
+      }
+    });
+    graph.nodes.forEach((node) => {
+      if (node.id == nodeFromId) {
+        fromLabel = node.label;
+      }
+      if (node.id == nodeToId) {
+        toLabel = node.label;
+      }
+    });
+    return {edgeLabel: edgeText , from: fromLabel, to:toLabel }
+  }
   const ChangeEdgeText = (userInput, edgeID) => {
+    console.log(userInput);
+
     graph.edges.forEach((edge) => {
       if (edge.id == edgeID) {
         edge.label = userInput;
@@ -339,7 +375,12 @@ function Visual() {
         return;
       }
     });
+    setShow({display:false})
+    deselectAllModes();
   };
+//  const saveEdgeEdit = (edgeId) => {
+ //   ChangeEditText()
+  //}
 
   const findEdgeByNodes = (from, to) => {
     let return_id;
@@ -455,22 +496,28 @@ function Visual() {
   //const memoGraph = React.memo(graphComp);
 
   const closeModal = () => {
-    setShow(false);
-    document.body.scrollTop = document.documentElement.scrollTop = 0;
+    //setShow(false);
 
   }
+
+//          setShow({ display: true, from: "δ(" + from, edgeLabel: edgeLabel, toInvariant: ") = ",  to: to});
   return (
     <div id="non-header-div">
-      <Modal show={show} onHide={() => { setShow(false);     document.body.scrollTop = document.documentElement.scrollTop = 0;}}>
-        <Modal.Header closeButton>
-          <Modal.Title>Modal heading</Modal.Title>
+      <Modal size="sm"backdrop="static" show={show.display} onHide={() => { setShow({display:false, user_in: "_"}) }}> 
+        <Modal.Header >
+          <Modal.Title>Edit Transition</Modal.Title>
         </Modal.Header>
-        <Modal.Body>Woohoo, you're reading this text in a modal!</Modal.Body>
+        <Modal.Body>
+          <Row>         <Col md={{ offset: 2 }}> 
+        <input type="text" defaultValue= {show.from} size="3" disabled/>
+            <input type="text" size="4" onChange={(event) => {inputVal = event.target.value}} defaultValue={show.edgeLabel }/>
+        <input type="text" defaultValue= {show.to} size="3" disabled/>
+        </Col>
+</Row>
+
+          </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={closeModal}>
-            Close
-          </Button>
-          <Button variant="primary" onClick={() => setShow(false)}>
+          <Button variant="primary" onClick={() => ChangeEdgeText(inputVal,show.edgeId)}>
             Save Changes
           </Button>
         </Modal.Footer>
