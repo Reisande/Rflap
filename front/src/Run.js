@@ -923,13 +923,13 @@ const animateIntoNeutral = (status_ref,test_button_ref) =>{
   };
 
   const WarningSign = () => {
-    return <Badge variant="danger">Invalid UIN!</Badge>;
+    return <Badge variant="danger"> Enter: name@uic.edu</Badge>;
   };
 
   async function UIN_submit(event) {
     let dotnet_endpoint;
-
-    if (input_val.length == 9 && /^\d+$/.test(input_val)) {
+    input_val = input_val.toLowerCase();
+    if (input_val.length > 7 && input_val.includes("@uic.edu") ) {
       let append = Math.round(Math.random() * 1000);
 
       preprocess();
@@ -1169,7 +1169,7 @@ const animateIntoNeutral = (status_ref,test_button_ref) =>{
             />
             <InputGroup.Append>
               <Button onClick={UIN_submit} variant="outline-secondary">
-                UIN
+               EDU 
               </Button>
             </InputGroup.Append>
           </InputGroup>
