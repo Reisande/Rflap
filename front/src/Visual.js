@@ -77,13 +77,14 @@ function Visual() {
     img_status.current.src = passive_bar;
     const HTMLCol_to_array = (html_collection) =>
       Array.prototype.slice.call(html_collection);
-    console.log(document.querySelector("#nav-header").offsetHeight); 
-      console.log(height - document.querySelector("#nav-header").offsetHeight)
+
+    let nav_header_height = document.querySelector("#nav-header") == null ? 0 : document.querySelector("#nav-header");
+    let bar_layout_height = document.querySelector("#bar_layout") == null ? 0 : document.querySelector("#bar_layout");
 
     network = new vis.Network(
       wrapper.current,
       graph,
-      NetworkOptions((height - document.querySelector("#nav-header").offsetHeight  - document.querySelector("#bar_header".offsetHeight) ).toString(), window.innerWidth.toString())
+      NetworkOptions((height - nav_header_height - bar_layout_height ).toString(), window.innerWidth.toString())
     );
     //context-click for graph
     network.on("showPopup", (params) => { });
