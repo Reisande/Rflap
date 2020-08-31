@@ -55,6 +55,7 @@ let in_accepting_mode_ = false;
 let delete_lock = false;
  let inputVal = "";
 let edgeDeletion = false;
+
 let graph = { nodes: nodesDS, edges: edgesDS };
 function Visual() {
   const [show, setShow] = useState({display: false, user_in: " _"});
@@ -230,13 +231,12 @@ function Visual() {
 
     network.on("select", (params) => {
       // SET INITIAL MODE PRESS
-      if (delete_lock && params.edges) {
+      if (delete_lock && params.edges.length > 0 && (params.nodes.length == 0 || params.nodes == [])) {
         edgeDeletion = true;
         graph.edges.remove(params.edges[0]);
         deselectAllModes();
-        return;
       }
-      if (
+      else if (
         params != null &&
         in_initial_mode &&
         (params.nodes > 0 || params.nodes[0] != null)
@@ -299,12 +299,8 @@ function Visual() {
         nodesDS.update([{ id: node_id_clicked, borderWidth: final_border }]);
         in_accepting_mode_ = false;
         img_status.current.src = passive_bar;
-      } else if (params.edges.length == 1 && params.nodes == 0) {
+      } else if (params.edges.length == 1 && params.nodes == 0 && edgeDeletion == false) {
         let edge_id = params.edges[0];
-        let Display_String =
-          master_context.mode == "Determinstic Finite Automata"
-            ? "Edit String!"
-            : "Edit String! ([ ε ])";
         const openModal = (edgeDisplayInfo) => {
           if (edgeDisplayInfo == null) {
             setShow({ display: true, user_in: "!" });
@@ -315,16 +311,8 @@ function Visual() {
           inputVal = currentEdgeText
           setShow({ display: true, from: "δ(" + from.trim() + ", ", edgeLabel: currentEdgeText, to: ") =" + to, edgeId: edge_id });
         };
-
-          openModal(nodesOfEdgeId(params.edges[0]));
-        /*
-        let user_input_string =  prompt(Display_String);
-        ChangeEdgeText(user_input_string, edge_id);
-        */
+          openModal(nodesOfEdgeId(params.edges[0]))
       }
-     
-      //img_status.current.src = passive_bar;
-
     });
 
     //cleaning up event listeners
