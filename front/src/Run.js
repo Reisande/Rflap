@@ -995,6 +995,7 @@ const animateIntoNeutral = (status_ref,test_button_ref) =>{
 
         const exportation_nodes = decipher(input_val);
         const deciphered = exportation_nodes(readImportTxt);
+        readImportTxt = null;
         let graphImport = JSON.parse(deciphered);
         let newNodes = new vis.DataSet([]);
         let newEdges = new vis.DataSet([]);
@@ -1003,7 +1004,7 @@ const animateIntoNeutral = (status_ref,test_button_ref) =>{
           let ar = [...s[0]];
           ar.shift();
           if (s[0] == graphImport.start_state) {
-           newNodes.add([{ id: parseInt(ar.join()), label: labelStr, borderWidth: s[1] ? 3 : 1, shape: "triangle",init: true}])
+            newNodes.add([{ id: parseInt(ar.join()), label: labelStr, borderWidth: s[1] ? 3 : 1, shape: "triangle", init: true }])
           }
           else {
             newNodes.add([{ id: parseInt(ar.join()), label: labelStr, borderWidth: s[1] ? 3 : 1 }])
@@ -1012,8 +1013,7 @@ const animateIntoNeutral = (status_ref,test_button_ref) =>{
         let fromToOnTransition = new Object();
         graphImport.transition_function.forEach(transition => {
           let key = transition[0] + transition[2]
-          if (fromToOnTransition[key] == null)
-          {
+          if (fromToOnTransition[key] == null) {
             fromToOnTransition[key] = transition[1]
           }
           else {
@@ -1050,12 +1050,13 @@ const animateIntoNeutral = (status_ref,test_button_ref) =>{
         master_context.network.setData(graph);
         master_context.edgesDS = newEdges;
         master_context.nodesDS = newNodes;
-        master_context.graphObj = { nodes: newNodes, edges:newEdges}
+        master_context.graphObj = { nodes: newNodes, edges: newEdges }
         //master_context.network.setOptions(NetworkOptions(height.toString(), window.innerWidth.toString())); 
         master_context.hasImported = true;
         set_UIN_input(false);
         set_warning_display(false);
         return true
+      }
       }
       else {
         let dotnet_endpoint;
@@ -1168,14 +1169,13 @@ const animateIntoNeutral = (status_ref,test_button_ref) =>{
             packet_to_misha_the_microsoft_engineer,
             "RFLAP_" + input_val + "_" + append.toString()
           );
-
           set_UIN_input(false);
           set_warning_display(false);
         } else {
           set_warning_display(true);
         }
       }
-    }}
+    }
 
   const export_click_handler = (event) => {
     isExport = true;
