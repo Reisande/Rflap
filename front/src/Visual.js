@@ -62,6 +62,8 @@ function Visual() {
   const [warning, setWarningDisplay] = useState(false);
   const master_context = useContext(AutomataContext);
   master_context.graphobj = graph;
+  master_context.edgesDS = edgesDS;
+  master_context.nodesDS = nodesDS;
 //  let delete_lock = false;
 //  let in_accepting_mode_ = false;
   let img_index = 0;
@@ -90,6 +92,7 @@ function Visual() {
       graph,
       NetworkOptions((height - nav_header_height - bar_layout_height ).toString(), window.innerWidth.toString())
     );
+    master_context.network = network;
     //context-click for graph
     network.on("showPopup", (params) => { });
 
@@ -122,6 +125,12 @@ function Visual() {
     network.on("afterDrawing", (params) => {
       let canvasDOM = document.getElementsByTagName("canvas")[0];
       canvasDOM.style.background = Hex.Canvas;
+      if (master_context.hasImported) {
+        console.log("imported")
+        nodesDS = master_context.nodesDS;
+        edgesDS = master_context.edgesDS;
+        master_context.hasImported = false;
+      }
       document.getElementById("group-holder").style.borderColor = Hex.Canvas;
       document.getElementById("non-header-div").style.background = Hex.Canvas;
     });
@@ -451,6 +460,7 @@ function Visual() {
         return parseLabel(obj.label);
       })
       .sort((a, b) => a - b);
+    console.log(nodesDS.get());
     nodesDS.get().forEach((obj, index) => {
       if (nodesPresent[index] != index && !foundEmptyIndex) {
         nominalAppend = index.toString();

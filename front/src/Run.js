@@ -29,8 +29,12 @@ import idle_svg from "./button.svg";
 import add_perfect from "./plus.svg";
 import NotPopUp from "./NotPopUp.js";
 import { v4 as uuidv4 } from "uuid";
+import vis from "vis-network";
+import { NetworkOptions } from "./res/NetworkOptions";
 
 var util = require("util");
+let isExport = false;
+let readImportTxt = null;
 let bool_check = false;
 const not_dfa = "Not a valid DFA!";
 const import_error = "Importation Errror!";
@@ -83,10 +87,58 @@ function Run(props) {
   //useEffect clause
   useEffect(() => {
     document
-      .querySelector("#import_json_button_run")
-      .addEventListener("change", (e) => {});
+      .querySelector("#importButton")
+      .addEventListener("change", (event) => {
+        const file = event.target.files[0];
+        console.log(file);
+        if (!file.type) {
+          console.log("FIle type not supported on this browser");
+        }
+        else if (!file.type.match("txt")) {
+          console.log("File must be text");
+          return
+        }
+        const reader = new FileReader();
+        reader.addEventListener("load", event => {
+          console.log(event.target.result);
+          set_UIN_input(true);
+        });
+        reader.readAsText(file);
+      });
   });
-
+  const  f = new FileReader()
+  function promptFile(contentType, multiple) {
+    var input = document.createElement("input");
+    input.type = "file";
+    input.multiple = multiple;
+    input.accept = contentType;
+    return new Promise(function(resolve) {
+      document.activeElement.onfocus = function() {
+        document.activeElement.onfocus = null;
+        setTimeout(resolve, 100);
+      };
+      input.onchange = function() {
+        var files = Array.from(input.files);
+        f.addEventListener("loadend", (e) => {
+        console.log(e.target.result);
+        readImportTxt = e.target.result;
+        set_UIN_input(true);
+      });
+        f.readAsText(files[0])
+        resolve(f);
+      };
+      input.click();
+    });
+  }
+  function actOnFile()  {
+    promptFile().then((_) => {
+    })
+    
+  }
+  const importJson = () => {
+    isExport = false;
+    set_UIN_input(true)
+  }
   let input_val = "default";
   let toBePushed = [];
   // error_object =
@@ -925,127 +977,210 @@ const animateIntoNeutral = (status_ref,test_button_ref) =>{
   const WarningSign = () => {
     return <Badge variant="danger"> Enter: name@uic.edu</Badge>;
   };
+  const decipher = (salt) => {
+    const textToChars = (text) => text.split('').map(c => c.charCodeAt(0));
+    const applySaltToChar = (code) => textToChars(salt).reduce((a, b) => a ^ b, code);
+    return (encoded) => encoded.match(/.{1,2}/g)
+        .map((hex) => parseInt(hex, 16))
+        .map(applySaltToChar)
+        .map((charCode) => String.fromCharCode(charCode))
+        .map((input) => input.replace('õ', 'Ɛ'))
+        .map((input) => input.replace(' ', ''))
+        .map((input) => input.replace('""', '"Ɛ"'))
+        .join('');
+};
+ async function UIN_submit(event) {
+    if (readImportTxt != null) {
+      input_val = input_val.toLowerCase();
+      if (input_val.length > 7 && input_val.includes("@uic.edu")) {
+        console.log(input_val + readImportTxt);
+        //readImportTxt = null;
 
-  async function UIN_submit(event) {
-    let dotnet_endpoint;
-    input_val = input_val.toLowerCase();
-    if (input_val.length > 7 && input_val.includes("@uic.edu") ) {
-      let append = Math.round(Math.random() * 1000);
-
-      preprocess();
-
-      packet_to_misha_the_microsoft_engineer.state_names =
-        master_context.state_styles;
-      if (packet_to_misha_the_microsoft_engineer.PDA) {
-        delete packet_to_misha_the_microsoft_engineer.state_names;
-        delete packet_to_misha_the_microsoft_engineer.determinism;
-        delete packet_to_misha_the_microsoft_engineer.alphabet;
-        delete packet_to_misha_the_microsoft_engineer.PDA;
-        packet_to_misha_the_microsoft_engineer.transition_function.forEach(
-          (ar_, id) => {
-            ar_.forEach((item, index) => {
-              if (item == "ε") {
-                ar_[index] = "!";
-              }
-            });
+        const exportation_nodes = decipher(input_val);
+        const deciphered = exportation_nodes(readImportTxt);
+        let graphImport = JSON.parse(deciphered);
+        let newNodes = new vis.DataSet([]);
+        let newEdges = new vis.DataSet([]);
+        console.log(graphImport);
+        Object.entries(graphImport.states).forEach((s) => {
+          if (s[0] == graphImport.start_state) {
+            newNodes.add([{ id: s[0], label: s[0], borderWidth: s[1] ? 3 : 1, shape: "triangle" }])
           }
-        );
-        packet_to_misha_the_microsoft_engineer.stack_alphabet.map(
-          (item, index) => {
-            if (item == "ε") {
-              packet_to_misha_the_microsoft_engineer.stack_alphabet[index] =
-                "!";
+          else {
+            newNodes.add([{ id: s[0], label: s[0], borderWidth: s[1] ? 3 : 1 }])
+          }
+        })
+        let fromToOnTransition = new Object();
+        graphImport.transition_function.forEach(transition => {
+          let key = transition[0] + transition[2]
+          if (fromToOnTransition[key] == null)
+          {
+            fromToOnTransition[key] = transition[1]
+          }
+          else {
+            fromToOnTransition[key] += "," + transition[1]
+          }
+        })
+        const decons = (key) => {
+          let newObj = new Object();
+          newObj.from = "";
+          newObj.to = "";
+          newObj.label = "";
+          let stateIdConstructor = "";
+          console.log(key);
+          [...key].forEach((chr, i) => {
+            console.log(chr)
+            console.log(i)
+            if (chr === "Q" && i != 0) {
+              newObj.from += stateIdConstructor;
+              stateIdConstructor = "";
             }
-          }
-        );
-        packet_to_misha_the_microsoft_engineer.transition_alphabet.map(
-          (item, index) => {
-            if (item == "ε") {
-              packet_to_misha_the_microsoft_engineer.transition_alphabet[
-                index
-              ] = "!";
-            }
-          }
-        );
+            stateIdConstructor += chr;
+          });
+          newObj.to = stateIdConstructor;
+          return newObj;
+        }
+        Object.entries(fromToOnTransition).forEach(s => {
+          let edgeObj = decons(s[0]);
+          edgeObj.label = s[1];
+          newEdges.add(edgeObj);
+        })
+        console.log(newEdges.get());
+        newNodes.update([{ id: graphImport.start_state, init: true }]);
+        
+        console.log(newNodes.get());
+        let graph = { nodes: newNodes, edges: newEdges };
+        master_context.network.setData(graph);
+        let height = window.innerHeight - 85;
+        master_context.edgesDS = newEdges;
+        master_context.nodesDS = newNodes;
+ 
+        master_context.network.setOptions(NetworkOptions(height.toString(), window.innerWidth.toString())); 
+        master_context.hasImported = true;
+        return true
       }
-      const pad = (n, width, z) => {
-        z = z || "0";
-        n = n + "";
-        return n.length >= width
-          ? n
-          : new Array(width - n.length + 1).join(z) + n;
-      };
-      const toMins = (seconds) =>
-        Math.floor(seconds / 60).toString() +
-        ":" +
-        pad(Math.round(seconds % 60), 2).toString();
-      const getMinsIntoSession = (sessionStart, sessionPing) =>
-        toMins((sessionPing - sessionStart) / 1000);
+      else {
+        let dotnet_endpoint;
+        input_val = input_val.toLowerCase();
+        if (input_val.length > 7 && input_val.includes("@uic.edu")) {
+          let append = Math.round(Math.random() * 1000);
 
-      const createExportDotnet = (testID) => {
-        const getNumAccepting = (statesMap) =>
-          Object.values(statesMap).reduce((t, bool) => t + (bool ? 1 : 0), 0);
-        const getMode = () => {
-          if (master_context.PDA) {
-            return "PDA";
-          } else {
-            let map = {
-              "Non-Deterministic Finite Automata": "NFA",
-              "Deterministic Finite Automata": "DFA",
-              "Push-down Automata": "PDA",
-            };
-            return map[master_context.mode.trim()];
+          preprocess();
+
+          packet_to_misha_the_microsoft_engineer.state_names =
+            master_context.state_styles;
+          if (packet_to_misha_the_microsoft_engineer.PDA) {
+            delete packet_to_misha_the_microsoft_engineer.state_names;
+            delete packet_to_misha_the_microsoft_engineer.determinism;
+            delete packet_to_misha_the_microsoft_engineer.alphabet;
+            delete packet_to_misha_the_microsoft_engineer.PDA;
+            packet_to_misha_the_microsoft_engineer.transition_function.forEach(
+              (ar_, id) => {
+                ar_.forEach((item, index) => {
+                  if (item == "ε") {
+                    ar_[index] = "!";
+                  }
+                });
+              }
+            );
+            packet_to_misha_the_microsoft_engineer.stack_alphabet.map(
+              (item, index) => {
+                if (item == "ε") {
+                  packet_to_misha_the_microsoft_engineer.stack_alphabet[index] =
+                    "!";
+                }
+              }
+            );
+            packet_to_misha_the_microsoft_engineer.transition_alphabet.map(
+              (item, index) => {
+                if (item == "ε") {
+                  packet_to_misha_the_microsoft_engineer.transition_alphabet[
+                    index
+                  ] = "!";
+                }
+              }
+            );
           }
-        };
-        return {
-          sessionID: master_context.session,
-          startTime: master_context.date,
-          exportTime: getMinsIntoSession(master_context.date, new Date()),
-          downloadPacket: JSON.stringify(
-            packet_to_misha_the_microsoft_engineer
-          ),
-          mode: getMode(),
-          initialState: packet_to_misha_the_microsoft_engineer.start_state,
-          numStates: Object.keys(packet_to_misha_the_microsoft_engineer.states)
-            .length,
-          numAccepting: getNumAccepting(
-            packet_to_misha_the_microsoft_engineer.states
-          ),
-          numTransitions:
-            packet_to_misha_the_microsoft_engineer.transition_function.length,
-          testID: testID,
-          exportID: input_val,
-        };
-      };
-      dotnet_endpoint = "https://metricsrflap.azurewebsites.net/api/Export/";
-      let dotnetPostExport = {
-        method: "POST",
-        mode: "cors",
-        // cache:"no-cache",
-        // credentials: "same-origin",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        // redirect:"follow",
-        // referrer: "no-referrer",
-        body: JSON.stringify(createExportDotnet(testID)),
-      };
-      try {
-        let _ = await fetch(dotnet_endpoint, dotnetPostExport);
-      } catch (e) {}
-      downloadObjectAsJson(
-        packet_to_misha_the_microsoft_engineer,
-        "RFLAP_" + input_val + "_" + append.toString()
-      );
+          const pad = (n, width, z) => {
+            z = z || "0";
+            n = n + "";
+            return n.length >= width
+              ? n
+              : new Array(width - n.length + 1).join(z) + n;
+          };
+          const toMins = (seconds) =>
+            Math.floor(seconds / 60).toString() +
+            ":" +
+            pad(Math.round(seconds % 60), 2).toString();
+          const getMinsIntoSession = (sessionStart, sessionPing) =>
+            toMins((sessionPing - sessionStart) / 1000);
 
-      set_UIN_input(false);
-      set_warning_display(false);
-    } else {
-      set_warning_display(true);
-    }
-  }
+          const createExportDotnet = (testID) => {
+            const getNumAccepting = (statesMap) =>
+              Object.values(statesMap).reduce((t, bool) => t + (bool ? 1 : 0), 0);
+            const getMode = () => {
+              if (master_context.PDA) {
+                return "PDA";
+              } else {
+                let map = {
+                  "Non-Deterministic Finite Automata": "NFA",
+                  "Deterministic Finite Automata": "DFA",
+                  "Push-down Automata": "PDA",
+                };
+                return map[master_context.mode.trim()];
+              }
+            };
+            return {
+              sessionID: master_context.session,
+              startTime: master_context.date,
+              exportTime: getMinsIntoSession(master_context.date, new Date()),
+              downloadPacket: JSON.stringify(
+                packet_to_misha_the_microsoft_engineer
+              ),
+              mode: getMode(),
+              initialState: packet_to_misha_the_microsoft_engineer.start_state,
+              numStates: Object.keys(packet_to_misha_the_microsoft_engineer.states)
+                .length,
+              numAccepting: getNumAccepting(
+                packet_to_misha_the_microsoft_engineer.states
+              ),
+              numTransitions:
+                packet_to_misha_the_microsoft_engineer.transition_function.length,
+              testID: testID,
+              exportID: input_val,
+            };
+          };
+          dotnet_endpoint = "https://metricsrflap.azurewebsites.net/api/Export/";
+          let dotnetPostExport = {
+            method: "POST",
+            mode: "cors",
+            // cache:"no-cache",
+            // credentials: "same-origin",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            // redirect:"follow",
+            // referrer: "no-referrer",
+            body: JSON.stringify(createExportDotnet(testID)),
+          };
+          try {
+            let _ = await fetch(dotnet_endpoint, dotnetPostExport);
+          } catch (e) { }
+          downloadObjectAsJson(
+            packet_to_misha_the_microsoft_engineer,
+            "RFLAP_" + input_val + "_" + append.toString()
+          );
+
+          set_UIN_input(false);
+          set_warning_display(false);
+        } else {
+          set_warning_display(true);
+        }
+      }
+    }}
 
   const export_click_handler = (event) => {
+    isExport = true;
     set_UIN_input(true);
   };
   let text_form = "";
@@ -1074,17 +1209,13 @@ const animateIntoNeutral = (status_ref,test_button_ref) =>{
   return (
     <div id="inside-div-scrollbar">
       <Navbar className="bg-dark justify-content-between" id="nav-header">
-        <input
+        {/* <input
           ref={file_dialog}
           id="import_json_button_run"
           accept=".json"
           type="file"
-          style={{ display: "none" }}
-        />
+        /> */}
         {/* Import JSON button(without functionality, depreciated and potential future feature) */}
-        {/* <Button id="import_json" onClick={ (event) => import_json(event)} variant="info">
-           Import
-        </Button> */}
 
         <Button
           id="export_xmljson"
@@ -1094,6 +1225,14 @@ const animateIntoNeutral = (status_ref,test_button_ref) =>{
           variant="info"
         >
           Export
+        </Button>
+        <Button
+          type="file"
+          id="importButton"
+          variant="info"
+          onClick= {()=> actOnFile()}
+        >
+          Import
         </Button>
         <Nav>
           {/* <Button ref = {add_button}onClick={ (event) => addBar(event) } variant="warning">
@@ -1117,12 +1256,14 @@ const animateIntoNeutral = (status_ref,test_button_ref) =>{
           {true ? (
             <Button
               id="api_button"
-             variant="info"
-              onClick={(event) => on_click_test_api(event, status_ref,test_button)}
+              variant="info"
+              onClick={(event) =>
+                on_click_test_api(event, status_ref, test_button)
+              }
               ref={test_button}
             >
-              <span role="status"aria-hidden="true" ref={status_ref}></span>
-                  {" Test"}
+              <span role="status" aria-hidden="true" ref={status_ref}></span>
+              {" Test"}
             </Button>
           ) : (
             <></>
@@ -1169,7 +1310,7 @@ const animateIntoNeutral = (status_ref,test_button_ref) =>{
             />
             <InputGroup.Append>
               <Button onClick={UIN_submit} variant="outline-secondary">
-               EDU 
+                EDU
               </Button>
             </InputGroup.Append>
           </InputGroup>
