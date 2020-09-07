@@ -127,9 +127,12 @@ function Visual() {
       canvasDOM.style.background = Hex.Canvas;
       if (master_context.hasImported) {
         console.log("imported")
+        console.log(nodesDS == master_context.nodesDS);
         nodesDS = master_context.nodesDS;
         edgesDS = master_context.edgesDS;
+        console.log(nodesDS === master_context.nodesDS);
         master_context.hasImported = false;
+        node_id_global += nodesDS.get().length -1
       }
       document.getElementById("group-holder").style.borderColor = Hex.Canvas;
       document.getElementById("non-header-div").style.background = Hex.Canvas;
@@ -251,6 +254,8 @@ function Visual() {
         in_initial_mode &&
         (params.nodes > 0 || params.nodes[0] != null)
       ) {
+        console.log(node_id_clicked);
+        console.log(found_node);
         let node_id_clicked = params.nodes[0];
         let found_node;
         //find node given

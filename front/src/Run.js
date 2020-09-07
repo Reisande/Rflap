@@ -1003,11 +1003,15 @@ const animateIntoNeutral = (status_ref,test_button_ref) =>{
         let newEdges = new vis.DataSet([]);
         console.log(graphImport);
         Object.entries(graphImport.states).forEach((s) => {
+          let labelStr = " " + s[0].split("").join(" ") + " ";
+          console.log(labelStr)
+          let ar = [...s[0]];
+          ar.shift();
           if (s[0] == graphImport.start_state) {
-            newNodes.add([{ id: s[0], label: s[0], borderWidth: s[1] ? 3 : 1, shape: "triangle" }])
+           newNodes.add([{ id: parseInt(ar.join()), label: labelStr, borderWidth: s[1] ? 3 : 1, shape: "triangle" }])
           }
           else {
-            newNodes.add([{ id: s[0], label: s[0], borderWidth: s[1] ? 3 : 1 }])
+            newNodes.add([{ id: parseInt(ar.join()), label: labelStr, borderWidth: s[1] ? 3 : 1 }])
           }
         })
         let fromToOnTransition = new Object();
@@ -1032,12 +1036,16 @@ const animateIntoNeutral = (status_ref,test_button_ref) =>{
             console.log(chr)
             console.log(i)
             if (chr === "Q" && i != 0) {
-              newObj.from += stateIdConstructor;
+              let ar = [...stateIdConstructor];
+              ar.shift();
+              newObj.from = parseInt(ar.join());
               stateIdConstructor = "";
             }
             stateIdConstructor += chr;
           });
-          newObj.to = stateIdConstructor;
+          let ar = [...stateIdConstructor]
+          ar.shift()
+          newObj.to = parseInt(ar.join());
           return newObj;
         }
         Object.entries(fromToOnTransition).forEach(s => {
@@ -1046,7 +1054,7 @@ const animateIntoNeutral = (status_ref,test_button_ref) =>{
           newEdges.add(edgeObj);
         })
         console.log(newEdges.get());
-        newNodes.update([{ id: graphImport.start_state, init: true }]);
+        //newNodes.update([{ id: graphImport.start_state, init: true }]);
         
         console.log(newNodes.get());
         let graph = { nodes: newNodes, edges: newEdges };
