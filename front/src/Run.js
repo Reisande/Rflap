@@ -1052,6 +1052,8 @@ const animateIntoNeutral = (status_ref,test_button_ref) =>{
         master_context.graphObj = { nodes: newNodes, edges:newEdges}
         //master_context.network.setOptions(NetworkOptions(height.toString(), window.innerWidth.toString())); 
         master_context.hasImported = true;
+        set_UIN_input(false);
+        set_warning_display(false);
         return true
       }
       else {
