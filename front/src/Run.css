@@ -15,7 +15,7 @@
 #add_button:focus{
     outline:none;
     }
-#import_json{
+#importButton{
     box-shadow: none;
 }
 #export_xmljson{

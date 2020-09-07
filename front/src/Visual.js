@@ -62,6 +62,8 @@ function Visual() {
   const [warning, setWarningDisplay] = useState(false);
   const master_context = useContext(AutomataContext);
   master_context.graphobj = graph;
+  master_context.edgesDS = edgesDS;
+  master_context.nodesDS = nodesDS;
 //  let delete_lock = false;
 //  let in_accepting_mode_ = false;
   let img_index = 0;
@@ -90,6 +92,7 @@ function Visual() {
       graph,
       NetworkOptions((height - nav_header_height - bar_layout_height ).toString(), window.innerWidth.toString())
     );
+    master_context.network = network;
     //context-click for graph
     network.on("showPopup", (params) => { });
 
@@ -122,6 +125,13 @@ function Visual() {
     network.on("afterDrawing", (params) => {
       let canvasDOM = document.getElementsByTagName("canvas")[0];
       canvasDOM.style.background = Hex.Canvas;
+      if (master_context.hasImported) {
+        nodesDS = master_context.nodesDS;
+        edgesDS = master_context.edgesDS;
+        master_context.hasImported = false;
+        graph = master_context.graphObj;
+        node_id_global += nodesDS.get().length -1
+      }
       document.getElementById("group-holder").style.borderColor = Hex.Canvas;
       document.getElementById("non-header-div").style.background = Hex.Canvas;
     });
@@ -242,8 +252,9 @@ function Visual() {
         in_initial_mode &&
         (params.nodes > 0 || params.nodes[0] != null)
       ) {
-        let node_id_clicked = params.nodes[0];
+       let node_id_clicked = params.nodes[0];
         let found_node;
+ 
         //find node given
         graph.nodes.get().forEach((node) => {
           if (node.id == node_id_clicked) {
