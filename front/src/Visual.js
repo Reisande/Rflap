@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState, useContext } from "react";
 /*graphing library*/
 import vis from "vis-network";
 /*react bootstrap components*/
-import { Button, ButtonGroup, Col, Row, Modal} from "react-bootstrap";
+import { Button, ButtonGroup, Col, Row, Modal,Badge} from "react-bootstrap";
 /*import css and react bootstrap css */
 import "./App.css";
 import "./Visual.css";
@@ -59,6 +59,7 @@ let edgeDeletion = false;
 let graph = { nodes: nodesDS, edges: edgesDS };
 function Visual() {
   const [show, setShow] = useState({display: false, user_in: " _"});
+  const [warning, setWarningDisplay] = useState(false);
   const master_context = useContext(AutomataContext);
   master_context.graphobj = graph;
 //  let delete_lock = false;
@@ -358,19 +359,34 @@ function Visual() {
     return {edgeLabel: edgeText , from: fromLabel, to:toLabel }
   }
   const ChangeEdgeText = (userInput, edgeID) => {
-
+    String.prototype.replaceAt = function(index, replacement) {
+      return this.substr(0, index) + replacement + this.substr(index + replacement.length);
+    }
+    let warn = false;
     graph.edges.forEach((edge) => {
       if (edge.id == edgeID) {
         edge.label = userInput;
-        if (userInput == " " || userInput == "") {
-          userInput = "ϵ";
+        userInput.split(",").forEach((chr) => {
+          if (chr.length > 1){
+            warn = true;
+          }
+        });
+        if (userInput === "") {
+          warn = true;
         }
+        if (warn) return;
+        userInput = userInput.replace("!", "ϵ").replace(" ", "ϵ");
         edgesDS.update([{ id: edge.id, label: userInput }]);
-        return;
       }
     });
-    setShow({display:false})
-    deselectAllModes();
+    if (warn) {
+      setWarningDisplay(true);
+    }
+    else {
+      setShow({ display: false })
+      setWarningDisplay(false);
+      deselectAllModes();
+    }
   };
 //  const saveEdgeEdit = (edgeId) => {
  //   ChangeEditText()
@@ -513,6 +529,9 @@ function Visual() {
 </Row>
           </Modal.Body>
         <Modal.Footer>
+          {warning ?
+            <Badge size="sm" variant="danger">Must be single characters comma seperated.</Badge> :
+            <React.Fragment />}
           <Button variant="primary" onClick={() => ChangeEdgeText(inputVal,show.edgeId)}>
             Save Changes
           </Button>
@@ -543,7 +562,7 @@ function Visual() {
         </div> */}
 
         <ButtonGroup id="group-holder" className="mr-2">
-          <Button class="visual-button" variant="info" onClick={toEditEdgeMode}>
+          <Button class="visual-button" variant="info" onClick={()=>toEditEdgeMode()}>
             {" "}
             <font color="white">Add Transitions</font>
           </Button>
