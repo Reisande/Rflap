@@ -90,7 +90,6 @@ function Run(props) {
       .querySelector("#importButton")
       .addEventListener("change", (event) => {
         const file = event.target.files[0];
-        console.log(file);
         if (!file.type) {
           console.log("FIle type not supported on this browser");
         }
@@ -120,7 +119,6 @@ function Run(props) {
       input.onchange = function() {
         var files = Array.from(input.files);
         f.addEventListener("loadend", (e) => {
-        console.log(e.target.result);
         readImportTxt = e.target.result;
         set_UIN_input(true);
       });
@@ -993,7 +991,6 @@ const animateIntoNeutral = (status_ref,test_button_ref) =>{
     if (readImportTxt != null) {
       input_val = input_val.toLowerCase();
       if (input_val.length > 7 && input_val.includes("@uic.edu")) {
-        console.log(input_val + readImportTxt);
         //readImportTxt = null;
 
         const exportation_nodes = decipher(input_val);
@@ -1001,10 +998,8 @@ const animateIntoNeutral = (status_ref,test_button_ref) =>{
         let graphImport = JSON.parse(deciphered);
         let newNodes = new vis.DataSet([]);
         let newEdges = new vis.DataSet([]);
-        console.log(graphImport);
         Object.entries(graphImport.states).forEach((s) => {
           let labelStr = " " + s[0].split("").join(" ") + " ";
-          console.log(labelStr)
           let ar = [...s[0]];
           ar.shift();
           if (s[0] == graphImport.start_state) {
@@ -1031,10 +1026,7 @@ const animateIntoNeutral = (status_ref,test_button_ref) =>{
           newObj.to = "";
           newObj.label = "";
           let stateIdConstructor = "";
-          console.log(key);
           [...key].forEach((chr, i) => {
-            console.log(chr)
-            console.log(i)
             if (chr === "Q" && i != 0) {
               let ar = [...stateIdConstructor];
               ar.shift();
@@ -1053,17 +1045,12 @@ const animateIntoNeutral = (status_ref,test_button_ref) =>{
           edgeObj.label = s[1];
           newEdges.add(edgeObj);
         })
-        console.log(newEdges.get());
-        //newNodes.update([{ id: graphImport.start_state, init: true }]);
-        
-        console.log(newNodes.get());
         let graph = { nodes: newNodes, edges: newEdges };
         master_context.network.setData(graph);
-        let height = window.innerHeight - 85;
         master_context.edgesDS = newEdges;
         master_context.nodesDS = newNodes;
- 
-        master_context.network.setOptions(NetworkOptions(height.toString(), window.innerWidth.toString())); 
+        master_context.graphObj = { nodes: newNodes, edges:newEdges}
+        //master_context.network.setOptions(NetworkOptions(height.toString(), window.innerWidth.toString())); 
         master_context.hasImported = true;
         return true
       }

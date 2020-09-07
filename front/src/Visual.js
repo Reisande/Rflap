@@ -126,12 +126,10 @@ function Visual() {
       let canvasDOM = document.getElementsByTagName("canvas")[0];
       canvasDOM.style.background = Hex.Canvas;
       if (master_context.hasImported) {
-        console.log("imported")
-        console.log(nodesDS == master_context.nodesDS);
         nodesDS = master_context.nodesDS;
         edgesDS = master_context.edgesDS;
-        console.log(nodesDS === master_context.nodesDS);
         master_context.hasImported = false;
+        graph = master_context.graphObj;
         node_id_global += nodesDS.get().length -1
       }
       document.getElementById("group-holder").style.borderColor = Hex.Canvas;
@@ -254,10 +252,9 @@ function Visual() {
         in_initial_mode &&
         (params.nodes > 0 || params.nodes[0] != null)
       ) {
-        console.log(node_id_clicked);
-        console.log(found_node);
-        let node_id_clicked = params.nodes[0];
+       let node_id_clicked = params.nodes[0];
         let found_node;
+ 
         //find node given
         graph.nodes.get().forEach((node) => {
           if (node.id == node_id_clicked) {
@@ -465,7 +462,6 @@ function Visual() {
         return parseLabel(obj.label);
       })
       .sort((a, b) => a - b);
-    console.log(nodesDS.get());
     nodesDS.get().forEach((obj, index) => {
       if (nodesPresent[index] != index && !foundEmptyIndex) {
         nominalAppend = index.toString();
