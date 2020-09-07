@@ -13,7 +13,7 @@ import {scheduleMeasurement} from './res/MemoryTests';
 
 import { v4 as uuidv4 } from 'uuid';
 let master_context = {
-  graphobj: null,    // DFA/NFA: holds graphing object, which declares parameters
+  graphObj: null,    // DFA/NFA: holds graphing object, which declares parameters
   grammar_obj: [{TERM:"",NON_TERM:""}], // CFG_MODULE: array of arrays, where each array is a grammar rule from "Definition"
   pushdown: false, // for Push Down Automatas
 };

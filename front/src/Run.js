@@ -505,10 +505,10 @@ function Run(props) {
   };
   const preprocess = () => {
     edgeProcess(
-      master_context.graphobj.edges.get(),
-      master_context.graphobj.nodes.get()
+      master_context.graphObj.edges.get(),
+      master_context.graphObj.nodes.get()
     );
-    nodeProcess(master_context.graphobj.nodes.get());
+    nodeProcess(master_context.graphObj.nodes.get());
   };
 const animateIntoNeutral = (status_ref,test_button_ref) =>{
 
@@ -1003,7 +1003,7 @@ const animateIntoNeutral = (status_ref,test_button_ref) =>{
           let ar = [...s[0]];
           ar.shift();
           if (s[0] == graphImport.start_state) {
-           newNodes.add([{ id: parseInt(ar.join()), label: labelStr, borderWidth: s[1] ? 3 : 1, shape: "triangle" }])
+           newNodes.add([{ id: parseInt(ar.join()), label: labelStr, borderWidth: s[1] ? 3 : 1, shape: "triangle",init: true}])
           }
           else {
             newNodes.add([{ id: parseInt(ar.join()), label: labelStr, borderWidth: s[1] ? 3 : 1 }])
@@ -1043,6 +1043,7 @@ const animateIntoNeutral = (status_ref,test_button_ref) =>{
         Object.entries(fromToOnTransition).forEach(s => {
           let edgeObj = decons(s[0]);
           edgeObj.label = s[1];
+          edgeObj.arrows = "to";
           newEdges.add(edgeObj);
         })
         let graph = { nodes: newNodes, edges: newEdges };

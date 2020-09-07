@@ -61,7 +61,7 @@ function Visual() {
   const [show, setShow] = useState({display: false, user_in: " _"});
   const [warning, setWarningDisplay] = useState(false);
   const master_context = useContext(AutomataContext);
-  master_context.graphobj = graph;
+  master_context.graphObj = graph;
   master_context.edgesDS = edgesDS;
   master_context.nodesDS = nodesDS;
 //  let delete_lock = false;
