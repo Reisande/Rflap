@@ -573,10 +573,10 @@ function Visual() {
         </div> */}
 
         <ButtonGroup id="group-holder" className="mr-2">
-          <Button class="visual-button" variant="info" onClick={()=>toEditEdgeMode()}>
+          {/* <Button class="visual-button" variant="info" onClick={()=>toEditEdgeMode()}>
             {" "}
             <font color="white">Add Transitions</font>
-          </Button>
+          </Button> */}
 
           {/*Depreciated method of adding nodes to the canvas */}
           {/* <Button class ="visual-button" variant="secondary" onClick={toAddNodeMode}><font color='yellow'> Add Node</font> </Button> */}
