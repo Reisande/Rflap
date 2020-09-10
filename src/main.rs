@@ -188,7 +188,7 @@ pub fn endpoint_grade(buffer: String, args: Vec<String>) -> io::Result<()> {
                 score: size_score,
                 name: "size".to_string(),
                 number: problem_number.to_owned(),
-                visibility: "visible".to_string(),
+                visibility: "hidden".to_string(),
             });
         }
         _ => {}
