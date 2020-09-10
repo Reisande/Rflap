@@ -44,7 +44,7 @@ pub fn generate_tests(input_json: TestsJson) -> TestsJsonCallback {
     } else {
         let mut position: usize = 0;
 
-		while return_vec.len() as u16 < input_json.size {
+		while (return_vec.len() as u16) < input_json.size {
 			for i in 0..input_json.length {
 				while return_vec[position].len() == usize::from(i) {
 					let mut prefix = return_vec[position].to_owned();
