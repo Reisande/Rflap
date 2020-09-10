@@ -1,0 +1,19 @@
+name: Docker Image CI
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: Trigger update autograder
+      run: |
+        curl -X POST -u ${{ secrets.AUTOGRADER_USERNAME }}:${{ secrets.AUTOGRADER_PAT }} -H "Content-Type: application/json" -d '{"ref": "master"}' ${{ secrets.AUTOGRADER_WORKFLOW }}
