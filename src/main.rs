@@ -235,7 +235,7 @@ pub fn endpoint_grade(buffer: String, args: Vec<String>) -> io::Result<()> {
     let final_tests = serde_json::to_string(&tests)?;
 
     let mut output = File::create(&args[3])?;
-    write!(output, "{{\"tests\": {} }}", final_tests)?;
+    write!(output, "{{\"tests\":{}}}", final_tests)?;
 
     Ok(())
 }
