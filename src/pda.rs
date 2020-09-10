@@ -61,7 +61,7 @@ impl Pda {
         a_transitions: MultiMap<(String, Option<char>, Option<char>), (Option<char>, String)>,
     ) -> Pda {
         let mut transition_function = MultiMap::new();
-
+		
         for ((from, c0, c1), v) in a_transitions {
             for (c2, to) in v {
                 transition_function.insert(
@@ -163,7 +163,7 @@ impl Pda {
 
         // end of the string
         if position >= validate_string.len() {
-            let mut is_final: bool = match self.states.get(&current_state.to_owned()) {
+            let is_final: bool = match self.states.get(&current_state.to_owned()) {
                 Some(b) => *b,
                 None => false,
             };
