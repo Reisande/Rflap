@@ -20,7 +20,7 @@ mod pda;
 
 fn api(input_automaton_json: finite_automaton::FiniteAutomatonJson) -> Result<String> {
     let (input_automaton, input_strings, hint) =
-        finite_automaton::FiniteAutomaton::new_from_json(&input_automaton_json);
+        finite_automaton::FiniteAutomaton::new_from_json(&input_automaton_json);	
 
     let mut return_paths = Vec::new();
 
@@ -166,7 +166,7 @@ pub fn endpoint_grade(buffer: String, args: Vec<String>) -> io::Result<()> {
     // determinism
     if public_tests.6 {
         tests.push(Tests {
-            score: -determinism_weight.unwrap(),
+            score: determinism_weight.unwrap(),
             name: "determinism".to_string(),
             number: problem_number.to_owned(),
             visibility: "visible".to_string(),
@@ -175,9 +175,15 @@ pub fn endpoint_grade(buffer: String, args: Vec<String>) -> io::Result<()> {
     // minimal size
     match original_size {
         Some(v) => {
-            let size_score = -(size_weight
-                * ((source.states.len() - target.states.len()) / (v as usize - target.states.len()))
-                    as f64);
+            let size_score =
+				if size_weight > 0.0 {
+				-(size_weight
+				  * ((source.states.len() - target.states.len()) /
+					 (v as usize - target.states.len()))
+                  as f64)
+				} else {
+					0.0
+				};
             tests.push(Tests {
                 score: size_score,
                 name: "size".to_string(),
@@ -229,7 +235,7 @@ pub fn endpoint_grade(buffer: String, args: Vec<String>) -> io::Result<()> {
     let final_tests = serde_json::to_string(&tests)?;
 
     let mut output = File::create(&args[3])?;
-    write!(output, "{}", final_tests)?;
+    write!(output, "{{\"tests\": {} }}", final_tests)?;
 
     Ok(())
 }
