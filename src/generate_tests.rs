@@ -22,15 +22,13 @@ pub struct TestsJsonCallback {
 pub fn generate_tests(input_json: TestsJson) -> TestsJsonCallback {
     let mut return_vec: Vec<String> = [].to_vec();
 
-    return_vec.push("".to_string());
-
     let alphabet_vec: Vec<char> = input_json.alphabet.iter().cloned().collect();
 
     if input_json.random {
         while return_vec.len() < input_json.size.try_into().unwrap() {
             let mut rng = rand::thread_rng();
 
-            let string_length: u16 = rng.gen_range(3, 3 + input_json.length);
+            let string_length: u16 = rng.gen_range(7, 7 + input_json.length);
 
             let new_test_string: String = (0..string_length)
                 .map(|_| {
