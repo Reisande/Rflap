@@ -219,7 +219,7 @@ pub fn endpoint_grade(buffer: String, args: Vec<String>) -> io::Result<()> {
             score: hidden_tests.5[test] as f64,
             name: hidden_tests.4[test].to_owned(),
             number: problem_number.to_owned(),
-            visibility: "hidden".to_string(),
+            visibility: "after_published".to_string(),
         });
     }
 
@@ -228,7 +228,7 @@ pub fn endpoint_grade(buffer: String, args: Vec<String>) -> io::Result<()> {
             score: hidden_tests.3[test] as f64,
             name: hidden_tests.2[test].to_owned(),
             number: problem_number.to_owned(),
-            visibility: "hidden".to_string(),
+            visibility: "after_published".to_string(),
         });
     }
 
