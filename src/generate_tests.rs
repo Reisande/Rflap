@@ -50,7 +50,7 @@ pub fn generate_tests(input_json: TestsJson) -> TestsJsonCallback {
 					let mut prefix = return_vec[position].to_owned();
 					for letter in &alphabet_vec {
 						prefix.push(*letter);
-						if !return_vec.contains(prefix.to_owned()) {
+						if !return_vec.contains(&prefix.to_owned()) {
 							return_vec.push(prefix.to_owned());
 							if return_vec.len() as u16 >= input_json.size {
 								println!("break: {} {} end", return_vec.len(), input_json.size);
