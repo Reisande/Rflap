@@ -27,7 +27,7 @@ fn api(input_automaton_json: finite_automaton::FiniteAutomatonJson) -> Result<St
     for input_string in input_strings {
         return_paths.push(input_automaton.validate_string(input_string.to_owned()));
     }
-
+	
     let callback = finite_automaton::FiniteAutomatonCallback {
         list_of_strings: return_paths.to_owned(),
         hint: hint.to_owned(),
@@ -164,7 +164,7 @@ pub fn endpoint_grade(buffer: String, args: Vec<String>) -> io::Result<()> {
     let size_weight: f64 = f64::from(args[6].to_string().parse::<f64>().unwrap());
 
     // determinism
-    if public_tests.6 {
+    if supposed_to_be_deterministic && public_tests.6 {
         tests.push(Tests {
             score: determinism_weight.unwrap(),
             name: "determinism".to_string(),
@@ -188,7 +188,7 @@ pub fn endpoint_grade(buffer: String, args: Vec<String>) -> io::Result<()> {
                 score: size_score,
                 name: "size".to_string(),
                 number: problem_number.to_owned(),
-                visibility: "hidden".to_string(),
+                visibility: "after_published".to_string(),
             });
         }
         _ => {}
@@ -219,7 +219,7 @@ pub fn endpoint_grade(buffer: String, args: Vec<String>) -> io::Result<()> {
             score: hidden_tests.5[test] as f64,
             name: hidden_tests.4[test].to_owned(),
             number: problem_number.to_owned(),
-            visibility: "hidden".to_string(),
+            visibility: "after_published".to_string(),
         });
     }
 
@@ -228,7 +228,7 @@ pub fn endpoint_grade(buffer: String, args: Vec<String>) -> io::Result<()> {
             score: hidden_tests.3[test] as f64,
             name: hidden_tests.2[test].to_owned(),
             number: problem_number.to_owned(),
-            visibility: "hidden".to_string(),
+            visibility: "after_published".to_string(),
         });
     }
 
