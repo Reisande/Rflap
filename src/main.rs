@@ -146,13 +146,12 @@ pub fn endpoint_grade(buffer: String, args: Vec<String>) -> io::Result<()> {
         &serde_json::de::from_str::<finite_automaton::FiniteAutomatonJson>(&buffer).unwrap();
     let target =
         &serde_json::de::from_str::<finite_automaton::FiniteAutomatonJson>(&buffer_answer).unwrap();
-    let mut public_tests = grade(source, target, 10, supposed_to_be_deterministic);
-    let hidden_tests = grade(source, target, 90, supposed_to_be_deterministic);
+    let tests = grade(source, target, 100, supposed_to_be_deterministic);
 
     // then initialize a data structure which follows the output of results.json
     // the only members out of results.json which matter are score and tests
     // the only members of tests which we care about are
-    let mut tests: Vec<Tests> = Vec::new();
+    let mut write_tests: Vec<Tests> = Vec::new();
 
     let problem_number: String = args[4].to_owned();
 
@@ -164,8 +163,8 @@ pub fn endpoint_grade(buffer: String, args: Vec<String>) -> io::Result<()> {
     let size_weight: f64 = f64::from(args[6].to_string().parse::<f64>().unwrap());
 
     // determinism
-    if supposed_to_be_deterministic && public_tests.6 {
-        tests.push(Tests {
+    if supposed_to_be_deterministic && tests.6 {
+        write_tests.push(Tests {
             score: determinism_weight.unwrap(),
             name: "determinism".to_string(),
             number: problem_number.to_owned(),
@@ -184,7 +183,7 @@ pub fn endpoint_grade(buffer: String, args: Vec<String>) -> io::Result<()> {
 				} else {
 					0.0
 				};
-            tests.push(Tests {
+            write_tests.push(Tests {
                 score: size_score,
                 name: "size".to_string(),
                 number: problem_number.to_owned(),
@@ -196,43 +195,43 @@ pub fn endpoint_grade(buffer: String, args: Vec<String>) -> io::Result<()> {
 
     // DYNAMIC TESTS
 
-    for test in 0..public_tests.2.len() {
-        tests.push(Tests {
-            score: public_tests.3[test] as f64,
-            name: public_tests.2[test].to_owned(),
+    for test in 0..10 {
+        write_tests.push(Tests {
+            score: tests.3[test] as f64,
+            name: tests.2[test].to_owned(),
             number: problem_number.to_owned(),
             visibility: "visible".to_string(),
         });
     }
 
-    for test in 0..public_tests.4.len() {
-        tests.push(Tests {
-            score: public_tests.5[test] as f64,
-            name: public_tests.4[test].to_owned(),
+    for test in 0..10 {
+        write_tests.push(Tests {
+            score: tests.5[test] as f64,
+            name: tests.4[test].to_owned(),
             number: problem_number.to_owned(),
             visibility: "visible".to_string(),
         });
     }
 
-    for test in 0..hidden_tests.4.len() {
-        tests.push(Tests {
-            score: hidden_tests.5[test] as f64,
-            name: hidden_tests.4[test].to_owned(),
+    for test in 10..tests.4.len() {
+        write_tests.push(Tests {
+            score: tests.5[test] as f64,
+            name: tests.4[test].to_owned(),
             number: problem_number.to_owned(),
             visibility: "after_published".to_string(),
         });
     }
 
-    for test in 0..hidden_tests.2.len() {
-        tests.push(Tests {
-            score: hidden_tests.3[test] as f64,
-            name: hidden_tests.2[test].to_owned(),
+    for test in 10..tests.2.len() {
+        write_tests.push(Tests {
+            score: tests.3[test] as f64,
+            name: tests.2[test].to_owned(),
             number: problem_number.to_owned(),
             visibility: "after_published".to_string(),
         });
     }
 
-    let final_tests = serde_json::to_string(&tests)?;
+    let final_tests = serde_json::to_string(&write_tests)?;
 
     let mut output = File::create(&args[3])?;
     write!(output, "{{\"tests\":{}}}", final_tests)?;
