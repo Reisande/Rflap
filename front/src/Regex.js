@@ -12,6 +12,7 @@ import {
   Table,
   OverlayTrigger,
   Tooltip,
+  Badge
 } from "react-bootstrap";
 import add_perfect from "./plus.svg";
 import error_image from "./error.svg";
@@ -36,6 +37,7 @@ function stripHtml(html)
 function Regex() {
   let input_test = useRef(null);
   let input_reg = useRef(null);
+  const [warningDisplay, setWarningDisplay] = useState({ exception: false, message: null })
   const inputRowCollector = useRef(null);
   const [testRows,setTestRows] = useState([1])
 
@@ -47,17 +49,32 @@ function Regex() {
     else
     str = str.toString();
     return str.replace( /(<([^>]+)>)/ig, '');
- }
+  }
+  
   const strip_white = (str) => str.replace(/\s+/g, '');
   const make_reg = (str_ar) =>{
+    let reg;
+    try {
+      reg = new RegExp("^" + str_ar + "$","g"); 
+    }
+    catch(err){
+      setWarningDisplay({ exception: true, message: err.message });
+      return
+    }
       return new RegExp("^" + str_ar + "$","g"); 
     }
  
   const HTMLCol_to_array = (html_collection) =>
     Array.prototype.slice.call(html_collection);
 
+    const WarningSign = (props) => {
+      return <Badge variant="danger"> {props.message}</Badge>;
+      
+    };
+  
 
   const testInputs = (event) => {
+    setWarningDisplay({exception:false,message:""})
     let userInputRowCollection = [
       ...Array(HTMLCol_to_array(inputRowCollector.current.children).length),
     ];
@@ -83,6 +100,7 @@ function Regex() {
       } 
       return 0
     })
+    setTestRows([...ans])
     console.log(ans);
     return
     const markup_matches = (reg_matches,div) =>{
@@ -193,12 +211,21 @@ function Regex() {
           </Accordion>
         </Col>
       </Row>
+      {warningDisplay.exception ? (
+          <WarningSign message={warningDisplay.message}/>
+          ) : (
+            <React.Fragment></React.Fragment>
+          )}
       <Row className="row_between">
+
+
         <Col md={{ offset: 3, span: 6 }}>
           <InputGroup>
+          
             <InputGroup.Prepend>
               <Button variant="info" id="export_xmljson">Export</Button>
             </InputGroup.Prepend>
+
             <FormControl ref={input_reg} placeholder="aa*" />
             <InputGroup.Append>
               <Button variant="info" id ="api_button" onClick={testInputs}>Test</Button>
