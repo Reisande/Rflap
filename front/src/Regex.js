@@ -56,10 +56,13 @@ function Regex() {
     str_ar = str_ar.replace(/\s+/g, '');
     let reg;
     try {
-      reg = new RegExp("^(" + str_ar + ")$","g"); 
+      while (str_ar.includes("!")) {
+        str_ar = str_ar.replace("!", "");
+      }
+      reg = new RegExp("^" + str_ar+ "$","g"); 
     }
     catch(err){
-      setWarningDisplay({ exception: true, message: err.message.replace("^","").replace("/","").replace("$","").replace("/","")});
+      setWarningDisplay({ exception: true, message: err.message.replace("(","").replace("^","").replace("/","").replace("$","").replace("/","")});
       return
     }
       return reg 
@@ -170,6 +173,11 @@ function Regex() {
                         <td>( . . . )</td>
                         <td>Grouping Characters</td>
                       </tr>
+                      <tr>
+                        <td>𝚎𝚡𝚙 | 𝚎𝚡𝚙
+                        </td>
+                        <td>Either Left Expression or Right</td>
+                      </tr>
                     </tbody>
                   </Table>
                 </Card.Body>
@@ -192,7 +200,6 @@ function Regex() {
             <InputGroup.Prepend>
               <Button variant="info" id="export_xmljson">Export</Button>
             </InputGroup.Prepend>
-
             <FormControl ref={input_reg} placeholder="aa*" />
             <InputGroup.Append>
               <Button variant="info" id ="api_button" onClick={testInputs}>Test</Button>
