@@ -13,7 +13,12 @@ import {
   OverlayTrigger,
   Tooltip,
 } from "react-bootstrap";
+import add_perfect from "./plus.svg";
+import error_image from "./error.svg";
+import success_image from "./success.svg";
+import idle_svg from "./button.svg";
 
+const image_collection = [error_image, idle_svg, success_image];
 function moveCursorToEnd(el) {
   el.focus();
   if (el.setSelectionRange) {
@@ -32,6 +37,8 @@ function Regex() {
   let input_test = useRef(null);
   let input_reg = useRef(null);
 
+  const [testRows,setTestRows] = useState([1])
+
   useEffect(() => {
   });
   function removeTags(str) {
@@ -45,6 +52,7 @@ function Regex() {
   
   const testInputs  = (event) => {
     const make_reg = (str_ar) =>{
+      console.log(str_ar)
       return new RegExp(str_ar,"g"); 
     }
     const markup_matches = (reg_matches,div) =>{
@@ -52,11 +60,13 @@ function Regex() {
       let test_area = div.current.innerHTML;
 
         reg_matches.forEach(element => {
+          console.log(element)
         let hd = test_area.indexOf(element);
         let tl = element.length + hd
-        final_html = test_area.slice(0,hd) + "<mark>" + test_area.slice(hd,tl) + "</mark>" + test_area.slice(tl) 
+        test_area = test_area.slice(0,hd) + "<mark>" + test_area.slice(hd,tl) + "</mark>" + test_area.slice(tl) 
         });
-       div.current.innerHTML = final_html
+        console.log(test_area.split())
+       div.current.innerHTML = test_area
     }
     const reg_from_operator_table = (test_reg) =>{
       let proc = strip_white(test_reg);
@@ -64,19 +74,54 @@ function Regex() {
       let test_regex_conv = make_reg(proc.split());
       return make_reg(test_regex_conv)
     }
+    // replaces marks with nothing
     input_test.current.innerHTML = input_test.current.innerHTML.replace( /(<([^>]+)>)/ig, '');; 
-       let test_reg = input_reg.current.value;
+    //console.log(":"input_test.current.innerHTML)
+    let test_reg = input_reg.current.value;
     let test_area = input_test.current.innerText;
     let regex = reg_from_operator_table(test_reg)
     console.log(input_test.current.innerHTML);
     let arr_match = test_area.match(regex,input_test);
     if(arr_match ==null ){
-
     }
     else{
     markup_matches(arr_match,input_test);
 }
   };
+
+  const addTestRow = () => {
+    let newArr = [...testRows, 1] 
+    setTestRows([...newArr])
+  }
+  const layRows = () => {
+    const consInputRow = (key, isCorrect) => {
+      return (<RowInput key={key}
+            image={image_collection[isCorrect]}
+            flip={true}/>)
+    }
+    const consRow = (inputRows) => {
+      if (inputRows == false) {
+        return
+      }
+      return (<Row>
+        {inputRows.map((input, key) => (input))}
+      </Row>)
+    }
+    const perRow = 3;
+    const counter = perRow ;
+    let rowsAccum =[] 
+    let finalRows = []
+    for (let i = 1; i < testRows.length + 1; i++){
+      rowsAccum.push(consInputRow(i-1,testRows[i-1])) 
+      if ( i % counter == 0) {
+        finalRows.push(consRow(rowsAccum))
+        rowsAccum = []
+      }
+    }
+    if(rowsAccum.length != 0 )
+    finalRows.push(consRow(rowsAccum))
+    return finalRows
+ }
   return (
     <div id="row_container_reg">
       <Row>
@@ -119,26 +164,42 @@ function Regex() {
         <Col md={{ offset: 3, span: 6 }}>
           <InputGroup>
             <InputGroup.Prepend>
-              <Button variant="primary">Export</Button>
+              <Button variant="info" id="export_xmljson">Export</Button>
             </InputGroup.Prepend>
             <FormControl ref={input_reg} placeholder="aa*" />
             <InputGroup.Append>
-              <Button variant="primary" onClick={testInputs}>Test</Button>
+              <Button variant="info" id ="api_button" onClick={testInputs}>Test</Button>
             </InputGroup.Append>
-          </InputGroup>
-        </Col>
-      </Row>
 
-      <Row className="row_between" id="div_in">
-        <Col
-          ref={input_test}
-          id="textarea_div"
-          contentEditable="true"
-          md={{ offset: 2, span: 8 }}
-        >
-          something
+             <Col md={{ offset: 0, span: 1 }}> 
+              <input
+              id="add_row_button"
+              onClick={(event) => addTestRow(event)}
+              type="image"
+              id="add_button"
+              src={add_perfect}
+              width="33"
+              height="33"
+              name="add_row_input"
+            />
+            </Col>
+          </InputGroup>
+
         </Col>
       </Row>
+      {layRows().map( (jsx, _) =>
+        (jsx)
+      )}
+      {/* <Row className="row_between" id="div_in">
+        {testRows ? (testRows.map((isCorrect, key) => 
+          ( <RowInput key={key}
+            image={image_collection[isCorrect]}
+            flip={true}/>
+          )
+        )) : (<></>)}
+
+      </Row> 
+       */}
     </div>
   );
 }
