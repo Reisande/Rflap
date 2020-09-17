@@ -90,6 +90,9 @@ function Regex() {
   };
 
   const addTestRow = () => {
+    if (testRows.length == 24) {
+      return
+    }
     let newArr = [...testRows, 1] 
     setTestRows([...newArr])
   }
@@ -187,9 +190,14 @@ function Regex() {
 
         </Col>
       </Row>
-      {layRows().map( (jsx, _) =>
+      <Row className="row mt-3">
+        <Col md={{offset: 1,span:10}}>      {layRows().map((jsx, _) =>
         (jsx)
       )}
+</Col>
+
+      </Row>
+ 
       {/* <Row className="row_between" id="div_in">
         {testRows ? (testRows.map((isCorrect, key) => 
           ( <RowInput key={key}
@@ -197,7 +205,6 @@ function Regex() {
             flip={true}/>
           )
         )) : (<></>)}
-
       </Row> 
        */}
     </div>
