@@ -53,15 +53,16 @@ function Regex() {
   
   const strip_white = (str) => str.replace(/\s+/g, '');
   const make_reg = (str_ar) =>{
+    str_ar = str_ar.replace(/\s+/g, '');
     let reg;
     try {
-      reg = new RegExp("^" + str_ar + "$","g"); 
+      reg = new RegExp("^(" + str_ar + ")$","g"); 
     }
     catch(err){
-      setWarningDisplay({ exception: true, message: err.message });
+      setWarningDisplay({ exception: true, message: err.message.replace("^","").replace("/","").replace("$","").replace("/","")});
       return
     }
-      return new RegExp("^" + str_ar + "$","g"); 
+      return reg 
     }
  
   const HTMLCol_to_array = (html_collection) =>
@@ -101,40 +102,6 @@ function Regex() {
       return 0
     })
     setTestRows([...ans])
-    console.log(ans);
-    return
-    const markup_matches = (reg_matches,div) =>{
-      let final_html;
-      let test_area = div.current.innerHTML;
-
-        reg_matches.forEach(element => {
-          console.log(element)
-        let hd = test_area.indexOf(element);
-        let tl = element.length + hd
-        test_area = test_area.slice(0,hd) + "<mark>" + test_area.slice(hd,tl) + "</mark>" + test_area.slice(tl) 
-        });
-        console.log(test_area.split())
-       div.current.innerHTML = test_area
-    }
-    const reg_from_operator_table = (test_reg) =>{
-      let proc = strip_white(test_reg);
-      
-      let test_regex_conv = make_reg(proc.split());
-      return make_reg(test_regex_conv)
-    }
-    // replaces marks with nothing
-    input_test.current.innerHTML = input_test.current.innerHTML.replace( /(<([^>]+)>)/ig, '');; 
-    //console.log(":"input_test.current.innerHTML)
-    let test_reg = input_reg.current.value;
-    let test_area = input_test.current.innerText;
-    let regex = reg_from_operator_table(test_reg)
-    console.log(input_test.current.innerHTML);
-    let arr_match = test_area.match(regex,input_test);
-    if(arr_match ==null ){
-    }
-    else{
-    markup_matches(arr_match,input_test);
-}
   };
 
   const addTestRow = () => {
