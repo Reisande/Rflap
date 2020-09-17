@@ -3,9 +3,7 @@ import { Col, Row, InputGroup, Form } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 
 function RowInput(props) {
-    console.log(props)
   if (props.flip) {
-      console.log("flipped")
     return (
       <InputGroup className="mb-3" as={Col}>
             <Col md="auto">

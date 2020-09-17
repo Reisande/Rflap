@@ -36,7 +36,7 @@ function stripHtml(html)
 function Regex() {
   let input_test = useRef(null);
   let input_reg = useRef(null);
-
+  const inputRowCollector = useRef(null);
   const [testRows,setTestRows] = useState([1])
 
   useEffect(() => {
@@ -49,12 +49,42 @@ function Regex() {
     return str.replace( /(<([^>]+)>)/ig, '');
  }
   const strip_white = (str) => str.replace(/\s+/g, '');
-  
-  const testInputs  = (event) => {
-    const make_reg = (str_ar) =>{
-      console.log(str_ar)
-      return new RegExp(str_ar,"g"); 
+  const make_reg = (str_ar) =>{
+      return new RegExp("^" + str_ar + "$","g"); 
     }
+ 
+  const HTMLCol_to_array = (html_collection) =>
+    Array.prototype.slice.call(html_collection);
+
+
+  const testInputs = (event) => {
+    let userInputRowCollection = [
+      ...Array(HTMLCol_to_array(inputRowCollector.current.children).length),
+    ];
+    //inputRowCollector.current.childrenmap()
+    HTMLCol_to_array(inputRowCollector.current.children).map((row_node, ind) => {
+      console.log(row_node)
+      console.log(ind)
+      let arrayOfHtml = HTMLCol_to_array(row_node.children)
+      console.log(arrayOfHtml)
+      for (let i = 0; i < arrayOfHtml.length; i++) {
+        let perRow = 3;
+        console.log(arrayOfHtml[i])
+        userInputRowCollection[ind * perRow + i] = arrayOfHtml[i].children[1].value
+      }
+    })
+    let inputRaw = input_reg.current.value;
+    const reg = make_reg(inputRaw);
+    let ans = userInputRowCollection.map((str, i) => {
+      console.log(str)
+      console.log(reg)
+      if (str.match(reg)) {
+        return 2
+      } 
+      return 0
+    })
+    console.log(ans);
+    return
     const markup_matches = (reg_matches,div) =>{
       let final_html;
       let test_area = div.current.innerHTML;
@@ -191,7 +221,7 @@ function Regex() {
         </Col>
       </Row>
       <Row className="row mt-3">
-        <Col md={{offset: 1,span:10}}>      {layRows().map((jsx, _) =>
+        <Col ref={inputRowCollector} md={{offset: 1,span:10}}>      {layRows().map((jsx, _) =>
         (jsx)
       )}
 </Col>
