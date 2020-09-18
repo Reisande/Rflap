@@ -73,7 +73,7 @@ function Regex() {
     catch (err) {
       setWarningDisplay({ exception: true, message: err.message.replace("(", "").replace("^", "").replace("/", "").replace("$", "").replace("/", "") });
     }
-    userTranslatedRegex = reg;
+    userTranslatedRegex = reg
     return reg
   }
  
@@ -93,21 +93,15 @@ function Regex() {
     ];
     //inputRowCollector.current.childrenmap()
     HTMLCol_to_array(inputRowCollector.current.children).map((row_node, ind) => {
-      console.log(row_node)
-      console.log(ind)
       let arrayOfHtml = HTMLCol_to_array(row_node.children)
-      console.log(arrayOfHtml)
       for (let i = 0; i < arrayOfHtml.length; i++) {
         let perRow = 3;
-        console.log(arrayOfHtml[i])
         userInputRowCollection[ind * perRow + i] = arrayOfHtml[i].children[1].value
       }
     })
     let inputRaw = input_reg.current.value;
     const reg = make_reg(inputRaw);
     let ans = userInputRowCollection.map((str, i) => {
-      console.log(str)
-      console.log(reg)
       if (str.match(reg)) {
         return 2
       }
@@ -283,13 +277,13 @@ function Regex() {
           toMins((sessionPing - sessionStart) / 1000);
 
         if (inputValForExport.length > 7 && inputValForExport.includes("@uic.edu")) {
-          console.log("IN")
+          let mk = make_reg(input_reg.current.value);
           let exportToJson = {
             sessionID: master_context.sessionID,
             startTime: master_context.date,
             exportTime: getMinsIntoSession(master_context.date, new Date()),
             userInputRegex: input_reg.current.value, 
-            translatedRegex: userTranslatedRegex
+            translatedRegex: mk.toString()
           }
           downloadObjectAsJson(
             exportToJson,
