@@ -258,7 +258,6 @@ function Regex() {
         const deciphered = exportation_nodes(readImportTxt);
         readImportTxt = null;
         let regexJsonImport = JSON.parse(deciphered);
-        console.log(regexJsonImport);
         input_reg.current.value = regexJsonImport.userInputRegex
 
         setExportModal(false)
@@ -343,6 +342,12 @@ function Regex() {
                 <Card.Body>
                   <Table bordered hover>
                     <tbody>
+                    <tr>
+                        <td>
+                          !
+                        </td>
+                        <td>For the Empty String ε	 </td>
+                      </tr>
                       <tr>
                         <td>*</td>
                         <td>Any Character</td>
@@ -360,6 +365,7 @@ function Regex() {
                         </td>
                         <td>Either Left Expression or Right</td>
                       </tr>
+
                     </tbody>
                   </Table>
                 </Card.Body>
@@ -373,9 +379,7 @@ function Regex() {
           ) : (
             <React.Fragment></React.Fragment>
           )}
-      <Row className="mt-5">
-
-
+      <Row className="mt-4">
         <Col md={{ offset: 3, span: 6 }}>
           <InputGroup>
           
@@ -401,10 +405,9 @@ function Regex() {
 
              <Col md={{ offset: 0, span: 1 }}> 
               <input
-              id="add_row_button"
+              id="add_button"
               onClick={(event) => addTestRow(event)}
               type="image"
-              id="add_button"
               src={add_perfect}
               width="33"
               height="33"

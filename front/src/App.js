@@ -54,7 +54,7 @@ function App() {
   Passed as second argument to App component's useEffect(()=>{}, [sidebar_display] ) 
 
   */  
-  const [machine_displayed, set_machine_displayed] = useState(CURRENT_MACHINE.REG);
+  const [machine_displayed, set_machine_displayed] = useState(CURRENT_MACHINE.DFA);
 
   // Lock Run Button temporarily as to not cause infinite loop between sidebar appearing and not appearing
   let lock_run_button = false;
@@ -62,6 +62,7 @@ function App() {
 
   // useCallback on set_sidebar_display so that text boxes inputted by user are not erased
   const render_sidebar_callback = useCallback(display_lock => {
+    master_context.sidebarOpen = display_lock;
     set_sidebar_display(display_lock);
   }, []);
 
@@ -145,6 +146,7 @@ function App() {
 
     });
     return () => {
+      
       window.removeEventListener("click", e => click_run_handler(e));
     };
   }, 

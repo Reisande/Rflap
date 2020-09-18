@@ -60,7 +60,8 @@ function trimSvgWhitespace() {
     */
     if (
       master_context.mode == "Context-free Grammar" ||
-      master_context.mode == "Turing Machine"
+      master_context.mode == "Turing Machine" ||
+      master_context.mode == "Regular Expressions"
     )
     {
       
@@ -88,6 +89,9 @@ function trimSvgWhitespace() {
 
   function nav_menu_dropdown_click(e, machine) {
     let name = machine["current"].text;
+    if (master_context.sidebarOpen) {
+      runbutton.current.click()
+    }
     set_machine_title(name);
     master_context.mode = name;
   }
