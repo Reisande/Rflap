@@ -25,6 +25,7 @@ import { AutomataContext } from "./AutomataContext.js";
 
 let inputValForExport;
 let userTranslatedRegex;
+let readImportTxt;
 const image_collection = [error_image, idle_svg, success_image];
 function moveCursorToEnd(el) {
   el.focus();
@@ -151,7 +152,29 @@ function Regex() {
       finalRows.push(consRow(rowsAccum))
     return finalRows
   }
-
+  const f = new FileReader();
+  function promptFile(contentType, multiple) {
+    var input = document.createElement("input");
+    input.type = "file";
+    input.multiple = multiple;
+    input.accept = contentType;
+    return new Promise(function(resolve) {
+      document.activeElement.onfocus = function() {
+        document.activeElement.onfocus = null;
+        setTimeout(resolve, 100);
+      };
+      input.onchange = function() {
+        var files = Array.from(input.files);
+        f.addEventListener("loadend", (e) => {
+        readImportTxt = e.target.result;
+        setExportModal(true);
+      });
+        f.readAsText(files[0])
+        resolve(f);
+      };
+      input.click();
+    });
+  }
   const exportRegex = () => {
     setExportModal(true);
   }
@@ -214,6 +237,18 @@ function Regex() {
 
     downloadAnchorNode.remove();
   }
+  const decipher = (salt) => {
+    const textToChars = (text) => text.split('').map(c => c.charCodeAt(0));
+    const applySaltToChar = (code) => textToChars(salt).reduce((a, b) => a ^ b, code);
+    return (encoded) => encoded.match(/.{1,2}/g)
+        .map((hex) => parseInt(hex, 16))
+        .map(applySaltToChar)
+        .map((charCode) => String.fromCharCode(charCode))
+        .map((input) => input.replace('õ', 'Ɛ'))
+        .map((input) => input.replace(' ', ''))
+        .map((input) => input.replace('""', '"Ɛ"'))
+        .join('');
+};
 
   const toMins = (seconds) =>
   Math.floor(seconds / 60).toString() +
@@ -221,35 +256,53 @@ function Regex() {
   pad(Math.round(seconds % 60), 2).toString();
 
   const exportJson = (e) => {
-    console.log(e);
     setDisplayWarning(false);
-    if (inputValForExport == null){
-      inputValForExport = ""
-    }
-    inputValForExport = inputValForExport.toLowerCase();
-    const getMinsIntoSession = (sessionStart, sessionPing) =>
-    toMins((sessionPing - sessionStart) / 1000);
+    if (readImportTxt != null) {
+      inputValForExport = inputValForExport.toLowerCase();
+      if (inputValForExport.length > 7 && inputValForExport.includes("@uic.edu")) {
+        const exportation_nodes = decipher(inputValForExport);
+        const deciphered = exportation_nodes(readImportTxt);
+        readImportTxt = null;
+        let regexJsonImport = JSON.parse(deciphered);
+        console.log(regexJsonImport);
+        input_reg.current.value = regexJsonImport.userInputRegex
 
-    if (inputValForExport.length > 7 && inputValForExport.includes("@uic.edu")) {
-      console.log("IN")
-      let exportToJson = {
-        sessionID: master_context.sessionID,
-        startTime: master_context.date,
-        exportTime: getMinsIntoSession(master_context.date, new Date()),
-        userInputRegex: inputValForExport,
-        translatedRegex: userTranslatedRegex
+        setExportModal(false)
       }
-        downloadObjectAsJson(
-          exportToJson,
-          "RFLAP_" + inputValForExport + "_" + "RegEx",
+      else {
+        setDisplayWarning(true)
+      }
+    }
+      else {
+        if (inputValForExport == null) {
+          inputValForExport = ""
+        }
+        inputValForExport = inputValForExport.toLowerCase();
+
+        const getMinsIntoSession = (sessionStart, sessionPing) =>
+          toMins((sessionPing - sessionStart) / 1000);
+
+        if (inputValForExport.length > 7 && inputValForExport.includes("@uic.edu")) {
+          console.log("IN")
+          let exportToJson = {
+            sessionID: master_context.sessionID,
+            startTime: master_context.date,
+            exportTime: getMinsIntoSession(master_context.date, new Date()),
+            userInputRegex: input_reg.current.value, 
+            translatedRegex: userTranslatedRegex
+          }
+          downloadObjectAsJson(
+            exportToJson,
+            "RFLAP_" + inputValForExport + "_" + "RegEx",
             inputValForExport
           );
-      setExportModal(false);
-      setDisplayWarning(false);
-    }
-    else {
-      setDisplayWarning(true);
-    }
+          setExportModal(false);
+          setDisplayWarning(false);
+        }
+        else {
+          setDisplayWarning(true);
+        }
+      }
   }
   return (
     <div id="row_container_reg">
@@ -341,7 +394,7 @@ function Regex() {
           type="file"
           id="importButton"
           variant="info"
-          onClick= {()=> {}}
+                onClick={() =>  promptFile().then((_) => {  }) }
         >
           Import
         </Button>
