@@ -346,15 +346,15 @@ function Regex() {
                         <td>
                           !
                         </td>
-                        <td>For the Empty String ε	 </td>
+                        <td> Empty String ε	 </td>
                       </tr>
                       <tr>
                         <td>*</td>
-                        <td>Any Character</td>
+                        <td>Zero or More Copies of Previous Character</td>
                       </tr>
                       <tr>
                         <td>+</td>
-                        <td>Previous Character or More</td>
+                        <td>One or More Copies of Previous Character</td>
                       </tr>
                       <tr>
                         <td>( . . . )</td>
