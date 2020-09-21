@@ -122,7 +122,7 @@ fn grade(
         deterministic_scores,
         test_strings_nondeterministic,
         nondeterministic_scores,
-        !supposed_to_be_deterministic || target.is_deterministic(),
+        target.is_deterministic(),
     )
 }
 
