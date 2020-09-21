@@ -1,31 +1,12 @@
-# RFLAP
-Jflap but in Rust
+# [Rflap](https://rflap.acmuic.app/)
 
-## Functionality
+[Jflap](http://www.jflap.org/)  but in Rust
 
+Supports creation of state-machines, string generation and testing, for **DFAs**, **NFAs**, **CFGs**, **Push-Down Automata**, **REGEXs** , and **Turing Machines**. 
 
-#### Supports creation of state-machines and string generation and testing, for **DFAs**, **NFAs**, **CFGs**, **Push-Down Automata**, **REGEXs** , and **Turing Machines**. 
+Imports and exports student work for autograding in Languages and Automata courses.
 
-
-
-
-![sample_1](https://i.ibb.co/R6SyzRC/rflap-github-2.png)
-
-
-Where triangle denotes a starting state, and grey border denotes an accepting state.
-
-
-### Testing Strings:
-
-
-
-![sample_2](https://i.ibb.co/ZTgtCdH/rflap-github-1.png)
-
-
-RUST API call occurs during string testing/generation. Exports to JSON and XML!
-
-
-
+Currently used in Unviersity of Illinois at Chicago's CS 301: Finite Languages and Automata.
 
 ## Build client
 ```
