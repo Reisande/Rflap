@@ -68,7 +68,7 @@ function Regex() {
       while (str_ar.includes("!")) {
         str_ar = str_ar.replace("!", "");
       }
-      reg = new RegExp("^" + str_ar + "$", "g");
+      reg = new RegExp("^(" + str_ar + ")$", "g");
     }
     catch (err) {
       setWarningDisplay({ exception: true, message: err.message.replace("(", "").replace("^", "").replace("/", "").replace("$", "").replace("/", "") });
