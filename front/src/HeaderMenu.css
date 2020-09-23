@@ -9,6 +9,9 @@
     /* text-shadow: 0 0 1px white horizontal-offset vertical-offset 'blur' colour */
     /* -moz-text-shadow: 0 0 1px rgb(156, 142, 142); */
     /* -webkit-text-shadow: 0 0 1px rgb(156, 142, 142)000; */
+    /* The box-shadow is added here now */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+  
   
 }
 .nav-dropdown-text{

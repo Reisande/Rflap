@@ -1268,10 +1268,7 @@ const animateIntoNeutral = (status_ref,test_button_ref) =>{
           )}
         </Nav>
       </Navbar>
-      <Row>
-        <br />
-      </Row>
-      <div className="name" ref={row_ref_container}>
+      <div className="mt-3" ref={row_ref_container}>
         {row_entry_array ? (
           row_entry_array.map((_, key) => (
             <RowInput
