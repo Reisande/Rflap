@@ -51,6 +51,8 @@ function Regex() {
   const [testRows, setTestRows] = useState([1])
   const [exportModal, setExportModal] = useState(false)
   useEffect(() => {
+    return () => {
+    }
   });
   function removeTags(str) {
     if ((str === null) || (str === ''))
