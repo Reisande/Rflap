@@ -145,6 +145,7 @@ pub fn endpoint_grade(buffer: String, args: Vec<String>) -> io::Result<()> {
 	};
 	
     let supposed_to_be_deterministic = determinism_weight != None;
+	
     // for the actual grading, we should show like 20 shorter strings and hide 80,
     let source: &finite_automaton::FiniteAutomatonJson =
         &serde_json::de::from_str::<finite_automaton::FiniteAutomatonJson>(&buffer).unwrap();
@@ -199,7 +200,7 @@ pub fn endpoint_grade(buffer: String, args: Vec<String>) -> io::Result<()> {
                 score: size_score,
                 name: "size".to_string(),
                 number: problem_number.to_owned(),
-                visibility: "after_published".to_string(),
+                visibility: "hidden".to_string(),
             });
         }
         _ => {}
