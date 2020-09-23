@@ -334,6 +334,28 @@ function Visual() {
       network.off("hoverNode");
       network.off("showPopup");
       network.destroy();
+      window.removeEventListener("keydown", (e) => {
+        const deleteNodeMode = (keyCode) => {
+          if (keyCode === "KeyD") {
+            img_status.current.src = remove_bar;
+            delete_lock = true;
+            return;
+          }
+          else if (keyCode == "KeyT") {
+            toEditEdgeMode();
+            return;
+          }
+          else {
+            delete_lock = false;
+            if (img_status != null && img_status.current != null) {
+              img_status.current.src = passive_bar;
+            }
+            return;
+          }
+        };
+        deleteNodeMode(e.code);
+      });
+  
       window.removeEventListener("keydown", handleShiftClick);
     };
   },[]);

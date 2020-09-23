@@ -18,8 +18,6 @@ function HeaderMenu(props) {
   
   const master_context = useContext(AutomataContext);
 
-
-
   const runbutton = useRef();
 
   /*
@@ -62,7 +60,8 @@ function trimSvgWhitespace() {
     */
     if (
       master_context.mode == "Context-free Grammar" ||
-      master_context.mode == "Turing Machine"
+      master_context.mode == "Turing Machine" ||
+      master_context.mode == "Regular Expressions"
     )
     {
       
@@ -90,6 +89,9 @@ function trimSvgWhitespace() {
 
   function nav_menu_dropdown_click(e, machine) {
     let name = machine["current"].text;
+    if (master_context.sidebarOpen) {
+      runbutton.current.click()
+    }
     set_machine_title(name);
     master_context.mode = name;
   }
@@ -141,6 +143,15 @@ function trimSvgWhitespace() {
             >
               Deterministic Finite Automata{""}
             </NavDropdown.Item>
+            <NavDropdown.Item
+              id="REG"
+              onClick={event => nav_menu_dropdown_click(event, REG)}
+              ref={REG}
+              href=""
+            >
+              Regular Expressions{""}
+            </NavDropdown.Item>
+ 
             <NavDropdown.Item
               id="NFA"
               onClick={event => nav_menu_dropdown_click(event, NFA)}

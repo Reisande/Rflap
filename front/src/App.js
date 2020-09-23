@@ -1,5 +1,4 @@
 import React, { useEffect, useState, useRef, useCallback } from "react";
-import "./App.css";
 import Visual from "./Visual.js";
 import HeaderMenu from "./HeaderMenu.js";
 import { AutomataContext } from "./AutomataContext.js";
@@ -7,7 +6,9 @@ import Run from "./Run.js";
 import Sidebar from "react-sidebar";
 import PDA_Visual from "./PDA_Visual.js";
 import CFG_Visual from "./CFG_Visual.js";
+import Regex from "./Regex.js";
 import "bootstrap/dist/css/bootstrap.min.css";
+import "./Regex.css";
     /*resource managment libraries: */
 import {scheduleMeasurement} from './res/MemoryTests';
 
@@ -23,7 +24,8 @@ const CURRENT_MACHINE = {
   NFA: 1,
   CFG: 2,
   TM: 3,
-  PDA:4
+  PDA:4,
+  REG:5
 };
 
 function App() {
@@ -60,6 +62,7 @@ function App() {
 
   // useCallback on set_sidebar_display so that text boxes inputted by user are not erased
   const render_sidebar_callback = useCallback(display_lock => {
+    master_context.sidebarOpen = display_lock;
     set_sidebar_display(display_lock);
   }, []);
 
@@ -133,6 +136,9 @@ function App() {
         else if(e.target.id == "TM"){
           set_machine_displayed(CURRENT_MACHINE.TM); 
         }
+        else if(e.target.id == "REG"){
+          set_machine_displayed(CURRENT_MACHINE.REG);
+        }
       }
 
       click_run_handler(e);
@@ -140,6 +146,7 @@ function App() {
 
     });
     return () => {
+      
       window.removeEventListener("click", e => click_run_handler(e));
     };
   }, 
@@ -155,6 +162,8 @@ function App() {
     switch (machine_displayed){
       case CURRENT_MACHINE.DFA:
         return <Visual />;
+      case CURRENT_MACHINE.REG:
+        return <Regex/>;
       case CURRENT_MACHINE.NFA:
         return <Visual />;
       case CURRENT_MACHINE.CFG:
