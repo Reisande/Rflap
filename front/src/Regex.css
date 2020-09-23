@@ -1,7 +1,12 @@
 #row_container_reg{
     margin-top: 20px;
+    /* overflow-y: auto !important;   
+    overflow-x: hidden; */
 }
-
+.stop-scrolling {
+    overflow: hidden;
+  }
+  
 .row_between{
     /* margin-top:50px; */
     
@@ -44,7 +49,7 @@ box-sizing: border-box;
     flex: 1 0 auto;
 
 }
-body{background-color: #F5F5F5;}
+/* body{background-color: #F5F5F5;} */
 
 mark{
     background:orange;
