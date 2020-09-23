@@ -122,7 +122,7 @@ fn grade(
         deterministic_scores,
         test_strings_nondeterministic,
         nondeterministic_scores,
-        target.is_deterministic(),
+        source.is_deterministic(),
     )
 }
 
@@ -138,13 +138,12 @@ pub fn endpoint_grade(buffer: String, args: Vec<String>) -> io::Result<()> {
     // answer file will be passed in the second command line argument
     let buffer_answer = fs::read_to_string(&args[2])?;
 
-    // TOOD: add config file reader for the grading settings, this is getting bloated
     let determinism_weight: Option<f64> = Option::from(args[7].to_string().parse::<f64>().unwrap());
     let supposed_to_be_deterministic = determinism_weight != None;
     // for the actual grading, we should show like 20 shorter strings and hide 80,
-    let source =
+    let source: &finite_automaton::FiniteAutomatonJson =
         &serde_json::de::from_str::<finite_automaton::FiniteAutomatonJson>(&buffer).unwrap();
-    let target =
+    let target: &finite_automaton::FiniteAutomatonJson =
         &serde_json::de::from_str::<finite_automaton::FiniteAutomatonJson>(&buffer_answer).unwrap();
     let tests = grade(source, target, 100, supposed_to_be_deterministic);
 
@@ -170,7 +169,15 @@ pub fn endpoint_grade(buffer: String, args: Vec<String>) -> io::Result<()> {
             number: problem_number.to_owned(),
             visibility: "visible".to_string(),
         });
-    }
+    } else if supposed_to_be_deterministic {
+		write_tests.push(Tests {
+            score: 0,
+            name: "determinism".to_string(),
+            number: problem_number.to_owned(),
+            visibility: "visible".to_string(),
+        });
+	}
+	
     // minimal size
     match original_size {
         Some(v) => {
