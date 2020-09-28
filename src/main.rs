@@ -304,7 +304,6 @@ pub fn endpoint_grade(buffer: String, args: Vec<String>, automata_type: &Type)
 		}
 	}    // DYNAMIC TESTS
 
-
     for test in 0..10 {
         write_tests.push(Tests {
             score: tests.3[test] as f64,
