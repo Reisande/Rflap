@@ -6,7 +6,7 @@
 }
 
 #graph-display{
-    overflow:hidden;
+    /* overflow:hidden; */
     outline:none;
     border:black !important;
 }
