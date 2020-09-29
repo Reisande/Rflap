@@ -11,6 +11,7 @@ import {
   Tooltip,
   Alert,
   Badge,
+  ButtonGroup
 } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { inspect } from "util";
@@ -59,7 +60,7 @@ function Run(props) {
   let image_collection = [error_image, idle_svg, success_image];
   const [warning_display, set_warning_display] = useState(false);
   const [row_entry_array, set_row_entries] = useState([1]);
-
+  const [textOrDownload,setTextOrDownload] = useState(false)
   const UIN_textform = useRef(null);
   const test_button = useRef(null);
   const status_ref = useRef(null);
@@ -67,6 +68,7 @@ function Run(props) {
   const image_ref = useRef(null);
   const row_ref_container = useRef(null);
   const file_dialog = useRef(null);
+  const displayedSubmission = useRef(null)
   let entry_amount = 30;
   let array_of_row_refs = [];
 
@@ -628,7 +630,7 @@ const animateIntoNeutral = (status_ref,test_button_ref) =>{
       body: JSON.stringify(createTestDotnet(testID)),
     };
     try {
-      let rilke = await fetch(dotnet_endpoint, dotnetPostTest);
+      // let rilke = await fetch(dotnet_endpoint, dotnetPostTest);
     } catch (err) {
       console.log("1");
     }
@@ -823,10 +825,10 @@ const animateIntoNeutral = (status_ref,test_button_ref) =>{
           createTestCallbackPost(testID, [], callback["hint"])
         );
         try {
-          _ = await fetch(
-            dotnet_endpoint,
-            createTestCallbackPost(testID, [], callback["hint"])
-          );
+          // _ = await fetch(
+          //   dotnet_endpoint,
+          //   createTestCallbackPost(testID, [], callback["hint"])
+          // );
         } catch (err) {
           console.log("20");
         }
@@ -849,10 +851,10 @@ const animateIntoNeutral = (status_ref,test_button_ref) =>{
             createTestCallbackPost(testID, [bool_result], "")
           );
           try {
-            _ = await fetch(
-              dotnet_endpoint,
-              createTestCallbackPost(testID, [bool_result], "")
-            );
+            // _ = await fetch(
+            //   dotnet_endpoint,
+            //   createTestCallbackPost(testID, [bool_result], "")
+            // );
           } catch (err) {
             console.log("21");
           }
@@ -877,14 +879,14 @@ const animateIntoNeutral = (status_ref,test_button_ref) =>{
             )
           );
           try {
-            _ = await fetch(
-              dotnet_endpoint,
-              createTestCallbackPost(
-                testID,
-                array_to_mount.map((n) => (n > 0 ? true : false)),
-                ""
-              )
-            );
+            // _ = await fetch(
+            //   dotnet_endpoint,
+            //   createTestCallbackPost(
+            //     testID,
+            //     array_to_mount.map((n) => (n > 0 ? true : false)),
+            //     ""
+            //   )
+            // );
           } catch (err) {
             console.log("22");
           }
@@ -1163,20 +1165,33 @@ const animateIntoNeutral = (status_ref,test_button_ref) =>{
             body: JSON.stringify(createExportDotnet(testID)),
           };
           try {
-            let _ = await fetch(dotnet_endpoint, dotnetPostExport);
+            // let _ = await fetch(dotnet_endpoint, dotnetPostExport);
           } catch (e) { }
-          downloadObjectAsJson(
-            packet_to_misha_the_microsoft_engineer,
-            "RFLAP_" + input_val + "_" + append.toString()
-          );
-          set_UIN_input(false);
-          set_warning_display(false);
+          const exportation_nodes = node_style_dependency(input_val);
+          const exportSubmission = exportation_nodes(JSON.stringify(packet_to_misha_the_microsoft_engineer))
+          setTextOrDownload({ display: true, submission: exportSubmission})
+         // downloadObjectAsJson(
+          //   packet_to_misha_the_microsoft_engineer,
+          //   "RFLAP_" + input_val + "_" + append.toString()
+          // );
+//          set_UIN_input(false);
+ //         set_warning_display(false);
         } else {
           set_warning_display(true);
         }
       }
     }
 
+
+  const downloadSubmission = (exp)  => {
+             downloadStringAsJson(
+          exp,
+          "RFLAP_" + "DFA"
+          );
+    setTextOrDownload(false);
+    set_UIN_input(false);
+    set_warning_display(false);
+    }
   const export_click_handler = (event) => {
     isExport = true;
     set_UIN_input(true);
@@ -1185,7 +1200,21 @@ const animateIntoNeutral = (status_ref,test_button_ref) =>{
   function set_text_form(event) {
     input_val = event.target.value;
   }
+  const downloadStringAsJson = (exp,exportName) =>{
+  // exportation_nodes.state_names
+  var dataStr =
+    "data:text/json;charset=utf-8," +
+    encodeURIComponent(exp);
+  var downloadAnchorNode = document.createElement("a");
+  downloadAnchorNode.setAttribute("href", dataStr);
+  downloadAnchorNode.setAttribute("download", exportName + ".json");
+  //necessary to ignore event listeners in useEffect in app.js
+  downloadAnchorNode.setAttribute("id", "temp_anchor");
+  document.body.appendChild(downloadAnchorNode); // required for firefox
 
+  downloadAnchorNode.click();
+  downloadAnchorNode.remove();
+}
   //function to mount anchor tag and initiate download
   function downloadObjectAsJson(exportObj, exportName) {
     const exportation_nodes = node_style_dependency(input_val);
@@ -1289,6 +1318,27 @@ const animateIntoNeutral = (status_ref,test_button_ref) =>{
           set_UIN_input(false);
         }}
       >
+        <Popup
+          open={textOrDownload.display}
+          onClose={() => {
+            set_UIN_input(false)
+            setTextOrDownload(false)
+          }}
+        >
+          <Form>
+          <Form.Group >
+    <Form.Label>Your submission: </Form.Label>
+            <Form.Control id="submissionId" as="textarea" readOnly size="sm" resizable="false" defaultValue={textOrDownload.submission}rows="3"/> 
+
+          </Form.Group>
+          <Form.Group>
+      <ButtonGroup>          <Button size="sm" variant="outline-secondary" onClick={() => { let s = document.getElementById("submissionId"); s.select(); document.execCommand("copy"); }}> Copy</Button>
+          <Button size="sm"variant="outline-secondary" onClick={() => downloadSubmission(textOrDownload.submission)}>Download</Button>          
+</ButtonGroup></Form.Group>
+
+          </Form>
+          </Popup>
+
         <div>
           {warning_display ? (
             <WarningSign />
