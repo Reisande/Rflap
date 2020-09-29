@@ -628,7 +628,7 @@ const animateIntoNeutral = (status_ref,test_button_ref) =>{
       body: JSON.stringify(createTestDotnet(testID)),
     };
     try {
-      let rilke = await fetch(dotnet_endpoint, dotnetPostTest);
+      // let rilke = await fetch(dotnet_endpoint, dotnetPostTest);
     } catch (err) {
       console.log("1");
     }
@@ -823,10 +823,10 @@ const animateIntoNeutral = (status_ref,test_button_ref) =>{
           createTestCallbackPost(testID, [], callback["hint"])
         );
         try {
-          _ = await fetch(
-            dotnet_endpoint,
-            createTestCallbackPost(testID, [], callback["hint"])
-          );
+          // _ = await fetch(
+          //   dotnet_endpoint,
+          //   createTestCallbackPost(testID, [], callback["hint"])
+          // );
         } catch (err) {
           console.log("20");
         }
@@ -849,10 +849,10 @@ const animateIntoNeutral = (status_ref,test_button_ref) =>{
             createTestCallbackPost(testID, [bool_result], "")
           );
           try {
-            _ = await fetch(
-              dotnet_endpoint,
-              createTestCallbackPost(testID, [bool_result], "")
-            );
+            // _ = await fetch(
+            //   dotnet_endpoint,
+            //   createTestCallbackPost(testID, [bool_result], "")
+            // );
           } catch (err) {
             console.log("21");
           }
@@ -877,14 +877,14 @@ const animateIntoNeutral = (status_ref,test_button_ref) =>{
             )
           );
           try {
-            _ = await fetch(
-              dotnet_endpoint,
-              createTestCallbackPost(
-                testID,
-                array_to_mount.map((n) => (n > 0 ? true : false)),
-                ""
-              )
-            );
+            // _ = await fetch(
+            //   dotnet_endpoint,
+            //   createTestCallbackPost(
+            //     testID,
+            //     array_to_mount.map((n) => (n > 0 ? true : false)),
+            //     ""
+            //   )
+            // );
           } catch (err) {
             console.log("22");
           }
@@ -1163,7 +1163,7 @@ const animateIntoNeutral = (status_ref,test_button_ref) =>{
             body: JSON.stringify(createExportDotnet(testID)),
           };
           try {
-            let _ = await fetch(dotnet_endpoint, dotnetPostExport);
+            // let _ = await fetch(dotnet_endpoint, dotnetPostExport);
           } catch (e) { }
           downloadObjectAsJson(
             packet_to_misha_the_microsoft_engineer,
