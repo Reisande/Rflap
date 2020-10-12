@@ -22,6 +22,8 @@ import Hex from "./res/HexColors.js";
 
 let CFG_Visual_Context_Index = -1;
 let bool_first_mount = false;
+let readImportTxt;
+let inputValForExport;
 
 let types = g.types;
     let parser = g.parser;
@@ -43,8 +45,21 @@ function CFG_Visual() {
   const [row_entry_array, set_row_entries] = useState([1]);
   const [definition_entry_array, set_definition_entry_array] = useState([]);
   const [UIN_input,set_UIN_input] = useState(false);
-
+  const [displayWarning, setDisplayWarning] = useState(false)
   const [warning_display, set_warning_display] = useState(false);
+  const [exportModal, setExportModal] = useState(false)
+  const toMins = (seconds) =>
+  Math.floor(seconds / 60).toString() +
+  ":" +
+  pad(Math.round(seconds % 60), 2).toString();
+
+  const pad = (n, width, z) => {
+    z = z || "0";
+    n = n + "";
+    return n.length >= width
+      ? n
+      : new Array(width - n.length + 1).join(z) + n;
+  };
   const row_ref_container = useRef(null);
   let input_val = "";
   let user_input_row_collection = [];
@@ -58,7 +73,7 @@ function CFG_Visual() {
     user_input: []
   }; // packet sent to API
   const WarningSign = () => {
-    return <Badge variant="danger">Invalid UIN!</Badge>;
+    return <Badge variant="danger">Enter: name@uic.edu</Badge>;
   };
   async function postToRustApi() {
     // let name_of_window = this.window.location;
@@ -88,6 +103,19 @@ function CFG_Visual() {
 
     return await Algorithms_are_the_computational_content_of_proofs.json();
   }
+
+  const decipher = (salt) => {
+    const textToChars = (text) => text.split('').map(c => c.charCodeAt(0));
+    const applySaltToChar = (code) => textToChars(salt).reduce((a, b) => a ^ b, code);
+    return (encoded) => encoded.match(/.{1,2}/g)
+        .map((hex) => parseInt(hex, 16))
+        .map(applySaltToChar)
+        .map((charCode) => String.fromCharCode(charCode))
+        .map((input) => input.replace('õ', 'Ɛ'))
+        .map((input) => input.replace(' ', ''))
+        .map((input) => input.replace('""', '"Ɛ"'))
+        .join('');
+};
 
   const definition_plus_handler = button_press => {
     let array_to_mount = definition_entry_array;
@@ -188,7 +216,6 @@ function CFG_Visual() {
     // console.log(exportation_nodes(exportation_nodes(nodes)));
   }
   const export_click_handler = () => {
-    // console.log("Exported!");
     set_UIN_input(true);
   };
   useEffect(() => {
@@ -252,6 +279,56 @@ function CFG_Visual() {
   //test api functionality:
   const HTMLCol_to_array = html_collection => Array.prototype.slice.call(html_collection);
 
+  const exportJson = (e) => {
+    setDisplayWarning(false);
+    if (readImportTxt != null) {
+      inputValForExport = inputValForExport.toLowerCase();
+      if (inputValForExport.length > 7 && inputValForExport.includes("@uic.edu")) {
+        const exportation_nodes = decipher(inputValForExport);
+        const deciphered = exportation_nodes(readImportTxt);
+        readImportTxt = null;
+        let CFGJsonImport = JSON.parse(deciphered);
+        //import logic here:
+        console.log(CFGJsonImport)
+        //input_reg.current.value = regexJsonImport.userInputRegex
+        setExportModal(false)
+      }
+      else {
+        setDisplayWarning(true)
+      }
+    }
+      else {
+        if (inputValForExport == null) {
+          inputValForExport = ""
+        }
+        inputValForExport = inputValForExport.toLowerCase();
+
+        const getMinsIntoSession = (sessionStart, sessionPing) =>
+          toMins((sessionPing - sessionStart) / 1000);
+
+        if (inputValForExport.length > 7 && inputValForExport.includes("@uic.edu")) {
+          let exportToJson = {
+            sessionID: master_context.sessionID,
+            startTime: master_context.date,
+            exportTime: getMinsIntoSession(master_context.date, new Date()),
+            userInputCFG: preprocessor()
+          }
+          downloadObjectAsJson(
+            exportToJson, 
+            "RFLAP_" + "CFG",
+            inputValForExport
+          );
+          setExportModal(false);
+          setDisplayWarning(false);
+        }
+        else {
+          setDisplayWarning(true);
+        }
+      }
+  }
+  const exportCFG = () => {
+    setExportModal(true);
+  }
   const process_userinput = (row_table_DOM_node, id) => {
     // console.log("PROCESSING")
     // console.log(id);
@@ -472,9 +549,9 @@ function CFG_Visual() {
             <Col md={{offset:0}}>
               <Button
                 id="export_xmljsonCFG"
-                onClick={event => {
-                  export_click_handler(event);
-                }}
+                onClick={
+                  exportCFG
+                }
                 variant="info"
                 size="sm"
               >
@@ -499,29 +576,34 @@ function CFG_Visual() {
         </Col>
       </Row>
 
-
       <Popup
-        open={UIN_input}
+        open={exportModal}
         onClose={() => {
-          set_UIN_input(false);
+          setExportModal(false);
         }}
       >
-        {warning_display ? <WarningSign /> : <React.Fragment></React.Fragment>}
-
-        <InputGroup className="mb-2b">
-          <Form.Control
-            type="text"
-            onChange={text => {
-              set_text_form(text);
-            }}
-          />
-          <InputGroup.Append>
-            <Button onClick={UIN_submit} variant="outline-secondary">
-              UIN
-            </Button>
-          </InputGroup.Append>
-        </InputGroup>
+        <div>
+          {displayWarning ? (
+            <WarningSign message="Enter: name@uic.edu"/>
+          ) : (
+            <React.Fragment></React.Fragment>
+          )}
+          <InputGroup className="mb-2b">
+            <Form.Control
+              type="text"
+              onChange={(text) => {
+                inputValForExport = text.target.value
+              }}
+            />
+            <InputGroup.Append>
+              <Button onClick={exportJson} variant="outline-secondary">
+                EDU
+              </Button>
+            </InputGroup.Append>
+          </InputGroup>
+        </div>
       </Popup>
+
     </div>
   );
 }
