@@ -6,7 +6,7 @@ import React, {
   useContext
 } from "react";
 import { AutomataContext } from "./AutomataContext.js";
-import { Form, Row, Col, Button , InputGroup, Badge} from "react-bootstrap";
+import { Form, Row, Col, Button, InputGroup, Badge } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 import Rule from "./Rule.js";
 import "./CFG_Visual.css";
@@ -18,6 +18,7 @@ import add_perfect from "./plus.svg";
 import g from "cfgrammar-tool"
 import Popup from "reactjs-popup";
 import Hex from "./res/HexColors.js";
+import { ButtonGroup } from "react-bootstrap";
 // import WarningSign from './WarningSing'
 
 let CFG_Visual_Context_Index = -1;
@@ -193,6 +194,30 @@ function CFG_Visual() {
       set_warning_display(true);
     }
   }
+  const f = new FileReader();
+
+  function promptFile(contentType, multiple) {
+    var input = document.createElement("input");
+    input.type = "file";
+    input.multiple = multiple;
+    input.accept = contentType;
+    return new Promise(function(resolve) {
+      document.activeElement.onfocus = function() {
+        document.activeElement.onfocus = null;
+        setTimeout(resolve, 100);
+      };
+      input.onchange = function() {
+        var files = Array.from(input.files);
+        f.addEventListener("loadend", (e) => {
+        readImportTxt = e.target.result;
+        setExportModal(true);
+      });
+        f.readAsText(files[0])
+        resolve(f);
+      };
+      input.click();
+    });
+  }
 
   const tests_plus_handler = button_press => {
     let new_array = row_entry_array;
@@ -278,12 +303,14 @@ function CFG_Visual() {
 
   const exportJson = (e) => {
     setDisplayWarning(false);
+    console.log(readImportTxt);
     if (readImportTxt != null) {
       inputValForExport = inputValForExport.toLowerCase();
       if (inputValForExport.length > 7 && inputValForExport.includes("@uic.edu")) {
         const exportation_nodes = decipher(inputValForExport);
         const deciphered = exportation_nodes(readImportTxt);
         readImportTxt = null;
+        console.log("----")
         let CFGJsonImport = JSON.parse(deciphered);
         //import logic here:
         console.log(CFGJsonImport)
@@ -484,7 +511,7 @@ function CFG_Visual() {
             <Col md={{ offset: 0 }}>
               <input
                 id="add_row_button"
-                onClick={event => definition_plus_handler(event)}
+                onClick={(event) => definition_plus_handler(event)}
                 type="image"
                 id="add_button"
                 src={add_perfect}
@@ -496,14 +523,14 @@ function CFG_Visual() {
           </Row>
           {definition_entry_array ? (
             definition_entry_array.map((_, key) => (
-              <Rule index={key}  key={key} />
+              <Rule index={key} key={key} />
             ))
           ) : (
             <></>
           )}
         </Form>
         <Col md={{ span: 3 }}>
-              <h5>Grammar</h5>
+          <h5>Grammar</h5>
           <Form.Control
             id="grammar_text"
             type="text"
@@ -513,50 +540,56 @@ function CFG_Visual() {
             rows="20"
           ></Form.Control>
         </Col>
-        <Col md={{ span: 5 }}>
+        <Col md={{ offset: 0, span: 5 }}>
           <Row>
-          <Col md={{offset:-1}}>
-          <Button 
-            id="api_button_CFG"
-            onClick={event => on_click_CFG_api(event)}
-            variant="info"
-            size="sm"
-          >
-            Test
-          </Button>
-          </Col>
-            <Col md={{ span: 0, offset:0 }}>
-              <h4>Tests</h4>
-            </Col>
-
-            <Col md={{ offset: 0, span: 1 }}>
-              <input
-                id="add_row_button_CFG_tests"
-                onClick={event => tests_plus_handler(event)}
-                type="image"
-                id="add_button"
-                src={add_perfect}
-                width="22"
-                height="22"
-                name="add_row_input"
-              />
-            </Col>
-            
-            <Col md={{offset:0}}>
+            <Col md={{ span: 3 }}>
               <Button
-                id="export_xmljsonCFG"
-                onClick={
-                  exportCFG
-                }
+                id="api_button_CFG"
+                onClick={(event) => on_click_CFG_api(event)}
                 variant="info"
                 size="sm"
               >
-                Export
+                Test
               </Button>
             </Col>
+            <Col md={{ offset: 1, span: 2 }}>
+                <h4>Tests</h4>
+           </Col>
+            <Col md={{offset:0, span:1}}>
+              <input
+              id="add_row_button_CFG_tests"
+              onClick={(event) => tests_plus_handler(event)}
+              type="image"
+              id="add_button"
+              src={add_perfect}
+              width="22"
+              height="22"
+              name="add_row_input"
+            />
+              </Col>
 
+            <Col>
+              <ButtonGroup>
+                <Button
+                  type="file"
+                  id="importButton"
+                  variant="info"
+                  onClick={() => promptFile().then((_) => {})}
+                  size="sm"
+                >
+                  Import
+                </Button>
+                <Button
+                  id="export_xmljsonCFG"
+                  onClick={exportCFG}
+                  variant="info"
+                  size="sm"
+                >
+                  Export
+                </Button>
+              </ButtonGroup>
+            </Col>
           </Row>
-
           <div ref={row_ref_container}>
             {row_entry_array ? (
               row_entry_array.map((_, key) => (
@@ -580,7 +613,7 @@ function CFG_Visual() {
       >
         <div>
           {displayWarning ? (
-            <WarningSign message="Enter: name@uic.edu"/>
+            <WarningSign message="Enter: name@uic.edu" />
           ) : (
             <React.Fragment></React.Fragment>
           )}
@@ -588,7 +621,7 @@ function CFG_Visual() {
             <Form.Control
               type="text"
               onChange={(text) => {
-                inputValForExport = text.target.value
+                inputValForExport = text.target.value;
               }}
             />
             <InputGroup.Append>
@@ -599,7 +632,6 @@ function CFG_Visual() {
           </InputGroup>
         </div>
       </Popup>
-
     </div>
   );
 }
