@@ -215,9 +215,6 @@ function CFG_Visual() {
     downloadAnchorNode.remove();
     // console.log(exportation_nodes(exportation_nodes(nodes)));
   }
-  const export_click_handler = () => {
-    set_UIN_input(true);
-  };
   useEffect(() => {
     
     
@@ -313,6 +310,7 @@ function CFG_Visual() {
             exportTime: getMinsIntoSession(master_context.date, new Date()),
             userInputCFG: preprocessor()
           }
+          console.log(exportToJson.userInputCFG)
           downloadObjectAsJson(
             exportToJson, 
             "RFLAP_" + "CFG",
@@ -327,15 +325,13 @@ function CFG_Visual() {
       }
   }
   const exportCFG = () => {
+    setDisplayWarning(false)
     setExportModal(true);
   }
   const process_userinput = (row_table_DOM_node, id) => {
-    // console.log("PROCESSING")
-    // console.log(id);
     user_input_row_collection[id] = HTMLCol_to_array(
       row_table_DOM_node.children
     )[0].value;
-    // console.log("PROCESSING")
   };
 
   const preprocessor = ()=>{
