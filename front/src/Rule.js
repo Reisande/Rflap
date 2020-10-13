@@ -15,7 +15,6 @@ function Rule(props) {
   const master_context = useContext(AutomataContext);
   let mount_text = "  ";
   props.index == 0 ? (mount_text = "S") : (mount_text = mount_text);
-  console.log(props);
   useEffect(() => {
     let a;
     const set_S = ()=>{
@@ -38,7 +37,6 @@ function Rule(props) {
 
         master_context.grammar_obj[props.index].TERM = text_input;
         // terminal.current.value = preprocess
-        console.log(master_context.grammar_obj);
         break;
       default:
         // console.log("NON-TYPE (neither terminal or non-terminal");
