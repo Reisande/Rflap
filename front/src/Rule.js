@@ -50,7 +50,7 @@ function Rule(props) {
           <Form.Control
             ref= {non_terminal}
             onChange={e => update_grammar_table(e, E_formtype.NON_TERM)}
-            defaultValue={props.non_term}
+            defaultValue={props.index == 0 ? "S" : props.non_term}
             as="input"
             id="rule_non-terminal"
           />

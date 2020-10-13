@@ -303,23 +303,18 @@ function CFG_Visual() {
   const HTMLCol_to_array = html_collection => Array.prototype.slice.call(html_collection);
   const makeDefinitions = (cfg) => {
     setExportModal(false);
-    let def = definition_entry_array 
     let newArr =[]
     let i = 0;
     let startIndex =-1 
     for (const[key,value] of Object.entries(cfg.productions)){
-      console.log(key)
         if (i == startIndex) {
           i += 1;
         }
-        def[i].NON_TERM = key;
         let finalStr = [] 
         value.forEach((array) => finalStr.push(array.join("")))
         finalStr.join("|");
-        def[i].TERM = finalStr;
-        newArr.push({NON_TERM: key, TERM: finalStr.join("|"), index: def[i].index})
+        newArr.push({NON_TERM: key, TERM: finalStr.join("|"), index: i})
         }
-    
     set_definition_entry_array([...newArr])
     master_context.grammar_obj = newArr;
 
