@@ -11,11 +11,10 @@ const E_formtype = {
 };
 function Rule(props) {
   const non_terminal = useRef(null);
-  const definition = useRef(null);
+  const terminal = useRef(null);
   const master_context = useContext(AutomataContext);
   let mount_text = "  ";
   props.index == 0 ? (mount_text = "S") : (mount_text = mount_text);
-  console.log(props);
   useEffect(() => {
     let a;
     const set_S = ()=>{
@@ -26,6 +25,7 @@ function Rule(props) {
   }, []);
 
   const update_grammar_table = (e, E_formtype_value) => {
+    let preprocess = e.target.value;
     let text_input = e.target.value.replace(/\s/g, "")    ;
     switch (E_formtype_value) {
       case E_formtype.NON_TERM:
@@ -36,7 +36,7 @@ function Rule(props) {
         // console.log("transformation of context grammar: " + E_formtype.TERM + "\nRow Number: " +  props.index);
 
         master_context.grammar_obj[props.index].TERM = text_input;
-        console.log(master_context.grammar_obj);
+        // terminal.current.value = preprocess
         break;
       default:
         // console.log("NON-TYPE (neither terminal or non-terminal");
@@ -66,8 +66,9 @@ function Rule(props) {
         <Col md={{ span: 6 }}>
           <Form.Control
             onChange={e => update_grammar_table(e, E_formtype.TERM)}
+            ref={terminal}
             as="input"
-            defaultValue={props.term}
+            defaultValue ={props.term}
             id= "rule_terminal"
           />
         </Col>
