@@ -27,7 +27,7 @@
 
 #export_xmljsonCFG{
     box-shadow: none;
-    top: -5px;
+    /* top: -5px; */
 }
 #api_button_CFG{
     box-shadow:none;

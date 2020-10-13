@@ -15,19 +15,14 @@ function Rule(props) {
   const master_context = useContext(AutomataContext);
   let mount_text = "  ";
   props.index == 0 ? (mount_text = "S") : (mount_text = mount_text);
-
-
-  
+  console.log(props);
   useEffect(() => {
     let a;
     const set_S = ()=>{
       master_context.grammar_obj[0].NON_TERM = mount_text;
       non_terminal.current.readOnly = true;
     };
-
     (props.index == 0) ? set_S():  a = 1;  
-    
-
   }, []);
 
   const update_grammar_table = (e, E_formtype_value) => {
@@ -50,12 +45,12 @@ function Rule(props) {
 
   return (
     <div class="rulecontainer">
-      <Form.Row>
+      <Form.Row >
         <Col md={{ span: 2, offset: 1 }}>
           <Form.Control
             ref= {non_terminal}
             onChange={e => update_grammar_table(e, E_formtype.NON_TERM)}
-            defaultValue={mount_text.charAt(0)}
+            defaultValue={props.index == 0 ? "S" : props.non_term}
             as="input"
             id="rule_non-terminal"
           />
@@ -72,7 +67,7 @@ function Rule(props) {
           <Form.Control
             onChange={e => update_grammar_table(e, E_formtype.TERM)}
             as="input"
-            defaultValue={mount_text.charAt(1)}
+            defaultValue={props.term}
             id= "rule_terminal"
           />
         </Col>
