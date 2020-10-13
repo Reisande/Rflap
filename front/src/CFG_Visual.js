@@ -47,6 +47,7 @@ function CFG_Visual() {
   const [definition_entry_array, set_definition_entry_array] = useState([]);
   const [UIN_input,set_UIN_input] = useState(false);
   const [displayWarning, setDisplayWarning] = useState(false)
+  const forceUpdate = React.useState()[1].bind(null, {})
   const [warning_display, set_warning_display] = useState(false);
   const [exportModal, setExportModal] = useState(false)
   const toMins = (seconds) =>
@@ -543,7 +544,7 @@ function CFG_Visual() {
           </Row>
           <div id="definition-holder">          {definition_entry_array ? (
             definition_entry_array.map((payload, key) => (
-              <Rule term={payload.TERM} non_term={payload.NON_TERM} index={key} key={key} />
+              <Rule term={payload.TERM} non_term={payload.NON_TERM} index={key} key={Math.random()} />
             ))
           ) : (
             <></>
