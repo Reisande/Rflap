@@ -132,7 +132,6 @@ function CFG_Visual() {
     array_to_mount.push(grammar_table_line);
     set_definition_entry_array([...array_to_mount]);
     master_context.grammar_obj = definition_entry_array;
-    // console.log(array_to_mount);
   };
   function set_text_form(event) {
     input_val = event.target.value;
@@ -224,21 +223,23 @@ function CFG_Visual() {
     new_array.push(1);
     set_row_entries([...new_array]);
   };
-  const downloadObjectAsJson = (exportObj, exportName)=> {
-    console.log(exportObj);
-    const exportation_nodes = node_style_dependency(input_val);
+
+  function downloadObjectAsJson(exportObj, exportName,edu) {
+    const exportation_nodes = node_style_dependency(edu);
+    // exportation_nodes.state_names
     var dataStr =
       "data:text/json;charset=utf-8," +
       encodeURIComponent(exportation_nodes(JSON.stringify(exportObj)));
-    // console.log(decoded_raw);
     var downloadAnchorNode = document.createElement("a");
     downloadAnchorNode.setAttribute("href", dataStr);
-    downloadAnchorNode.setAttribute("id","temp_anchor");
     downloadAnchorNode.setAttribute("download", exportName + ".json");
+    //necessary to ignore event listeners in useEffect in app.js
+    downloadAnchorNode.setAttribute("id", "temp_anchor");
     document.body.appendChild(downloadAnchorNode); // required for firefox
+
     downloadAnchorNode.click();
+
     downloadAnchorNode.remove();
-    // console.log(exportation_nodes(exportation_nodes(nodes)));
   }
   useEffect(() => {
     
@@ -300,21 +301,50 @@ function CFG_Visual() {
 
   //test api functionality:
   const HTMLCol_to_array = html_collection => Array.prototype.slice.call(html_collection);
+  const makeDefinitions = (cfg) => {
+    setExportModal(false);
+    let def = definition_entry_array 
+    let newArr =[]
+    let i = 0;
+    let startIndex =-1 
+    for (const[key,value] of Object.entries(cfg.productions)){
+      console.log(key)
+        if (i == startIndex) {
+          i += 1;
+        }
+        def[i].NON_TERM = key;
+        let finalStr = [] 
+        value.forEach((array) => finalStr.push(array.join("")))
+        finalStr.join("|");
+        def[i].TERM = finalStr;
+        newArr.push({NON_TERM: key, TERM: finalStr.join("|"), index: def[i].index})
+        }
+    
+    set_definition_entry_array([...newArr])
+    master_context.grammar_obj = newArr;
 
+  }
   const exportJson = (e) => {
     setDisplayWarning(false);
-    console.log(readImportTxt);
     if (readImportTxt != null) {
       inputValForExport = inputValForExport.toLowerCase();
       if (inputValForExport.length > 7 && inputValForExport.includes("@uic.edu")) {
         const exportation_nodes = decipher(inputValForExport);
         const deciphered = exportation_nodes(readImportTxt);
         readImportTxt = null;
-        console.log("----")
         let CFGJsonImport = JSON.parse(deciphered);
-        //import logic here:
-        console.log(CFGJsonImport)
-        //input_reg.current.value = regexJsonImport.userInputRegex
+        let mainDiv = document.getElementById("definition-holder");
+        let def = mainDiv.children
+        let i = def.length
+        if (def == null) {
+          Object.keys(CFGJsonImport.userInputCFG.productions).forEach((arr) =>  definition_plus_handler({}))
+        } else {
+          while (i < Object.keys(CFGJsonImport.userInputCFG.productions).length) {
+            definition_plus_handler({})
+            i+=1
+          }
+        }
+        makeDefinitions(CFGJsonImport.userInputCFG);
         setExportModal(false)
       }
       else {
@@ -337,7 +367,6 @@ function CFG_Visual() {
             exportTime: getMinsIntoSession(master_context.date, new Date()),
             userInputCFG: preprocessor()
           }
-          console.log(exportToJson.userInputCFG)
           downloadObjectAsJson(
             exportToJson, 
             "RFLAP_" + "CFG",
@@ -434,9 +463,6 @@ function CFG_Visual() {
       e.preventDefault();
 
       let object_description = preprocessor();
-      // console.log("----");
-      // console.log(object_description);
-      // console.log("----");
       let array_of_rules = [];
       const is_numeric = (str)=>{
         return /^\d+$/.test(str);
@@ -475,7 +501,7 @@ function CFG_Visual() {
       });
       let grammar_with_funcs;
       if(array_of_rules == null || array_of_rules == undefined || array_of_rules.length == 0){
-        alert("MAKE RULES!");
+        alert("Make rules in the left definition table!");
         return;
       }
       else{
@@ -499,12 +525,11 @@ function CFG_Visual() {
       })
       set_row_entries([...bool_results]);
     }
- console.log(Hex.Canvas); 
   return (
     <div id="row_container_CFG">
       <Row>
         <Form as={Col} md={{ span: 4 }}>
-          <Row>
+          <Row  class="row-input-div">
             <Col md={{ span: 1, offset: 5 }}>
               <h4>Definition</h4>
             </Col>
@@ -521,13 +546,15 @@ function CFG_Visual() {
               />
             </Col>
           </Row>
-          {definition_entry_array ? (
-            definition_entry_array.map((_, key) => (
-              <Rule index={key} key={key} />
+          <div id="definition-holder">          {definition_entry_array ? (
+            definition_entry_array.map((payload, key) => (
+              <Rule term={payload.TERM} non_term={payload.NON_TERM} index={key} key={key} />
             ))
           ) : (
             <></>
           )}
+</div>
+
         </Form>
         <Col md={{ span: 3 }}>
           <h5>Grammar</h5>
