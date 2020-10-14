@@ -1013,42 +1013,86 @@ const animateIntoNeutral = (status_ref,test_button_ref) =>{
             newNodes.add([{ id: parseInt(ar.join()), label: labelStr, borderWidth: s[1] ? 3 : 1 }])
           }
         })
-        let fromToOnTransition = new Object();
-        graphImport.transition_function.forEach(transition => {
-          let key = transition[0] + transition[2]
-          if (fromToOnTransition[key] == null) {
-            fromToOnTransition[key] = transition[1]
-          }
-          else {
-            fromToOnTransition[key] += "," + transition[1]
-          }
-        })
-        const decons = (key) => {
-          let newObj = new Object();
-          newObj.from = "";
-          newObj.to = "";
-          newObj.label = "";
-          let stateIdConstructor = "";
-          [...key].forEach((chr, i) => {
-            if (chr === "Q" && i != 0) {
-              let ar = [...stateIdConstructor];
-              ar.shift();
-              newObj.from = parseInt(ar.join());
-              stateIdConstructor = "";
+  
+        if (master_context.PDA) {
+          let fromToOnTransition = new Object();
+          graphImport.transition_function.forEach(transition => {
+            let key = transition[0] + transition[4]
+            if (fromToOnTransition[key] == null) {
+              fromToOnTransition[key] = transition[1]+"," + transition[2] + "->" + transition[3]
             }
-            stateIdConstructor += chr;
-          });
-          let ar = [...stateIdConstructor]
-          ar.shift()
-          newObj.to = parseInt(ar.join());
-          return newObj;
+            else {
+              fromToOnTransition[key] += " | " +
+                  transition[1] + "," + transition[2] + "->" + transition[3]
+            }
+          })
+          const decons = (key) => {
+            let newObj = new Object();
+            newObj.from = "";
+            newObj.to = "";
+            newObj.label = "";
+            let stateIdConstructor = "";
+            [...key].forEach((chr, i) => {
+              if (chr === "Q" && i != 0) {
+                let ar = [...stateIdConstructor];
+                ar.shift();
+                newObj.from = parseInt(ar.join());
+                stateIdConstructor = "";
+              }
+              stateIdConstructor += chr;
+            });
+            let ar = [...stateIdConstructor]
+            ar.shift()
+            newObj.to = parseInt(ar.join());
+            return newObj;
+          }
+        
+          Object.entries(fromToOnTransition).forEach(s => {
+            let edgeObj = decons(s[0]);
+            edgeObj.label = s[1];
+            edgeObj.arrows = "to";
+            newEdges.add(edgeObj);
+          })
         }
-        Object.entries(fromToOnTransition).forEach(s => {
-          let edgeObj = decons(s[0]);
-          edgeObj.label = s[1];
-          edgeObj.arrows = "to";
-          newEdges.add(edgeObj);
-        })
+        else {
+          let fromToOnTransition = new Object();
+          graphImport.transition_function.forEach(transition => {
+            let key = transition[0] + transition[2]
+            if (fromToOnTransition[key] == null) {
+              fromToOnTransition[key] = transition[1]
+            }
+            else {
+              fromToOnTransition[key] += "," + transition[1]
+            }
+          })
+          const decons = (key) => {
+            let newObj = new Object();
+            newObj.from = "";
+            newObj.to = "";
+            newObj.label = "";
+            let stateIdConstructor = "";
+            [...key].forEach((chr, i) => {
+              if (chr === "Q" && i != 0) {
+                let ar = [...stateIdConstructor];
+                ar.shift();
+                newObj.from = parseInt(ar.join());
+                stateIdConstructor = "";
+              }
+              stateIdConstructor += chr;
+            });
+            let ar = [...stateIdConstructor]
+            ar.shift()
+            newObj.to = parseInt(ar.join());
+            return newObj;
+          }
+        
+          Object.entries(fromToOnTransition).forEach(s => {
+            let edgeObj = decons(s[0]);
+            edgeObj.label = s[1];
+            edgeObj.arrows = "to";
+            newEdges.add(edgeObj);
+          })
+        }
         let graph = { nodes: newNodes, edges: newEdges };
         master_context.network.setData(graph);
         master_context.edgesDS = newEdges;
@@ -1187,7 +1231,7 @@ const animateIntoNeutral = (status_ref,test_button_ref) =>{
   const downloadSubmission = (exp)  => {
              downloadStringAsJson(
           exp,
-          "RFLAP_" + "DFA"
+          "RFLAP_" + "Submission"
           );
     setTextOrDownload(false);
     set_UIN_input(false);
