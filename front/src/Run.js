@@ -204,6 +204,7 @@ function Run(props) {
             }
 
             transition_triple.push(read);
+            alpha.add(read);
             transition_triple.push(push);
             stack_alpha.add(push);
             transition_triple.push(pop);
@@ -329,7 +330,7 @@ function Run(props) {
           alphabet_processed.push(char);
         });
       });
-
+      console.log(alpha);
       packet_to_misha_the_microsoft_engineer.transition_alphabet = [...alpha];
       packet_to_misha_the_microsoft_engineer.stack_alphabet = [...stack_alpha];
     }
