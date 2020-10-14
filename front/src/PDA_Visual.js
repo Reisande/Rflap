@@ -18,6 +18,7 @@ import transition_bar from "./transition.svg";
 import blank_svg_bar from "./blank.svg";
 import passive_bar from "./delete.svg";
 import remove_bar from "./remove.svg";
+import add_perfect from "./plus.svg";
 
 //Network, Hex's (js)
 import { NetworkOptions } from "./res/NetworkOptions";
@@ -41,7 +42,8 @@ let graph = { nodes: nodesDS, edges: edgesDS };
 
 function PDA_Visual() {
   const [show, setShow] = useState({display: false, user_in: " _"});
-  const [warning, setWarningDisplay] = useState(false);
+  const [warning, setWarningDisplay] = useState({on:false, message: "Incorrect input"});
+  const [modalEntry,setModalEntries] = useState([["","",""]])
   const master_context = useContext(AutomataContext);
   master_context.graphObj = graph;
   master_context.edgesDS = edgesDS;
@@ -309,7 +311,20 @@ function PDA_Visual() {
           let currentEdgeText = edgeDisplayInfo.edgeLabel == null ? "" : edgeDisplayInfo.edgeLabel;
           inputVal = currentEdgeText
           setShow({ display: true, from: "δ(" + from.trim() + ", ", edgeLabel: currentEdgeText, to: ") =" + to, edgeId: edge_id });
-        };
+          let edges = nodesOfEdgeId(params.edges[0])
+          let newArr = [["","",""]]
+          if (edges.edgeLabel) {
+            newArr = []
+            edges.edgeLabel.replace(/ /g,'').split("|").forEach((triple) => {
+              let read = triple[0]
+              let pop = triple[2]
+              let push = triple[5]
+              let subArr = [read, pop, push]
+              newArr.push(subArr)
+            })
+          }
+            setModalEntries([...newArr]);
+        }
           openModal(nodesOfEdgeId(params.edges[0]))
       }
     });
@@ -380,35 +395,74 @@ function PDA_Visual() {
     return {edgeLabel: edgeText , from: fromLabel, to:toLabel }
   }
   const ChangeEdgeText = (userInput, edgeID) => {
-    String.prototype.replaceAt = function(index, replacement) {
+    
+    String.prototype.replaceAt = function (index, replacement) {
       return this.substr(0, index) + replacement + this.substr(index + replacement.length);
     }
     let warn = false;
-    graph.edges.forEach((edge) => {
-      if (edge.id == edgeID) {
-        edge.label = userInput;
-        userInput.split(",").forEach((chr) => {
-          if (chr.length > 1){
-            warn = true;
-          }
-        });
-        if (userInput === "") {
-          warn = true;
+    let finalStr = []
+    let finalLabel = ""
+    let warnString = ""
+    modalEntry.forEach((arr) => {
+      arr = arr.map(str => {
+        if (!str) {
+          return ""
         }
-        if (warn) return;
-        userInput = userInput.replace("!", "ϵ").replace(" ", "ϵ");
-        edgesDS.update([{ id: edge.id, label: userInput }]);
+        else {
+          return str
+        }
+      }) 
+      let testEmptyEntry = arr.filter(str=>  str.length == 0 )
+      if ((arr.includes("") && testEmptyEntry.length != 3)) {
+        warn = true
+        warnString = "Unfilled out rule, delete text in inputbox or fill out"
+        return
       }
+      else if (arr.filter(str => str ?  str.length > 1 : false).length > 0) {
+        warn = true
+        warnString = "Only one character per input box"
+      }
+
+      if (testEmptyEntry.length== 3) {
+        return
+      }
+      arr = arr.map((str) => str.replace("!", "ϵ").replace(" ", "ϵ"))
+      let newStr = arr[0] + "," + arr[1] + "->" + arr[2]
+      finalStr.push(newStr);
     });
     if (warn) {
-      setWarningDisplay(true);
+      setWarningDisplay({ on: true , message:warnString});
     }
     else {
+      graph.edges.forEach((edge) => {
+        if (edge.id == edgeID) {
+          edge.label = finalStr.join("|");
+          edgesDS.update([{id:edge.id, label: finalStr.join(" | ")}])
+        }
+      });
       setShow({ display: false })
-      setWarningDisplay(false);
-      deselectAllModes();
+      setWarningDisplay({on:false, message:""})
+      deselectAllModes()
     }
-  };
+  }
+    //     });
+    //     if (userInput === "") {
+    //       warn = true;
+    //     }
+    //     if (warn) return;
+    //     userInput = userInput.replace("!", "ϵ").replace(" ", "ϵ");
+    //     edgesDS.update([{ id: edge.id, label: userInput }]);
+    //   }
+    // });
+    // if (warn) {
+    //   setWarningDisplay(true);
+    // }
+    // else {
+    //   setShow({ display: false })
+    //   setWarningDisplay(false);
+    //   deselectAllModes();
+    // }
+
 //  const saveEdgeEdit = (edgeId) => {
  //   ChangeEditText()
   //}
@@ -537,40 +591,73 @@ function PDA_Visual() {
     //setShow(false);
 
   }
+  let newArr =[ ]
   function StackModalEntry(props) {
     return (
         <Row>
         <Col md={{offset: 1}}>
-          <input type="text" defaultValue={props.from} size="1" />
+          <input type="text" onChange={(event) => { modalEntry[props.index][0] = event.target.value }} defaultValue={modalEntry[props.index][0]}size="1" />
           <b>{","} </b>
-        <input type="text" size="1" onChange={(event) => { inputVal = event.target.value }} defaultValue={props.edgeLabel} />
+        <input type="text" size="1" onChange={(event) => { modalEntry[props.index][1]= event.target.value }} defaultValue={modalEntry[props.index][1]} />
         <input type="text"disabled defaultValue="  🠆" size="1"/>
-        <input type="text" defaultValue={props.to} size="1" />
+          <input type="text" onChange={(event) => { modalEntry[props.index][2] = event.target.value }} defaultValue={modalEntry[props.index][2]} size="1" />
 </Col>
 
         </Row> 
     )
 }
+  const image_click_handler = (event) => {
+    let new_array = modalEntry;
+    new_array.push(["","",""]);
+    setModalEntries([...new_array]);
+ 
+}
 
 //          setShow({ display: true, from: "δ(" + from, edgeLabel: edgeLabel, toInvariant: ") = ",  to: to});
   return (
     <div id="non-header-div">
-      <Modal size="sm"backdrop="static" show={show.display} onHide={() => { setShow({display:false, user_in: "_"}) }}> 
-        <Modal.Header >
+      <Modal
+        size="sm"
+        backdrop="static"
+        show={show.display}
+        onHide={() => {
+          setShow({ display: false, user_in: "_" });
+        }}
+      >
+        <Modal.Header>
           <Modal.Title>Edit Transition</Modal.Title>
+          <Col md={{ offset: 2 }}>
+            {" "}
+            <input
+              onClick={(event) => image_click_handler(event)}
+              type="image"
+              id="add_button"
+              src={add_perfect}
+              width="33"
+              height="33"
+            />
+          </Col>
         </Modal.Header>
         <Modal.Body>
           <Row>
-            <Col md={{offset:1, span:2}}>
-            {"Read"}
-            </Col>
-            <Col md={{ offset: 0, span:2}}>              {"Pop"}
-</Col>
-        <Col md={{offset:1}}>              {"Push"}
-</Col>
-
-          </Row> 
-            <StackModalEntry/>
+            <Col md={{ offset: 1, span: 2 }}>{"Read"}</Col>
+            <Col md={{ offset: 0, span: 2 }}> {"Pop"}</Col>
+            <Col md={{ offset: 1 }}> {"Push"}</Col>
+            <Col md={{ offet: 1 }}></Col>
+          </Row>
+          {modalEntry ? (
+            modalEntry.map((ar, key) => (
+              <StackModalEntry
+                key={key}
+                read={ar[0]}
+                pop={ar[1]}
+                push={ar[2]}
+                index={key}
+              />
+            ))
+          ) : (
+            <></>
+          )}
           {/* <Row>
             <Col md={{ offset: 2 }}> 
 
@@ -579,12 +666,20 @@ function PDA_Visual() {
         <input type="text" defaultValue= {show.to} size="3" disabled/>
         </Col>
 </Row> */}
-          </Modal.Body>
+        </Modal.Body>
         <Modal.Footer>
-          {warning ?
-            <Badge size="sm" variant="danger">Must be single characters comma seperated.</Badge> :
-            <React.Fragment />}
-          <Button variant="primary" onClick={() => ChangeEdgeText(inputVal,show.edgeId)}>
+          {warning.on ? (
+            <Badge size="sm" variant="danger">
+              {warning.message}
+            </Badge>
+          ) : (
+            <React.Fragment />
+          )}
+
+          <Button
+            variant="primary"
+            onClick={() => ChangeEdgeText(inputVal, show.edgeId)}
+          >
             Save Changes
           </Button>
         </Modal.Footer>
