@@ -201,7 +201,11 @@ function Visual() {
     window.addEventListener("keydown", (e) => {
       const deleteNodeMode = (keyCode) => {
         if (keyCode === "KeyD") {
-          img_status.current.src = remove_bar;
+          try {
+            img_status.current.src = remove_bar;
+          }
+          catch (e) {
+          }
           delete_lock = true;
           return;
         }
@@ -440,10 +444,15 @@ function Visual() {
   //network.enableEditMode and then network.addEdgeMode
   function toEditEdgeMode(props) {
     deselectAllModes();
-    img_status.current.src = transition_bar;
-    if (network == null) return;
-    network.enableEditMode();
-    network.addEdgeMode();
+    try {
+      img_status.current.src = transition_bar;
+      if (network == null) return;
+      network.enableEditMode();
+      network.addEdgeMode();
+    }
+    catch (e) {
+
+    }
   }
   //network.enableEditMode() and then network.addNodeMode()
   function toAddNodeMode(props) {
