@@ -47,7 +47,7 @@ pub struct Pda {
 #[inline]
 fn convert_chars(c: char) -> Option<char> {
     match c {
-        '!' => None,
+        '!' | 'ϵ' => None,
         _ => Some(c),
     }
 }
