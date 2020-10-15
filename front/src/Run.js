@@ -985,9 +985,9 @@ const animateIntoNeutral = (status_ref,test_button_ref) =>{
         .map((hex) => parseInt(hex, 16))
         .map(applySaltToChar)
         .map((charCode) => String.fromCharCode(charCode))
-        .map((input) => input.replace('õ', 'Ɛ'))
+        .map((input) => input.replace('õ', 'ϵ'))
         .map((input) => input.replace(' ', ''))
-        .map((input) => input.replace('""', '"Ɛ"'))
+        .map((input) => input.replace('""', '"ϵ"'))
         .join('');
 };
  async function UIN_submit(event) {
