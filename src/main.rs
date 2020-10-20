@@ -142,6 +142,7 @@ fn grade_pda(
 ) {
     // generate TestsJson array
 
+
     let mut alphabet = target.transition_alphabet.to_owned();
     alphabet.remove(&'Ɛ');
 
@@ -308,6 +309,7 @@ pub fn endpoint_grade(buffer: String, args: Vec<String>, automata_type: &Type)
 		Type::pda => {
 			let source = &serde_json::de::from_str::<pda::PdaJson>(&buffer).unwrap();
             let target = &serde_json::de::from_str::<pda::PdaJson>(&buffer_answer).unwrap();
+
 			
             tests = grade_pda(source, target, 100);
 		}
