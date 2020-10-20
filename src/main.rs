@@ -142,25 +142,33 @@ fn grade_pda(
 ) {
     // generate TestsJson array
 
+
     let mut alphabet = target.transition_alphabet.to_owned();
     alphabet.remove(&'Ɛ');
 
-    let test_strings_deterministic = generate_tests::generate_tests(generate_tests::TestsJson {
-        alphabet: alphabet.to_owned(),
-        size: (num_tests * 4) / 5, // how many strings for non deterministic
-        length: 10,                // longest string
-        random: false,
-    })
-    .return_vec;
-    // then take out the first num_tests/2 elements from the vector
+	let use_builtin_tests: bool = target.input_strings.len() > 1;
+    let test_strings_deterministic = if !use_builtin_tests {
+		generate_tests::generate_tests(generate_tests::TestsJson {
+			alphabet: alphabet.to_owned(),
+			size: (num_tests * 4) / 5, // how many strings for non deterministic
+			length: 10,                // longest string
+			random: false,
+		}).return_vec
+	} else {
+		target.input_strings.to_owned()
+	};    // then take out the first num_tests/2 elements from the vector
 
-    let test_strings_nondeterministic = generate_tests::generate_tests(generate_tests::TestsJson {
-        alphabet: alphabet.to_owned(),
-        size: (num_tests) / 5, // how many strings for non deterministic
-        length: 10,            // longest string
-        random: true,
-    })
-    .return_vec;
+    let test_strings_nondeterministic = if use_builtin_tests {
+		generate_tests::generate_tests(generate_tests::TestsJson {
+			alphabet: alphabet.to_owned(),
+			size: (num_tests) / 5, // how many strings for non deterministic
+			length: 10,            // longest string
+			random: true,
+		}).return_vec
+	} else {
+		Vec::new() // we already read the input strings file								   
+    };
+	
     // run tests on source and target, check that the result is equal
 
     let source: pda::Pda = pda::Pda::new_from_json(&source).0;
@@ -222,6 +230,8 @@ pub fn endpoint_grade(buffer: String, args: Vec<String>, automata_type: &Type)
     // answer file will be passed in the second command line argument
     let buffer_answer = fs::read_to_string(&args[2])?;
 
+	println!("{:?}", buffer_answer);
+	
     let determinism_weight: Option<f64> = if args.len() >= 7 {
 		Option::from(args[7].to_string().parse::<f64>().unwrap())
 	} else {
@@ -300,6 +310,12 @@ pub fn endpoint_grade(buffer: String, args: Vec<String>, automata_type: &Type)
 			let source = &serde_json::de::from_str::<pda::PdaJson>(&buffer).unwrap();
             let target = &serde_json::de::from_str::<pda::PdaJson>(&buffer_answer).unwrap();
 
+			let test_string_file = if args.len() >= 8 {
+				Some(fs::read_to_string(&args[8])?)
+			} else {
+				None
+			};
+			
             tests = grade_pda(source, target, 100);
 		}
 	}    // DYNAMIC TESTS
@@ -381,12 +397,12 @@ fn main() -> io::Result<()> {
     } else if &args[1] == "tests" {
         tests(serde_json::de::from_str::<generate_tests::TestsJson>(&buffer).unwrap());
     } else if &args[1] == "grade_automata" {
-        endpoint_grade(buffer, args, &Type::automata);
-    } else if &args[1] == "grade_pdas" {
-		endpoint_grade(buffer, args, &Type::pda);
+        endpoint_grade(buffer, args.to_vec(), &Type::automata);
+    } else if &args[1] == "grade_pda" {
+		endpoint_grade(buffer, args.to_vec(), &Type::pda);
 	} else if &args[1] == "pdas" {
         pda((serde_json::de::from_str::<pda::PdaJson>(&buffer).unwrap()));
     }
-
+	
     Ok(())
 }
