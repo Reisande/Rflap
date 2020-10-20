@@ -310,11 +310,6 @@ pub fn endpoint_grade(buffer: String, args: Vec<String>, automata_type: &Type)
 			let source = &serde_json::de::from_str::<pda::PdaJson>(&buffer).unwrap();
             let target = &serde_json::de::from_str::<pda::PdaJson>(&buffer_answer).unwrap();
 
-			let test_string_file = if args.len() >= 8 {
-				Some(fs::read_to_string(&args[8])?)
-			} else {
-				None
-			};
 			
             tests = grade_pda(source, target, 100);
 		}

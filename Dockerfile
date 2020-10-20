@@ -11,7 +11,7 @@ WORKDIR /src/automata
 COPY Cargo.toml Cargo.lock ./
 RUN cargo fetch
 COPY src ./src
-RUN cargo install --target x86_64-unknown-linux-musl --path .
+RUN cargo install --target x86_64-unknown-linux-musl --path ./
 
 # Build front
 FROM node:12-slim as build-front
@@ -19,7 +19,7 @@ FROM node:12-slim as build-front
 WORKDIR /src
 COPY front/package*.json ./
 RUN npm install
-COPY front .
+COPY front ./
 RUN npm run build
 
 # Build API
@@ -28,7 +28,7 @@ FROM node:12-slim as build-api
 WORKDIR /src
 COPY temp-api/package*.json ./
 RUN npm install
-COPY temp-api .
+COPY temp-api ./
 RUN npm run build
 
 # Publish Image
