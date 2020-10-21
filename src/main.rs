@@ -189,12 +189,14 @@ fn grade_pda(
         let (accepted_source, _, _, _) = source.validate_string(test.to_string());
         let (accepted_target, _, _, _) = target.validate_string(test.to_string());
 
+		let mut score = 0.0;
         if accepted_source == accepted_target {
-            passed +=
-                1.0 / ((test_strings_deterministic.len() + test_strings_deterministic.len()) as f64)
+            passed += ((accepted_source == accepted_target) as u8 as f64)
+                / ((test_strings_deterministic.len() + test_strings_deterministic.len()) as f64);
+			score = 1.0 /
+				((test_strings_deterministic.len() + test_strings_deterministic.len()) as f64);
         }
 
-		let score = 1.0 / ((test_strings_deterministic.len() + test_strings_deterministic.len()) as f64);
         deterministic_scores.push(score);
     }
 
@@ -202,12 +204,14 @@ fn grade_pda(
         let (accepted_source, _, _, _) = source.validate_string(test.to_string());
         let (accepted_target, _, _, _) = target.validate_string(test.to_string());
 
+		let mut score = 0.0;
         if accepted_source == accepted_target {
-            passed += 1.0
+            passed += ((accepted_source == accepted_target) as u8 as f64)
                 / ((test_strings_deterministic.len() + test_strings_deterministic.len()) as f64);
+			score = 1.0 /
+				((test_strings_deterministic.len() + test_strings_deterministic.len()) as f64);
         }
 
-		let score = 1.0 / ((test_strings_deterministic.len() + test_strings_deterministic.len()) as f64);
         nondeterministic_scores.push(score);
     }
 
