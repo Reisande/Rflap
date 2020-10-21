@@ -194,7 +194,9 @@ fn grade_pda(
         if accepted_source == accepted_target {
             passed += ((accepted_source == accepted_target) as u8 as f64)
                 / ((test_strings_deterministic.len() + test_strings_deterministic.len()) as f64);
-			score = test_weight /
+			
+        score = test_weight /
+
 				((test_strings_deterministic.len() + test_strings_deterministic.len()) as f64);
         }
 
@@ -210,7 +212,7 @@ fn grade_pda(
             passed += ((accepted_source == accepted_target) as u8 as f64)
                 / ((test_strings_deterministic.len() + test_strings_deterministic.len()) as f64);
 			score = test_weight /
-				((test_strings_deterministic.len() + test_strings_deterministic.len()) as f64);
+			((test_strings_deterministic.len() + test_strings_deterministic.len()) as f64);
         }
 
         nondeterministic_scores.push(score);
