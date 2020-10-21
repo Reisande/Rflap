@@ -244,7 +244,7 @@ pub fn endpoint_grade(buffer: String, args: Vec<String>, automata_type: &Type) -
     };
     let supposed_to_be_deterministic = determinism_weight != None;
 
-    let mut tests: (u16, u16, Vec<_>, Vec<f32>, Vec<_>, Vec<f32>, bool);
+    let mut tests: (u16, u16, Vec<_>, Vec<f64>, Vec<_>, Vec<f64>, bool);
     // then initialize a data structure which follows the output of results.json
     // the only members out of results.json which matter are score and tests
     // the only members of tests which we care about are
@@ -267,8 +267,8 @@ pub fn endpoint_grade(buffer: String, args: Vec<String>, automata_type: &Type) -
             // STATIC TESTS
 
             // size of the automata in number of states, added as a test to public_tests
-            let original_size: Option<f32> =
-                Option::from(args[5].to_string().parse::<f32>().unwrap());
+            let original_size: Option<f64> =
+                Option::from(args[5].to_string().parse::<f64>().unwrap());
             let minimal_size = target.states.len();
             let size_weight: f64 = f64::from(args[6].to_string().parse::<f64>().unwrap());
 
