@@ -203,7 +203,6 @@ fn grade_pda(
             passed += ((accepted_source == accepted_target) as u8 as f64);
 			score = 0.25; // i dont care I am hardcoding this because I am never touching it again
 			//test_weight / (targetJson.input_strings.len() as f64);
-
         }
 
         deterministic_scores.push(score);
@@ -354,8 +353,24 @@ pub fn endpoint_grade(buffer: String, args: Vec<String>, automata_type: &Type) -
         });
     }
 
+    for test in bound..tests.2.len() {
+		let visibility = if counter < 5 {
+			"visible".to_string()
+		} else {
+			"after_published".to_string()
+		};
+		counter += 1;
+
+        write_tests.push(Tests {
+            score: tests.3[test] as f64,
+            name: tests.2[test].to_owned(),
+            number: problem_number.to_owned(),
+            visibility: visibility,
+        });
+    }
+
 	let mut counter = 0;
-    for test in 0..tests.4.len() {
+    for test in 0..bound {
 		let visibility = if counter < 5 {
 			"visible".to_string()
 		} else {
@@ -372,20 +387,18 @@ pub fn endpoint_grade(buffer: String, args: Vec<String>, automata_type: &Type) -
     }
 
     for test in bound..tests.4.len() {
+		let visibility = if counter < 5 {
+			"visible".to_string()
+		} else {
+			"after_published".to_string()
+		};
+		counter += 1;
+
         write_tests.push(Tests {
             score: tests.5[test] as f64,
             name: tests.4[test].to_owned(),
             number: problem_number.to_owned(),
-            visibility: "after_published".to_string(),
-        });
-    }
-
-    for test in bound..tests.2.len() {
-        write_tests.push(Tests {
-            score: tests.3[test] as f64,
-            name: tests.2[test].to_owned(),
-            number: problem_number.to_owned(),
-            visibility: "after_published".to_string(),
+            visibility: visibility,
         });
     }
 	
