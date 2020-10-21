@@ -55,9 +55,9 @@ fn grade(
     u16,
     u16,
     std::vec::Vec<std::string::String>,
-    std::vec::Vec<f32>,
+    std::vec::Vec<f64>,
     std::vec::Vec<std::string::String>,
-    std::vec::Vec<f32>,
+    std::vec::Vec<f64>,
     bool,
 ) {
     // generate TestsJson array
@@ -88,8 +88,8 @@ fn grade(
     let target: finite_automaton::FiniteAutomaton =
         finite_automaton::FiniteAutomaton::new_from_json(&target).0;
 
-    let mut deterministic_scores: Vec<f32> = Vec::new();
-    let mut nondeterministic_scores: Vec<f32> = Vec::new();
+    let mut deterministic_scores: Vec<f64> = Vec::new();
+    let mut nondeterministic_scores: Vec<f64> = Vec::new();
 
     let mut passed: u16 = 0;
 
@@ -101,7 +101,7 @@ fn grade(
             passed += 1;
         }
 
-        deterministic_scores.push((accepted_source == accepted_target) as u8 as f32);
+        deterministic_scores.push((accepted_source == accepted_target) as u8 as f64 / num_tests as f64);
     }
 
     for test in &test_strings_nondeterministic {
@@ -112,7 +112,7 @@ fn grade(
             passed += 1;
         }
 
-        nondeterministic_scores.push((accepted_source == accepted_target) as u8 as f32);
+        nondeterministic_scores.push((accepted_source == accepted_target) as u8 as f64 / num_tests as f64);
     }
 
     (
@@ -135,9 +135,9 @@ fn grade_pda(
     u16,
     u16,
     std::vec::Vec<std::string::String>,
-    std::vec::Vec<f32>,
+    std::vec::Vec<f64>,
     std::vec::Vec<std::string::String>,
-    std::vec::Vec<f32>,
+    std::vec::Vec<f64>,
     bool,
 ) {
     // generate TestsJson array
@@ -178,8 +178,8 @@ fn grade_pda(
     let source: pda::Pda = pda::Pda::new_from_json(&source).0;
     let target: pda::Pda = pda::Pda::new_from_json(&target).0;
 
-    let mut deterministic_scores: Vec<f32> = Vec::new();
-    let mut nondeterministic_scores: Vec<f32> = Vec::new();
+    let mut deterministic_scores: Vec<f64> = Vec::new();
+    let mut nondeterministic_scores: Vec<f64> = Vec::new();
 
     let mut passed: f64 = 0.0;
 
@@ -192,7 +192,7 @@ fn grade_pda(
                 1.0 / ((test_strings_deterministic.len() + test_strings_deterministic.len()) as f64)
         }
 
-        deterministic_scores.push((accepted_source == accepted_target) as u8 as f32 / num_tests as f32);
+        deterministic_scores.push((accepted_source == accepted_target) as u8 as f64);
     }
 
     for test in &test_strings_nondeterministic {
@@ -204,7 +204,7 @@ fn grade_pda(
                 / ((test_strings_deterministic.len() + test_strings_deterministic.len()) as f64);
         }
 
-        nondeterministic_scores.push((accepted_source == accepted_target) as u8 as f32 / num_tests as f32);
+        nondeterministic_scores.push((accepted_source == accepted_target) as u8 as f64);
     }
 
     (
@@ -244,7 +244,7 @@ pub fn endpoint_grade(buffer: String, args: Vec<String>, automata_type: &Type) -
     };
     let supposed_to_be_deterministic = determinism_weight != None;
 
-    let mut tests: (u16, u16, Vec<_>, Vec<f32>, Vec<_>, Vec<f32>, bool);
+    let mut tests: (u16, u16, Vec<_>, Vec<f64>, Vec<_>, Vec<f64>, bool);
     // then initialize a data structure which follows the output of results.json
     // the only members out of results.json which matter are score and tests
     // the only members of tests which we care about are
@@ -267,8 +267,8 @@ pub fn endpoint_grade(buffer: String, args: Vec<String>, automata_type: &Type) -
             // STATIC TESTS
 
             // size of the automata in number of states, added as a test to public_tests
-            let original_size: Option<f32> =
-                Option::from(args[5].to_string().parse::<f32>().unwrap());
+            let original_size: Option<f64> =
+                Option::from(args[5].to_string().parse::<f64>().unwrap());
             let minimal_size = target.states.len();
             let size_weight: f64 = f64::from(args[6].to_string().parse::<f64>().unwrap());
 
