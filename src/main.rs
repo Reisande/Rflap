@@ -55,9 +55,9 @@ fn grade(
     u16,
     u16,
     std::vec::Vec<std::string::String>,
-    std::vec::Vec<u8>,
+    std::vec::Vec<f64>,
     std::vec::Vec<std::string::String>,
-    std::vec::Vec<u8>,
+    std::vec::Vec<f64>,
     bool,
 ) {
     // generate TestsJson array
