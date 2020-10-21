@@ -194,6 +194,7 @@ fn grade_pda(
         if accepted_source == accepted_target {
             passed += ((accepted_source == accepted_target) as u8 as f64);
 			score = test_weight / (targetJson.input_strings.len() as f64);
+
         }
 
         deterministic_scores.push(score);
