@@ -132,6 +132,7 @@ fn grade_pda(
     source: &pda::PdaJson,
     target: &pda::PdaJson,
     mut num_tests: u16,
+	test_weight: f64,
 ) -> (
     u16,
     u16,
@@ -184,7 +185,7 @@ fn grade_pda(
     let mut nondeterministic_scores: Vec<f64> = Vec::new();
 
     let mut passed: f64 = 0.0;
-
+	
     for test in &test_strings_deterministic {
         let (accepted_source, _, _, _) = source.validate_string(test.to_string());
         let (accepted_target, _, _, _) = target.validate_string(test.to_string());
@@ -193,7 +194,9 @@ fn grade_pda(
         if accepted_source == accepted_target {
             passed += ((accepted_source == accepted_target) as u8 as f64)
                 / ((test_strings_deterministic.len() + test_strings_deterministic.len()) as f64);
-			score = 1.0 /
+			
+        score = test_weight /
+
 				((test_strings_deterministic.len() + test_strings_deterministic.len()) as f64);
         }
 
@@ -208,8 +211,8 @@ fn grade_pda(
         if accepted_source == accepted_target {
             passed += ((accepted_source == accepted_target) as u8 as f64)
                 / ((test_strings_deterministic.len() + test_strings_deterministic.len()) as f64);
-			score = 1.0 /
-				((test_strings_deterministic.len() + test_strings_deterministic.len()) as f64);
+			score = test_weight /
+			((test_strings_deterministic.len() + test_strings_deterministic.len()) as f64);
         }
 
         nondeterministic_scores.push(score);
@@ -279,7 +282,7 @@ pub fn endpoint_grade(buffer: String, args: Vec<String>, automata_type: &Type) -
                 Option::from(args[5].to_string().parse::<f64>().unwrap());
             let minimal_size = target.states.len();
             let size_weight: f64 = f64::from(args[6].to_string().parse::<f64>().unwrap());
-
+			
             // determinism
             if supposed_to_be_deterministic && tests.6 {
                 write_tests.push(Tests {
@@ -324,7 +327,9 @@ pub fn endpoint_grade(buffer: String, args: Vec<String>, automata_type: &Type) -
             let source = &serde_json::de::from_str::<pda::PdaJson>(&buffer).unwrap();
             let target = &serde_json::de::from_str::<pda::PdaJson>(&buffer_answer).unwrap();
             bound = write_tests.len() / (10 as usize);
-            tests = grade_pda(source, target, 40);
+
+			let test_weight: f64 = f64::from(args[9].to_string().parse::<f64>().unwrap());
+            tests = grade_pda(source, target, 40, test_weight);
         }
     } // DYNAMIC TESTS
 
