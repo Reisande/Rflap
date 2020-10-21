@@ -324,38 +324,37 @@ pub fn endpoint_grade(buffer: String, args: Vec<String>, automata_type: &Type) -
         }
     } // DYNAMIC TESTS
 
-	let counter = 0;
+	let mut counter = 0;
     for test in 0..bound {
 		let visibility = if counter < 5 {
 			"visible".to_string()
 		} else {
 			"after_published".to_string()
-		}
+		};
 		counter += 1;
 		
         write_tests.push(Tests {
             score: tests.3[test] as f64,
             name: tests.2[test].to_owned(),
             number: problem_number.to_owned(),
-            visibility: "visible",
+            visibility: visibility,
         });
     }
 
-	
-	let counter = 0;
+	let mut counter = 0;
     for test in 0..tests.4.len() {
 		let visibility = if counter < 5 {
 			"visible".to_string()
 		} else {
 			"after_published".to_string()
-		}
+		};
 		counter += 1;
 		
         write_tests.push(Tests {
             score: tests.5[test] as f64,
             name: tests.4[test].to_owned(),
             number: problem_number.to_owned(),
-            visibility: "visible".to_string(),
+            visibility: visibility,
         });
     }
 
