@@ -194,7 +194,8 @@ fn grade_pda(
                 1.0 / ((test_strings_deterministic.len() + test_strings_deterministic.len()) as f64)
         }
 
-        deterministic_scores.push((accepted_source == accepted_target) as u8 as f64);
+		let score = 1.0 / ((test_strings_deterministic.len() + test_strings_deterministic.len()) as f64);
+        deterministic_scores.push(score);
     }
 
     for test in &test_strings_nondeterministic {
@@ -206,7 +207,8 @@ fn grade_pda(
                 / ((test_strings_deterministic.len() + test_strings_deterministic.len()) as f64);
         }
 
-        nondeterministic_scores.push((accepted_source == accepted_target) as u8 as f64);
+		let score = 1.0 / ((test_strings_deterministic.len() + test_strings_deterministic.len()) as f64);
+        nondeterministic_scores.push(score);
     }
 
     (
@@ -322,16 +324,33 @@ pub fn endpoint_grade(buffer: String, args: Vec<String>, automata_type: &Type) -
         }
     } // DYNAMIC TESTS
 
+	let counter = 0;
     for test in 0..bound {
+		let visibility = if counter < 5 {
+			"visible".to_string()
+		} else {
+			"after_published".to_string()
+		}
+		counter += 1;
+		
         write_tests.push(Tests {
             score: tests.3[test] as f64,
             name: tests.2[test].to_owned(),
             number: problem_number.to_owned(),
-            visibility: "visible".to_string(),
+            visibility: "visible",
         });
     }
 
-    for test in 0..bound {
+	
+	let counter = 0;
+    for test in 0..tests.4.len() {
+		let visibility = if counter < 5 {
+			"visible".to_string()
+		} else {
+			"after_published".to_string()
+		}
+		counter += 1;
+		
         write_tests.push(Tests {
             score: tests.5[test] as f64,
             name: tests.4[test].to_owned(),
