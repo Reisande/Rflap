@@ -101,7 +101,7 @@ fn grade(
             passed += 1;
         }
 
-        deterministic_scores.push((accepted_source == accepted_target) as u8);
+        deterministic_scores.push((accepted_source == accepted_target) as u8 as f64 / num_tests as f64);
     }
 
     for test in &test_strings_nondeterministic {
@@ -112,7 +112,7 @@ fn grade(
             passed += 1;
         }
 
-        nondeterministic_scores.push((accepted_source == accepted_target) as u8);
+        nondeterministic_scores.push((accepted_source == accepted_target) as u8 as f64 / num_tests as f64);
     }
 
     (
