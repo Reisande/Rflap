@@ -88,8 +88,8 @@ fn grade(
     let target: finite_automaton::FiniteAutomaton =
         finite_automaton::FiniteAutomaton::new_from_json(&target).0;
 
-    let mut deterministic_scores: Vec<u8> = Vec::new();
-    let mut nondeterministic_scores: Vec<u8> = Vec::new();
+    let mut deterministic_scores: Vec<f64> = Vec::new();
+    let mut nondeterministic_scores: Vec<f64> = Vec::new();
 
     let mut passed: u16 = 0;
 
@@ -135,9 +135,9 @@ fn grade_pda(
     u16,
     u16,
     std::vec::Vec<std::string::String>,
-    std::vec::Vec<u8>,
+    std::vec::Vec<f64>,
     std::vec::Vec<std::string::String>,
-    std::vec::Vec<u8>,
+    std::vec::Vec<f64>,
     bool,
 ) {
     // generate TestsJson array
@@ -175,8 +175,8 @@ fn grade_pda(
     let source: pda::Pda = pda::Pda::new_from_json(&source).0;
     let target: pda::Pda = pda::Pda::new_from_json(&target).0;
 
-    let mut deterministic_scores: Vec<u8> = Vec::new();
-    let mut nondeterministic_scores: Vec<u8> = Vec::new();
+    let mut deterministic_scores: Vec<f64> = Vec::new();
+    let mut nondeterministic_scores: Vec<f64> = Vec::new();
 
     let mut passed: f64 = 0.0;
 
@@ -189,7 +189,7 @@ fn grade_pda(
                 1.0 / ((test_strings_deterministic.len() + test_strings_deterministic.len()) as f64)
         }
 
-        deterministic_scores.push((accepted_source == accepted_target) as u8);
+        deterministic_scores.push((accepted_source == accepted_target) as u8 as f64);
     }
 
     for test in &test_strings_nondeterministic {
@@ -201,7 +201,7 @@ fn grade_pda(
                 / ((test_strings_deterministic.len() + test_strings_deterministic.len()) as f64);
         }
 
-        nondeterministic_scores.push((accepted_source == accepted_target) as u8);
+        nondeterministic_scores.push((accepted_source == accepted_target) as u8 as f64);
     }
 
     (
