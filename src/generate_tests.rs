@@ -41,33 +41,33 @@ pub fn generate_tests(input_json: TestsJson) -> TestsJsonCallback {
         }
     } else {
         let mut position: usize = 0;
-		return_vec.push("".to_string());
-		while (return_vec.len() as u16) < input_json.size {
-			for mut i in 0..input_json.length {
-				while return_vec[position].len() == usize::from(i) {
-					let mut prefix = return_vec[position].to_owned();
-					for letter in &alphabet_vec {
-						prefix.push(*letter);
-						if !return_vec.contains(&prefix.to_owned()) {
-							return_vec.push(prefix.to_owned());
-							if return_vec.len() as u16 >= input_json.size {
-								println!("break: {} {} end", return_vec.len(), input_json.size);
-								return TestsJsonCallback {
-									return_vec: return_vec,
-								};
-							}
-							i -= 1;
-						}
-						prefix.pop();
-					}
-					position += 1;
-				}
-				
-				if return_vec.len() as u16 >= input_json.size {
-					break;
-				}
-			}
-		}
+        return_vec.push("".to_string());
+        while (return_vec.len() as u16) < input_json.size {
+            for mut i in 0..input_json.length {
+                while return_vec[position].len() == usize::from(i) {
+                    let mut prefix = return_vec[position].to_owned();
+                    for letter in &alphabet_vec {
+                        prefix.push(*letter);
+                        if !return_vec.contains(&prefix.to_owned()) {
+                            return_vec.push(prefix.to_owned());
+                            if return_vec.len() as u16 >= input_json.size {
+                                println!("break: {} {} end", return_vec.len(), input_json.size);
+                                return TestsJsonCallback {
+                                    return_vec: return_vec,
+                                };
+                            }
+                            i -= 1;
+                        }
+                        prefix.pop();
+                    }
+                    position += 1;
+                }
+
+                if return_vec.len() as u16 >= input_json.size {
+                    break;
+                }
+            }
+        }
     }
 
     TestsJsonCallback {
