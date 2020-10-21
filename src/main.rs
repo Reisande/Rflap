@@ -185,8 +185,16 @@ fn grade_pda(
     let mut nondeterministic_scores: Vec<f64> = Vec::new();
 
     let mut passed: f64 = 0.0;
-	
+
+	let mut counter = 0;
     for test in &test_strings_deterministic {
+		let visibility = if counter < 5 {
+			"visible".to_string()
+		} else {
+			"after_published".to_string()
+		};
+		counter += 1;
+
         let (accepted_source, _, _, _) = source.validate_string(test.to_string());
         let (accepted_target, _, _, _) = target.validate_string(test.to_string());
 
