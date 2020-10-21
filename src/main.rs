@@ -64,6 +64,7 @@ fn grade(
 
     let mut alphabet = target.alphabet.to_owned();
     alphabet.remove(&'Ɛ');
+	alphabet.remove(&'ϵ');
 
     let test_strings_deterministic = generate_tests::generate_tests(generate_tests::TestsJson {
         alphabet: alphabet.to_owned(),
@@ -144,6 +145,7 @@ fn grade_pda(
 
     let mut alphabet = target.transition_alphabet.to_owned();
     alphabet.remove(&'Ɛ');
+	alphabet.remove(&'ϵ');
 
     let use_builtin_tests: bool = target.input_strings.len() > 1;
 	if use_builtin_tests {
