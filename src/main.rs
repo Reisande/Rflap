@@ -130,7 +130,7 @@ fn grade(
 fn grade_pda(
     source: &pda::PdaJson,
     target: &pda::PdaJson,
-    num_tests: u16,
+    mut num_tests: u16,
 ) -> (
     u16,
     u16,
@@ -146,6 +146,9 @@ fn grade_pda(
     alphabet.remove(&'Ɛ');
 
     let use_builtin_tests: bool = target.input_strings.len() > 1;
+	if use_builtin_tests {
+		num_tests = target.input_strings.len() as u16;
+	}
     let test_strings_deterministic = if !use_builtin_tests {
         generate_tests::generate_tests(generate_tests::TestsJson {
             alphabet: alphabet.to_owned(),
@@ -241,7 +244,7 @@ pub fn endpoint_grade(buffer: String, args: Vec<String>, automata_type: &Type) -
     };
     let supposed_to_be_deterministic = determinism_weight != None;
 
-    let mut tests: (u16, u16, Vec<_>, Vec<_>, Vec<_>, Vec<_>, bool);
+    let mut tests: (u16, u16, Vec<_>, Vec<f32>, Vec<_>, Vec<f32>, bool);
     // then initialize a data structure which follows the output of results.json
     // the only members out of results.json which matter are score and tests
     // the only members of tests which we care about are
@@ -264,8 +267,8 @@ pub fn endpoint_grade(buffer: String, args: Vec<String>, automata_type: &Type) -
             // STATIC TESTS
 
             // size of the automata in number of states, added as a test to public_tests
-            let original_size: Option<u8> =
-                Option::from(args[5].to_string().parse::<u8>().unwrap());
+            let original_size: Option<f32> =
+                Option::from(args[5].to_string().parse::<f32>().unwrap());
             let minimal_size = target.states.len();
             let size_weight: f64 = f64::from(args[6].to_string().parse::<f64>().unwrap());
 
@@ -313,7 +316,7 @@ pub fn endpoint_grade(buffer: String, args: Vec<String>, automata_type: &Type) -
             let source = &serde_json::de::from_str::<pda::PdaJson>(&buffer).unwrap();
             let target = &serde_json::de::from_str::<pda::PdaJson>(&buffer_answer).unwrap();
             bound = write_tests.len() / (10 as usize);
-            tests = grade_pda(source, target, 100);
+            tests = grade_pda(source, target, 40);
         }
     } // DYNAMIC TESTS
 
@@ -352,7 +355,7 @@ pub fn endpoint_grade(buffer: String, args: Vec<String>, automata_type: &Type) -
             visibility: "after_published".to_string(),
         });
     }
-
+	
     let final_tests = serde_json::to_string(&write_tests)?;
 
     let mut output = File::create(&args[3])?;
@@ -399,6 +402,6 @@ fn main() -> io::Result<()> {
     } else if &args[1] == "pdas" {
         pda((serde_json::de::from_str::<pda::PdaJson>(&buffer).unwrap()));
     }
-
+	
     Ok(())
 }
