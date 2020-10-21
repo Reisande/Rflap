@@ -61,7 +61,7 @@ impl Pda {
         a_transitions: MultiMap<(String, Option<char>, Option<char>), (Option<char>, String)>,
     ) -> Pda {
         let mut transition_function = MultiMap::new();
-		
+
         for ((from, c0, c1), v) in a_transitions {
             for (c2, to) in v {
                 transition_function.insert(
