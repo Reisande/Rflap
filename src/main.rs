@@ -130,7 +130,7 @@ fn grade(
 // return is a tuple of number of passed test cases vs total cases
 fn grade_pda(
     source: &pda::PdaJson,
-    target: &pda::PdaJson,
+    targetJson: &pda::PdaJson,
     mut num_tests: u16,
 	test_weight: f64,
 ) -> (
@@ -144,13 +144,13 @@ fn grade_pda(
 ) {
     // generate TestsJson array
 
-    let mut alphabet = target.transition_alphabet.to_owned();
+    let mut alphabet = targetJson.transition_alphabet.to_owned();
     alphabet.remove(&'Ɛ');
 	alphabet.remove(&'ϵ');
 
-    let use_builtin_tests: bool = target.input_strings.len() > 1;
+    let use_builtin_tests: bool = targetJson.input_strings.len() > 1;
 	if use_builtin_tests {
-		num_tests = target.input_strings.len() as u16;
+		num_tests = targetJson.input_strings.len() as u16;
 	}
     let test_strings_deterministic = if !use_builtin_tests {
         generate_tests::generate_tests(generate_tests::TestsJson {
@@ -161,7 +161,7 @@ fn grade_pda(
         })
         .return_vec
     } else {
-        target.input_strings.to_owned()
+        targetJson.input_strings.to_owned()
     }; // then take out the first num_tests/2 elements from the vector
 
     let test_strings_nondeterministic = if !use_builtin_tests {
@@ -179,7 +179,7 @@ fn grade_pda(
     // run tests on source and target, check that the result is equal
 
     let source: pda::Pda = pda::Pda::new_from_json(&source).0;
-    let target: pda::Pda = pda::Pda::new_from_json(&target).0;
+    let target: pda::Pda = pda::Pda::new_from_json(&targetJson).0;
 
     let mut deterministic_scores: Vec<f64> = Vec::new();
     let mut nondeterministic_scores: Vec<f64> = Vec::new();
@@ -192,12 +192,9 @@ fn grade_pda(
 
 		let mut score = 0.0;
         if accepted_source == accepted_target {
-            passed += ((accepted_source == accepted_target) as u8 as f64)
-                / ((test_strings_deterministic.len() + test_strings_deterministic.len()) as f64);
-			
-        score = test_weight /
+            passed += ((accepted_source == accepted_target) as u8 as f64);
+			score = test_weight / (targetJson.input_strings.len() as f64);
 
-				((test_strings_deterministic.len() + test_strings_deterministic.len()) as f64);
         }
 
         deterministic_scores.push(score);
@@ -209,10 +206,8 @@ fn grade_pda(
 
 		let mut score = 0.0;
         if accepted_source == accepted_target {
-            passed += ((accepted_source == accepted_target) as u8 as f64)
-                / ((test_strings_deterministic.len() + test_strings_deterministic.len()) as f64);
-			score = test_weight /
-			((test_strings_deterministic.len() + test_strings_deterministic.len()) as f64);
+            passed += ((accepted_source == accepted_target) as u8 as f64);
+				score = test_weight / (targetJson.input_strings.len() as f64);
         }
 
         nondeterministic_scores.push(score);
