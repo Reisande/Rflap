@@ -338,7 +338,7 @@ pub fn endpoint_grade(buffer: String, args: Vec<String>, automata_type: &Type) -
 
 	let mut counter = 0;
     for test in 0..bound {
-		let visibility = if counter < 5 {
+		let visibility = if counter < 10 {
 			"visible".to_string()
 		} else {
 			"after_published".to_string()
@@ -354,7 +354,7 @@ pub fn endpoint_grade(buffer: String, args: Vec<String>, automata_type: &Type) -
     }
 
     for test in bound..tests.2.len() {
-		let visibility = if counter < 5 {
+		let visibility = if counter < 10 {
 			"visible".to_string()
 		} else {
 			"after_published".to_string()
@@ -371,7 +371,7 @@ pub fn endpoint_grade(buffer: String, args: Vec<String>, automata_type: &Type) -
 
 	let mut counter = 0;
     for test in 0..bound {
-		let visibility = if counter < 5 {
+		let visibility = if counter < 10 {
 			"visible".to_string()
 		} else {
 			"after_published".to_string()
@@ -387,7 +387,7 @@ pub fn endpoint_grade(buffer: String, args: Vec<String>, automata_type: &Type) -
     }
 
     for test in bound..tests.4.len() {
-		let visibility = if counter < 5 {
+		let visibility = if counter < 10 {
 			"visible".to_string()
 		} else {
 			"after_published".to_string()
