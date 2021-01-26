@@ -489,12 +489,11 @@ function Run(props) {
     status_ref.current.classList.remove("spinner-border-sm");
   };
   async function postToRustApi(status_ref, test_button_ref) {
-    let dotnet_endpoint = "https://metricsrflap.azurewebsites.net/api/Test/";
     let endpoint = master_context.PDA ? "pda" : "automata";
     /*  for testing:
+    let url = `${window.location.origin}/` + endpoint;
     */
     let url = "https://rflap.acmuic.app/" + endpoint;
-    //let url = `${window.location.origin}/` + endpoint;
 
     if (packet_to_misha_the_microsoft_engineer.PDA) {
       delete packet_to_misha_the_microsoft_engineer.state_names;
