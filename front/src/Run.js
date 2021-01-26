@@ -3,42 +3,28 @@ import {
   Button,
   Form,
   Col,
-  Row,
   Navbar,
   Nav,
   InputGroup,
-  FormControl,
-  Tooltip,
-  Alert,
   Badge,
-  ButtonGroup
+  ButtonGroup,
 } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
-import { inspect } from "util";
 import Popup from "reactjs-popup";
 import "./Run.css";
 import error_image from "./error.svg";
 import success_image from "./success.svg";
 import { AutomataContext } from "./AutomataContext.js";
-import not_ferris from "./rFlapLogo.png";
-import add_svg from "./add.svg";
-import add_red from "./add_red.svg";
-import add_black from "./add_black.svg";
-// import {RowEntry} from './RowEntry.js';
 import RowInput from "./RowInput.js";
 import idle_svg from "./button.svg";
 import add_perfect from "./plus.svg";
-import NotPopUp from "./NotPopUp.js";
 import { v4 as uuidv4 } from "uuid";
 import vis from "vis-network";
-import { NetworkOptions } from "./res/NetworkOptions";
 
 var util = require("util");
+
 let isExport = false;
 let readImportTxt = null;
-let bool_check = false;
-const not_dfa = "Not a valid DFA!";
-const import_error = "Importation Errror!";
 let error_object = {
   multiple_initial_states: false,
   no_label_transition: false,
@@ -50,27 +36,15 @@ let error_object = {
 let testID;
 function Run(props) {
   const master_context = useContext(AutomataContext);
-  let popup_lock = false;
   let user_input_row_collection = [];
   const [UIN_input, set_UIN_input] = useState(false);
-  const [s_or_e, set_image] = useState([error_image, success_image]);
-  const [succeded_failed, set_succeded_failed] = useState(0);
-  const [determinism_tf, set_determinism_tf] = useState(false);
-  const [importation_error, set_import_status] = useState(false);
   let image_collection = [error_image, idle_svg, success_image];
   const [warning_display, set_warning_display] = useState(false);
   const [row_entry_array, set_row_entries] = useState([1]);
-  const [textOrDownload,setTextOrDownload] = useState(false)
-  const UIN_textform = useRef(null);
+  const [textOrDownload, setTextOrDownload] = useState(false);
   const test_button = useRef(null);
   const status_ref = useRef(null);
-  const add_button = useRef(null);
-  const image_ref = useRef(null);
   const row_ref_container = useRef(null);
-  const file_dialog = useRef(null);
-  const displayedSubmission = useRef(null)
-  let entry_amount = 30;
-  let array_of_row_refs = [];
 
   let packet_to_misha_the_microsoft_engineer = {
     PDA: false,
@@ -94,51 +68,48 @@ function Run(props) {
         const file = event.target.files[0];
         if (!file.type) {
           console.log("FIle type not supported on this browser");
-        }
-        else if (!file.type.match("txt")) {
+        } else if (!file.type.match("txt")) {
           console.log("File must be text");
-          return
+          return;
         }
         const reader = new FileReader();
-        reader.addEventListener("load", event => {
+        reader.addEventListener("load", (event) => {
           console.log(event.target.result);
           set_UIN_input(true);
         });
         reader.readAsText(file);
       });
   });
-  const  f = new FileReader()
+  const f = new FileReader();
   function promptFile(contentType, multiple) {
     var input = document.createElement("input");
     input.type = "file";
     input.multiple = multiple;
     input.accept = contentType;
-    return new Promise(function(resolve) {
-      document.activeElement.onfocus = function() {
+    return new Promise(function (resolve) {
+      document.activeElement.onfocus = function () {
         document.activeElement.onfocus = null;
         setTimeout(resolve, 100);
       };
-      input.onchange = function() {
+      input.onchange = function () {
         var files = Array.from(input.files);
         f.addEventListener("loadend", (e) => {
-        readImportTxt = e.target.result;
-        set_UIN_input(true);
-      });
-        f.readAsText(files[0])
+          readImportTxt = e.target.result;
+          set_UIN_input(true);
+        });
+        f.readAsText(files[0]);
         resolve(f);
       };
       input.click();
     });
   }
-  function actOnFile()  {
-    promptFile().then((_) => {
-    })
-    
+  function actOnFile() {
+    promptFile().then((_) => {});
   }
   const importJson = () => {
     isExport = false;
-    set_UIN_input(true)
-  }
+    set_UIN_input(true);
+  };
   let input_val = "default";
   let toBePushed = [];
   // error_object =
@@ -149,6 +120,8 @@ function Run(props) {
     packet_to_misha_the_microsoft_engineer.transition_function = [];
     let stack_alpha = new Set();
     let alpha = new Set();
+
+    // process edges by PDA format
     if (master_context.PDA) {
       packet_to_misha_the_microsoft_engineer.PDA = true;
 
@@ -210,7 +183,7 @@ function Run(props) {
             transition_triple.push(pop);
             stack_alpha.add(push);
 
-            if (transition_triple[1] == "ε") {
+            if (transition_triple[1] == "ϵ") {
               transition_triple[1] = null;
             }
             transition_triple.push(to_label.trim());
@@ -267,7 +240,7 @@ function Run(props) {
               stack_alpha.add(push);
 
               if (
-                transition_triple[1] == "ε" &&
+                transition_triple[1] == "ϵ" &&
                 master_context.mode == "Non-Deterministic Finite Automata"
               ) {
                 transition_triple[1] = null;
@@ -289,7 +262,7 @@ function Run(props) {
             transition_triple = [];
             transition_triple.push(from_label);
             if (
-              transition_triple[1] == "ε" &&
+              transition_triple[1] == "ϵ" &&
               master_context.mode == "Non-Deterministic Finite Automata"
             ) {
               transition_triple[1] = null;
@@ -324,7 +297,6 @@ function Run(props) {
         }
       });
       let alphabet_processed = [];
-
       [...new Set(toBePushed)].forEach((entry, id) => {
         entry.split("|").forEach((char) => {
           alphabet_processed.push(char);
@@ -340,11 +312,6 @@ function Run(props) {
       packet_to_misha_the_microsoft_engineer.PDA = false;
       edgeObj.forEach((edgeObj) => {
         transition_triple = [];
-        if (edgeObj.label == undefined) {
-          //
-          // error_object.no_label_transition = true;
-          // return undefined;
-        }
         let label_to_add =
           edgeObj.label == undefined || edgeObj.label == " "
             ? "null"
@@ -357,9 +324,11 @@ function Run(props) {
           packet_to_misha_the_microsoft_engineer.determinism
         ) {
           error_object.no_label_on_dfa = true;
+          return;
         }
         if (edgeObj.label == undefined) return;
         label = edgeObj.label.trim();
+        //  if self transition
         if (label.length > 1 && from == to) {
           let sub_string_collection = label.split(",");
 
@@ -374,9 +343,10 @@ function Run(props) {
                 to_label = nodeObj.label;
               }
             });
+            toBePushed.push(sub_string_collection[i]);
             transition_triple.push(from_label.trim());
             transition_triple.push(sub_string_collection[i].toString(10));
-            if (transition_triple[1] == "ε") {
+            if (transition_triple[1] == "ϵ") {
               transition_triple[1] = null;
             }
             transition_triple.push(to_label.trim());
@@ -406,10 +376,11 @@ function Run(props) {
             });
             sub_string_collection.forEach((transition_alpha) => {
               transition_triple = [];
+              toBePushed.push(transition_alpha);
               transition_triple.push(from_label);
               transition_triple.push(transition_alpha);
               if (
-                transition_triple[1] == "ε" &&
+                transition_triple[1] == "ϵ" &&
                 master_context.mode == "Non-Deterministic Finite Automata"
               ) {
                 transition_triple[1] = null;
@@ -431,7 +402,7 @@ function Run(props) {
             transition_triple = [];
             transition_triple.push(from_label);
             if (
-              transition_triple[1] == "ε" &&
+              transition_triple[1] == "ϵ" &&
               master_context.mode == "Non-Deterministic Finite Automata"
             ) {
               transition_triple[1] = null;
@@ -513,17 +484,16 @@ function Run(props) {
     );
     nodeProcess(master_context.graphObj.nodes.get());
   };
-const animateIntoNeutral = (status_ref,test_button_ref) =>{
-
-        status_ref.current.classList.remove("spinner-border");
-        status_ref.current.classList.remove("spinner-border-sm");
-    }
+  const animateIntoNeutral = (status_ref, test_button_ref) => {
+    status_ref.current.classList.remove("spinner-border");
+    status_ref.current.classList.remove("spinner-border-sm");
+  };
   async function postToRustApi(status_ref, test_button_ref) {
-    let dotnet_endpoint = "https://metricsrflap.azurewebsites.net/api/Test/";
     let endpoint = master_context.PDA ? "pda" : "automata";
-    //  for testing:
-    // let url = "https://rflap.acmuic.app/" + endpoint;
+    /*  for testing:
     let url = `${window.location.origin}/` + endpoint;
+    */
+    let url = "https://rflap.acmuic.app/" + endpoint;
 
     if (packet_to_misha_the_microsoft_engineer.PDA) {
       delete packet_to_misha_the_microsoft_engineer.state_names;
@@ -533,7 +503,7 @@ const animateIntoNeutral = (status_ref,test_button_ref) =>{
       packet_to_misha_the_microsoft_engineer.transition_function.forEach(
         (ar_, id) => {
           ar_.forEach((item, index) => {
-            if (item == "ε") {
+            if (item == "ϵ") {
               ar_[index] = "!";
             }
           });
@@ -541,14 +511,14 @@ const animateIntoNeutral = (status_ref,test_button_ref) =>{
       );
       packet_to_misha_the_microsoft_engineer.stack_alphabet.map(
         (item, index) => {
-          if (item == "ε") {
+          if (item == "ϵ") {
             packet_to_misha_the_microsoft_engineer.stack_alphabet[index] = "!";
           }
         }
       );
       packet_to_misha_the_microsoft_engineer.transition_alphabet.map(
         (item, index) => {
-          if (item == "ε") {
+          if (item == "ϵ") {
             packet_to_misha_the_microsoft_engineer.transition_alphabet[index] =
               "!";
           }
@@ -618,23 +588,6 @@ const animateIntoNeutral = (status_ref,test_button_ref) =>{
         testID: testID,
       };
     };
-    let dotnetPostTest = {
-      method: "POST",
-      mode: "cors",
-      // cache:"no-cache",
-      // credentials: "same-origin",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      // redirect:"follow",
-      // referrer: "no-referrer",
-      body: JSON.stringify(createTestDotnet(testID)),
-    };
-    try {
-      // let rilke = await fetch(dotnet_endpoint, dotnetPostTest);
-    } catch (err) {
-      console.log("1");
-    }
     //Check for Errors via the error_object
     if (error_object.multiple_initial_states) {
       alert("\tMultiple Initial States!");
@@ -647,36 +600,6 @@ const animateIntoNeutral = (status_ref,test_button_ref) =>{
 
       return null;
     }
-    // if(error_object.epsilon_on_DFA){
-    //     alert("Illegal Epsilon While in DFA-Mode");
-    //     error_object = {
-    //         multiple_initial_states :false,
-    //         no_label_transition: false,
-    //         no_initial_state:false,
-    //         epsilon_on_DFA: false
-    //     }
-    //   return null;
-    // }
-    // if(error_object.no_label_transition){
-    //     alert("\t\tUnlabeled Transition!");
-    //     error_object = {
-    //         multiple_initial_states :false,
-    //         no_label_transition: false,
-    //         no_initial_state:false,
-    //         epsilon_on_DFA: false
-    //     }
-    //   return null;
-    // }
-    // if(error_object.no_label_transition){
-    //     alert("\t\tUnlabeled Transition!");
-    //     error_object = {
-    //         multiple_initial_states :false,
-    //         no_label_transition: false,
-    //         no_initial_state:false,
-    //         epsilon_on_DFA: false
-    //     }
-    //     return null;
-    // }
     if (error_object.no_initial_state) {
       alert("No Initial State!");
       error_object = {
@@ -686,36 +609,9 @@ const animateIntoNeutral = (status_ref,test_button_ref) =>{
         epsilon_on_DFA: false,
         no_label_on_dfa: false,
       };
-      animateIntoNeutral(status_ref,test_button_ref);
+      animateIntoNeutral(status_ref, test_button_ref);
       return null;
     }
-    // if(error_object.out_of_bounds){
-    //   alert("Invalid transitions");
-    //   error_object = {
-    //     multiple_initial_states:false,
-    //     no_label_transition:false,
-    //     no_initial_state:false,
-    //     epsilon_on_DFA:false,
-    //     no_label_on_dfa:false,
-    //     out_of_bounds: false,
-
-    //   }
-    // }
-    // if(error_object.no_label_on_dfa){
-
-    //     alert("\tUnlabelled Transition!!");
-
-    //     error_object = {
-    //         multiple_initial_states :false,
-    //         no_label_transition: false,
-    //         no_initial_state:false,
-    //         epsilon_on_DFA: false,
-    //         no_label_on_dfa: false
-
-    //     }
-
-    //     return null;
-    // }
     let Algorithms_are_the_computational_content_of_proofs;
     try {
       Algorithms_are_the_computational_content_of_proofs = await fetch(
@@ -751,9 +647,7 @@ const animateIntoNeutral = (status_ref,test_button_ref) =>{
     }
   };
 
-  async function onClickPingToApi(status_ref,test_button_ref) {
-    let empty_string = false;
-    
+  async function onClickPingToApi(status_ref, test_button_ref) {
     packet_to_misha_the_microsoft_engineer.input_strings = [];
     user_input_row_collection.forEach((_, id) => {
       packet_to_misha_the_microsoft_engineer.input_strings.push(_);
@@ -761,13 +655,10 @@ const animateIntoNeutral = (status_ref,test_button_ref) =>{
     preprocess();
 
     try {
-      let dotnet_endpoint =
-        "https://metricsrflap.azurewebsites.net/api/TestResult/";
-      let _;
       let callback;
       try {
-        callback = await postToRustApi(status_ref,test_button_ref);
-        animateIntoNeutral(status_ref,test_button_ref)
+        callback = await postToRustApi(status_ref, test_button_ref);
+        animateIntoNeutral(status_ref, test_button_ref);
       } catch (err) {
         console.log("10");
       }
@@ -822,17 +713,6 @@ const animateIntoNeutral = (status_ref,test_button_ref) =>{
         (callback["hint"] != "" || !callback.list_of_strings[0][0]) &&
         master_context.mode === "Deterministic Finite Automata"
       ) {
-        dotnetTestCallbackPost.body = JSON.stringify(
-          createTestCallbackPost(testID, [], callback["hint"])
-        );
-        try {
-          // _ = await fetch(
-          //   dotnet_endpoint,
-          //   createTestCallbackPost(testID, [], callback["hint"])
-          // );
-        } catch (err) {
-          console.log("20");
-        }
         alert("Invalid determinism!\n" + callback["hint"]);
         let mounting_array = [];
         for (let i = 0; i < row_entry_array.length; i++) {
@@ -851,14 +731,6 @@ const animateIntoNeutral = (status_ref,test_button_ref) =>{
           dotnetTestCallbackPost.body = JSON.stringify(
             createTestCallbackPost(testID, [bool_result], "")
           );
-          try {
-            // _ = await fetch(
-            //   dotnet_endpoint,
-            //   createTestCallbackPost(testID, [bool_result], "")
-            // );
-          } catch (err) {
-            console.log("21");
-          }
         } else {
           let array_to_mount = [];
           for (let i = 0; i < row_entry_array.length; i++) {
@@ -903,22 +775,22 @@ const animateIntoNeutral = (status_ref,test_button_ref) =>{
       row_table_DOM_node.children
     )[0].value;
   };
-  
-  function on_click_test_api(event, status_ref,test_button_ref) {
-    const animateIntoTesting = (status_ref,test_button_ref) =>{
-    status_ref.current.classList.add("spinner-border");
-    status_ref.current.classList.add("spinner-border-sm");
-    }
+
+  function on_click_test_api(event, status_ref, test_button_ref) {
+    const animateIntoTesting = (status_ref, test_button_ref) => {
+      status_ref.current.classList.add("spinner-border");
+      status_ref.current.classList.add("spinner-border-sm");
+    };
     //reset list for each click to api with amount of rows
     //array that contains all the input strings from the user
-    animateIntoTesting(status_ref,test_button_ref)
+    animateIntoTesting(status_ref, test_button_ref);
 
     user_input_row_collection = [
       ...Array(HTMLCol_to_array(row_ref_container.current.children).length),
     ];
     event.preventDefault();
     HTMLCol_to_array(row_ref_container.current.children).map(process_userinput);
-    onClickPingToApi(status_ref,test_button_ref);
+    onClickPingToApi(status_ref, test_button_ref);
   }
   function addBar(e) {
     e.preventDefault();
@@ -979,18 +851,21 @@ const animateIntoNeutral = (status_ref,test_button_ref) =>{
     return <Badge variant="danger"> Enter: name@uic.edu</Badge>;
   };
   const decipher = (salt) => {
-    const textToChars = (text) => text.split('').map(c => c.charCodeAt(0));
-    const applySaltToChar = (code) => textToChars(salt).reduce((a, b) => a ^ b, code);
-    return (encoded) => encoded.match(/.{1,2}/g)
+    const textToChars = (text) => text.split("").map((c) => c.charCodeAt(0));
+    const applySaltToChar = (code) =>
+      textToChars(salt).reduce((a, b) => a ^ b, code);
+    return (encoded) =>
+      encoded
+        .match(/.{1,2}/g)
         .map((hex) => parseInt(hex, 16))
         .map(applySaltToChar)
         .map((charCode) => String.fromCharCode(charCode))
-        .map((input) => input.replace('õ', 'ϵ'))
-        .map((input) => input.replace(' ', ''))
+        .map((input) => input.replace("õ", "ϵ"))
+        .map((input) => input.replace(" ", ""))
         .map((input) => input.replace('""', '"ϵ"'))
-        .join('');
-};
- async function UIN_submit(event) {
+        .join("");
+  };
+  async function UIN_submit(event) {
     if (readImportTxt != null) {
       input_val = input_val.toLowerCase();
       if (input_val.length > 7 && input_val.includes("@uic.edu")) {
@@ -1007,25 +882,43 @@ const animateIntoNeutral = (status_ref,test_button_ref) =>{
           let ar = [...s[0]];
           ar.shift();
           if (s[0] == graphImport.start_state) {
-            newNodes.add([{ id: parseInt(ar.join()), label: labelStr, borderWidth: s[1] ? 3 : 1, shape: "triangle", init: true }])
+            newNodes.add([
+              {
+                id: parseInt(ar.join()),
+                label: labelStr,
+                borderWidth: s[1] ? 3 : 1,
+                shape: "triangle",
+                init: true,
+              },
+            ]);
+          } else {
+            newNodes.add([
+              {
+                id: parseInt(ar.join()),
+                label: labelStr,
+                borderWidth: s[1] ? 3 : 1,
+              },
+            ]);
           }
-          else {
-            newNodes.add([{ id: parseInt(ar.join()), label: labelStr, borderWidth: s[1] ? 3 : 1 }])
-          }
-        })
-  
+        });
+
         if (master_context.PDA) {
           let fromToOnTransition = new Object();
-          graphImport.transition_function.forEach(transition => {
-            let key = transition[0] + transition[4]
+          graphImport.transition_function.forEach((transition) => {
+            let key = transition[0] + transition[4];
             if (fromToOnTransition[key] == null) {
-              fromToOnTransition[key] = transition[1]+"," + transition[2] + "->" + transition[3]
+              fromToOnTransition[key] =
+                transition[1] + "," + transition[2] + "->" + transition[3];
+            } else {
+              fromToOnTransition[key] +=
+                " | " +
+                transition[1] +
+                "," +
+                transition[2] +
+                "->" +
+                transition[3];
             }
-            else {
-              fromToOnTransition[key] += " | " +
-                  transition[1] + "," + transition[2] + "->" + transition[3]
-            }
-          })
+          });
           const decons = (key) => {
             let newObj = new Object();
             newObj.from = "";
@@ -1041,30 +934,28 @@ const animateIntoNeutral = (status_ref,test_button_ref) =>{
               }
               stateIdConstructor += chr;
             });
-            let ar = [...stateIdConstructor]
-            ar.shift()
+            let ar = [...stateIdConstructor];
+            ar.shift();
             newObj.to = parseInt(ar.join());
             return newObj;
-          }
-        
-          Object.entries(fromToOnTransition).forEach(s => {
+          };
+
+          Object.entries(fromToOnTransition).forEach((s) => {
             let edgeObj = decons(s[0]);
             edgeObj.label = s[1];
             edgeObj.arrows = "to";
             newEdges.add(edgeObj);
-          })
-        }
-        else {
+          });
+        } else {
           let fromToOnTransition = new Object();
-          graphImport.transition_function.forEach(transition => {
-            let key = transition[0] + transition[2]
+          graphImport.transition_function.forEach((transition) => {
+            let key = transition[0] + transition[2];
             if (fromToOnTransition[key] == null) {
-              fromToOnTransition[key] = transition[1]
+              fromToOnTransition[key] = transition[1];
+            } else {
+              fromToOnTransition[key] += "," + transition[1];
             }
-            else {
-              fromToOnTransition[key] += "," + transition[1]
-            }
-          })
+          });
           const decons = (key) => {
             let newObj = new Object();
             newObj.from = "";
@@ -1080,163 +971,103 @@ const animateIntoNeutral = (status_ref,test_button_ref) =>{
               }
               stateIdConstructor += chr;
             });
-            let ar = [...stateIdConstructor]
-            ar.shift()
+            let ar = [...stateIdConstructor];
+            ar.shift();
             newObj.to = parseInt(ar.join());
             return newObj;
-          }
-        
-          Object.entries(fromToOnTransition).forEach(s => {
+          };
+
+          Object.entries(fromToOnTransition).forEach((s) => {
             let edgeObj = decons(s[0]);
             edgeObj.label = s[1];
             edgeObj.arrows = "to";
             newEdges.add(edgeObj);
-          })
+          });
         }
         let graph = { nodes: newNodes, edges: newEdges };
         master_context.network.setData(graph);
         master_context.edgesDS = newEdges;
         master_context.nodesDS = newNodes;
-        master_context.graphObj = { nodes: newNodes, edges: newEdges }
-        //master_context.network.setOptions(NetworkOptions(height.toString(), window.innerWidth.toString())); 
+        master_context.graphObj = { nodes: newNodes, edges: newEdges };
+        //master_context.network.setOptions(NetworkOptions(height.toString(), window.innerWidth.toString()));
         master_context.hasImported = true;
         set_UIN_input(false);
         set_warning_display(false);
-        return true
+        return true;
       }
-      }
-      else {
-        let dotnet_endpoint;
-        input_val = input_val.toLowerCase();
-        if (input_val.length > 7 && input_val.includes("@uic.edu")) {
-          let append = Math.round(Math.random() * 1000);
+    } else {
+      let dotnet_endpoint;
+      input_val = input_val.toLowerCase();
+      if (input_val.length > 7 && input_val.includes("@uic.edu")) {
+        let append = Math.round(Math.random() * 1000);
 
-          preprocess();
+        preprocess();
 
-          packet_to_misha_the_microsoft_engineer.state_names =
-            master_context.state_styles;
-          if (packet_to_misha_the_microsoft_engineer.PDA) {
-            delete packet_to_misha_the_microsoft_engineer.state_names;
-            delete packet_to_misha_the_microsoft_engineer.determinism;
-            delete packet_to_misha_the_microsoft_engineer.alphabet;
-            delete packet_to_misha_the_microsoft_engineer.PDA;
-            packet_to_misha_the_microsoft_engineer.transition_function.forEach(
-              (ar_, id) => {
-                ar_.forEach((item, index) => {
-                  if (item == "ε") {
-                    ar_[index] = "!";
-                  }
-                });
-              }
-            );
-            packet_to_misha_the_microsoft_engineer.stack_alphabet.map(
-              (item, index) => {
-                if (item == "ε") {
-                  packet_to_misha_the_microsoft_engineer.stack_alphabet[index] =
-                    "!";
+        packet_to_misha_the_microsoft_engineer.state_names =
+          master_context.state_styles;
+        if (packet_to_misha_the_microsoft_engineer.PDA) {
+          delete packet_to_misha_the_microsoft_engineer.state_names;
+          delete packet_to_misha_the_microsoft_engineer.determinism;
+          delete packet_to_misha_the_microsoft_engineer.alphabet;
+          delete packet_to_misha_the_microsoft_engineer.PDA;
+          packet_to_misha_the_microsoft_engineer.transition_function.forEach(
+            (ar_, id) => {
+              ar_.forEach((item, index) => {
+                if (item == "ϵ") {
+                  ar_[index] = "!";
                 }
+              });
+            }
+          );
+          packet_to_misha_the_microsoft_engineer.stack_alphabet.map(
+            (item, index) => {
+              if (item == "ϵ") {
+                packet_to_misha_the_microsoft_engineer.stack_alphabet[index] =
+                  "!";
               }
-            );
-            packet_to_misha_the_microsoft_engineer.transition_alphabet.map(
-              (item, index) => {
-                if (item == "ε") {
-                  packet_to_misha_the_microsoft_engineer.transition_alphabet[
-                    index
-                  ] = "!";
-                }
+            }
+          );
+          packet_to_misha_the_microsoft_engineer.transition_alphabet.map(
+            (item, index) => {
+              if (item == "ϵ") {
+                packet_to_misha_the_microsoft_engineer.transition_alphabet[
+                  index
+                ] = "!";
               }
-            );
-          }
-          const pad = (n, width, z) => {
-            z = z || "0";
-            n = n + "";
-            return n.length >= width
-              ? n
-              : new Array(width - n.length + 1).join(z) + n;
-          };
-          const toMins = (seconds) =>
-            Math.floor(seconds / 60).toString() +
-            ":" +
-            pad(Math.round(seconds % 60), 2).toString();
-          const getMinsIntoSession = (sessionStart, sessionPing) =>
-            toMins((sessionPing - sessionStart) / 1000);
-
-          const createExportDotnet = (testID) => {
-            const getNumAccepting = (statesMap) =>
-              Object.values(statesMap).reduce((t, bool) => t + (bool ? 1 : 0), 0);
-            const getMode = () => {
-              if (master_context.PDA) {
-                return "PDA";
-              } else {
-                let map = {
-                  "Non-Deterministic Finite Automata": "NFA",
-                  "Deterministic Finite Automata": "DFA",
-                  "Push-down Automata": "PDA",
-                };
-                return map[master_context.mode.trim()];
-              }
-            };
-            return {
-              sessionID: master_context.session,
-              startTime: master_context.date,
-              exportTime: getMinsIntoSession(master_context.date, new Date()),
-              downloadPacket: JSON.stringify(
-                packet_to_misha_the_microsoft_engineer
-              ),
-              mode: getMode(),
-              initialState: packet_to_misha_the_microsoft_engineer.start_state,
-              numStates: Object.keys(packet_to_misha_the_microsoft_engineer.states)
-                .length,
-              numAccepting: getNumAccepting(
-                packet_to_misha_the_microsoft_engineer.states
-              ),
-              numTransitions:
-                packet_to_misha_the_microsoft_engineer.transition_function.length,
-              testID: testID,
-              exportID: input_val,
-            };
-          };
-          dotnet_endpoint = "https://metricsrflap.azurewebsites.net/api/Export/";
-          let dotnetPostExport = {
-            method: "POST",
-            mode: "cors",
-            // cache:"no-cache",
-            // credentials: "same-origin",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            // redirect:"follow",
-            // referrer: "no-referrer",
-            body: JSON.stringify(createExportDotnet(testID)),
-          };
-          try {
-            // let _ = await fetch(dotnet_endpoint, dotnetPostExport);
-          } catch (e) { }
-          const exportation_nodes = node_style_dependency(input_val);
-          const exportSubmission = exportation_nodes(JSON.stringify(packet_to_misha_the_microsoft_engineer))
-          setTextOrDownload({ display: true, submission: exportSubmission})
-         // downloadObjectAsJson(
-          //   packet_to_misha_the_microsoft_engineer,
-          //   "RFLAP_" + input_val + "_" + append.toString()
-          // );
-//          set_UIN_input(false);
- //         set_warning_display(false);
-        } else {
-          set_warning_display(true);
+            }
+          );
         }
+        const pad = (n, width, z) => {
+          z = z || "0";
+          n = n + "";
+          return n.length >= width
+            ? n
+            : new Array(width - n.length + 1).join(z) + n;
+        };
+        const toMins = (seconds) =>
+          Math.floor(seconds / 60).toString() +
+          ":" +
+          pad(Math.round(seconds % 60), 2).toString();
+        const getMinsIntoSession = (sessionStart, sessionPing) =>
+          toMins((sessionPing - sessionStart) / 1000);
+
+        const exportation_nodes = node_style_dependency(input_val);
+        const exportSubmission = exportation_nodes(
+          JSON.stringify(packet_to_misha_the_microsoft_engineer)
+        );
+        setTextOrDownload({ display: true, submission: exportSubmission });
+      } else {
+        set_warning_display(true);
       }
     }
+  }
 
-
-  const downloadSubmission = (exp)  => {
-             downloadStringAsJson(
-          exp,
-          "RFLAP_" + "Submission"
-          );
+  const downloadSubmission = (exp) => {
+    downloadStringAsJson(exp, "RFLAP_" + "Submission");
     setTextOrDownload(false);
     set_UIN_input(false);
     set_warning_display(false);
-    }
+  };
   const export_click_handler = (event) => {
     isExport = true;
     set_UIN_input(true);
@@ -1245,21 +1076,19 @@ const animateIntoNeutral = (status_ref,test_button_ref) =>{
   function set_text_form(event) {
     input_val = event.target.value;
   }
-  const downloadStringAsJson = (exp,exportName) =>{
-  // exportation_nodes.state_names
-  var dataStr =
-    "data:text/json;charset=utf-8," +
-    encodeURIComponent(exp);
-  var downloadAnchorNode = document.createElement("a");
-  downloadAnchorNode.setAttribute("href", dataStr);
-  downloadAnchorNode.setAttribute("download", exportName + ".json");
-  //necessary to ignore event listeners in useEffect in app.js
-  downloadAnchorNode.setAttribute("id", "temp_anchor");
-  document.body.appendChild(downloadAnchorNode); // required for firefox
+  const downloadStringAsJson = (exp, exportName) => {
+    // exportation_nodes.state_names
+    var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(exp);
+    var downloadAnchorNode = document.createElement("a");
+    downloadAnchorNode.setAttribute("href", dataStr);
+    downloadAnchorNode.setAttribute("download", exportName + ".json");
+    //necessary to ignore event listeners in useEffect in app.js
+    downloadAnchorNode.setAttribute("id", "temp_anchor");
+    document.body.appendChild(downloadAnchorNode); // required for firefox
 
-  downloadAnchorNode.click();
-  downloadAnchorNode.remove();
-}
+    downloadAnchorNode.click();
+    downloadAnchorNode.remove();
+  };
   //function to mount anchor tag and initiate download
   function downloadObjectAsJson(exportObj, exportName) {
     const exportation_nodes = node_style_dependency(input_val);
@@ -1302,14 +1131,11 @@ const animateIntoNeutral = (status_ref,test_button_ref) =>{
           type="file"
           id="importButton"
           variant="info"
-          onClick= {()=> actOnFile()}
+          onClick={() => actOnFile()}
         >
           Import
         </Button>
         <Nav>
-          {/* <Button ref = {add_button}onClick={ (event) => addBar(event) } variant="warning">
-           Add
-        </Button> */}
           <Col
             className="justify-content-between"
             id="add_row_button_container"
@@ -1354,9 +1180,6 @@ const animateIntoNeutral = (status_ref,test_button_ref) =>{
           <></>
         )}
       </div>
-      {/* <Popup open={determinism_tf}> */}
-      {/* <text>Invalid</text> */}
-      {/* </Popup> */}
       <Popup
         open={UIN_input}
         onClose={() => {
@@ -1366,23 +1189,49 @@ const animateIntoNeutral = (status_ref,test_button_ref) =>{
         <Popup
           open={textOrDownload.display}
           onClose={() => {
-            set_UIN_input(false)
-            setTextOrDownload(false)
+            set_UIN_input(false);
+            setTextOrDownload(false);
           }}
         >
           <Form>
-          <Form.Group >
-    <Form.Label>Your submission: </Form.Label>
-            <Form.Control id="submissionId" as="textarea" readOnly size="sm" resizable="false" defaultValue={textOrDownload.submission}rows="3"/> 
-
-          </Form.Group>
-          <Form.Group>
-      <ButtonGroup>          <Button size="sm" variant="outline-secondary" onClick={() => { let s = document.getElementById("submissionId"); s.select(); document.execCommand("copy"); }}> Copy</Button>
-          <Button size="sm"variant="outline-secondary" onClick={() => downloadSubmission(textOrDownload.submission)}>Download</Button>          
-</ButtonGroup></Form.Group>
-
+            <Form.Group>
+              <Form.Label>Your submission: </Form.Label>
+              <Form.Control
+                id="submissionId"
+                as="textarea"
+                readOnly
+                size="sm"
+                resizable="false"
+                defaultValue={textOrDownload.submission}
+                rows="3"
+              />
+            </Form.Group>
+            <Form.Group>
+              <ButtonGroup>
+                {" "}
+                <Button
+                  size="sm"
+                  variant="outline-secondary"
+                  onClick={() => {
+                    let s = document.getElementById("submissionId");
+                    s.select();
+                    document.execCommand("copy");
+                  }}
+                >
+                  {" "}
+                  Copy
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline-secondary"
+                  onClick={() => downloadSubmission(textOrDownload.submission)}
+                >
+                  Download
+                </Button>
+              </ButtonGroup>
+            </Form.Group>
           </Form>
-          </Popup>
+        </Popup>
 
         <div>
           {warning_display ? (
