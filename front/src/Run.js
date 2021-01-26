@@ -181,7 +181,7 @@ function Run(props) {
             transition_triple.push(pop);
             stack_alpha.add(push);
 
-            if (transition_triple[1] == "ε") {
+            if (transition_triple[1] == "ϵ") {
               transition_triple[1] = null;
             }
             transition_triple.push(to_label.trim());
@@ -238,7 +238,7 @@ function Run(props) {
               stack_alpha.add(push);
 
               if (
-                transition_triple[1] == "ε" &&
+                transition_triple[1] == "ϵ" &&
                 master_context.mode == "Non-Deterministic Finite Automata"
               ) {
                 transition_triple[1] = null;
@@ -260,7 +260,7 @@ function Run(props) {
             transition_triple = [];
             transition_triple.push(from_label);
             if (
-              transition_triple[1] == "ε" &&
+              transition_triple[1] == "ϵ" &&
               master_context.mode == "Non-Deterministic Finite Automata"
             ) {
               transition_triple[1] = null;
@@ -295,7 +295,7 @@ function Run(props) {
         }
       });
       let alphabet_processed = [];
-
+      console.log(toBePushed);
       [...new Set(toBePushed)].forEach((entry, id) => {
         entry.split("|").forEach((char) => {
           alphabet_processed.push(char);
@@ -311,11 +311,6 @@ function Run(props) {
       packet_to_misha_the_microsoft_engineer.PDA = false;
       edgeObj.forEach((edgeObj) => {
         transition_triple = [];
-        if (edgeObj.label == undefined) {
-          //
-          // error_object.no_label_transition = true;
-          // return undefined;
-        }
         let label_to_add =
           edgeObj.label == undefined || edgeObj.label == " "
             ? "null"
@@ -331,6 +326,7 @@ function Run(props) {
         }
         if (edgeObj.label == undefined) return;
         label = edgeObj.label.trim();
+        //  if self transition
         if (label.length > 1 && from == to) {
           let sub_string_collection = label.split(",");
 
@@ -347,7 +343,7 @@ function Run(props) {
             });
             transition_triple.push(from_label.trim());
             transition_triple.push(sub_string_collection[i].toString(10));
-            if (transition_triple[1] == "ε") {
+            if (transition_triple[1] == "ϵ") {
               transition_triple[1] = null;
             }
             transition_triple.push(to_label.trim());
@@ -380,7 +376,7 @@ function Run(props) {
               transition_triple.push(from_label);
               transition_triple.push(transition_alpha);
               if (
-                transition_triple[1] == "ε" &&
+                transition_triple[1] == "ϵ" &&
                 master_context.mode == "Non-Deterministic Finite Automata"
               ) {
                 transition_triple[1] = null;
@@ -402,7 +398,7 @@ function Run(props) {
             transition_triple = [];
             transition_triple.push(from_label);
             if (
-              transition_triple[1] == "ε" &&
+              transition_triple[1] == "ϵ" &&
               master_context.mode == "Non-Deterministic Finite Automata"
             ) {
               transition_triple[1] = null;
@@ -418,6 +414,7 @@ function Run(props) {
         }
       });
       let alphabet_processed = [];
+      console.log(toBePushed);
 
       [...new Set(toBePushed)].forEach((entry, id) => {
         entry.split(",").forEach((char) => {
@@ -492,9 +489,9 @@ function Run(props) {
     let dotnet_endpoint = "https://metricsrflap.azurewebsites.net/api/Test/";
     let endpoint = master_context.PDA ? "pda" : "automata";
     /*  for testing:
-    let url = "https://rflap.acmuic.app/" + endpoint;
     */
-    let url = `${window.location.origin}/` + endpoint;
+    let url = "https://rflap.acmuic.app/" + endpoint;
+    //let url = `${window.location.origin}/` + endpoint;
 
     if (packet_to_misha_the_microsoft_engineer.PDA) {
       delete packet_to_misha_the_microsoft_engineer.state_names;
@@ -504,7 +501,7 @@ function Run(props) {
       packet_to_misha_the_microsoft_engineer.transition_function.forEach(
         (ar_, id) => {
           ar_.forEach((item, index) => {
-            if (item == "ε") {
+            if (item == "ϵ") {
               ar_[index] = "!";
             }
           });
@@ -512,14 +509,14 @@ function Run(props) {
       );
       packet_to_misha_the_microsoft_engineer.stack_alphabet.map(
         (item, index) => {
-          if (item == "ε") {
+          if (item == "ϵ") {
             packet_to_misha_the_microsoft_engineer.stack_alphabet[index] = "!";
           }
         }
       );
       packet_to_misha_the_microsoft_engineer.transition_alphabet.map(
         (item, index) => {
-          if (item == "ε") {
+          if (item == "ϵ") {
             packet_to_misha_the_microsoft_engineer.transition_alphabet[index] =
               "!";
           }
@@ -1014,7 +1011,7 @@ function Run(props) {
           packet_to_misha_the_microsoft_engineer.transition_function.forEach(
             (ar_, id) => {
               ar_.forEach((item, index) => {
-                if (item == "ε") {
+                if (item == "ϵ") {
                   ar_[index] = "!";
                 }
               });
@@ -1022,7 +1019,7 @@ function Run(props) {
           );
           packet_to_misha_the_microsoft_engineer.stack_alphabet.map(
             (item, index) => {
-              if (item == "ε") {
+              if (item == "ϵ") {
                 packet_to_misha_the_microsoft_engineer.stack_alphabet[index] =
                   "!";
               }
@@ -1030,7 +1027,7 @@ function Run(props) {
           );
           packet_to_misha_the_microsoft_engineer.transition_alphabet.map(
             (item, index) => {
-              if (item == "ε") {
+              if (item == "ϵ") {
                 packet_to_misha_the_microsoft_engineer.transition_alphabet[
                   index
                 ] = "!";
