@@ -120,6 +120,8 @@ function Run(props) {
     packet_to_misha_the_microsoft_engineer.transition_function = [];
     let stack_alpha = new Set();
     let alpha = new Set();
+
+    // process edges by PDA format
     if (master_context.PDA) {
       packet_to_misha_the_microsoft_engineer.PDA = true;
 
@@ -295,7 +297,6 @@ function Run(props) {
         }
       });
       let alphabet_processed = [];
-      console.log(toBePushed);
       [...new Set(toBePushed)].forEach((entry, id) => {
         entry.split("|").forEach((char) => {
           alphabet_processed.push(char);
@@ -342,6 +343,7 @@ function Run(props) {
                 to_label = nodeObj.label;
               }
             });
+            toBePushed.push(sub_string_collection[i]);
             transition_triple.push(from_label.trim());
             transition_triple.push(sub_string_collection[i].toString(10));
             if (transition_triple[1] == "ϵ") {
@@ -416,7 +418,6 @@ function Run(props) {
         }
       });
       let alphabet_processed = [];
-      console.log(toBePushed);
 
       [...new Set(toBePushed)].forEach((entry, id) => {
         entry.split(",").forEach((char) => {
