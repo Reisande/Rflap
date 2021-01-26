@@ -323,6 +323,7 @@ function Run(props) {
           packet_to_misha_the_microsoft_engineer.determinism
         ) {
           error_object.no_label_on_dfa = true;
+          return;
         }
         if (edgeObj.label == undefined) return;
         label = edgeObj.label.trim();
@@ -373,6 +374,7 @@ function Run(props) {
             });
             sub_string_collection.forEach((transition_alpha) => {
               transition_triple = [];
+              toBePushed.push(transition_alpha);
               transition_triple.push(from_label);
               transition_triple.push(transition_alpha);
               if (
