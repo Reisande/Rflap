@@ -22,6 +22,8 @@ import { v4 as uuidv4 } from "uuid";
 import vis from "vis-network";
 
 var util = require("util");
+
+let isExport = false;
 let readImportTxt = null;
 let error_object = {
   multiple_initial_states: false,
@@ -1050,42 +1052,6 @@ function Run(props) {
         const getMinsIntoSession = (sessionStart, sessionPing) =>
           toMins((sessionPing - sessionStart) / 1000);
 
-        const createExportDotnet = (testID) => {
-          const getNumAccepting = (statesMap) =>
-            Object.values(statesMap).reduce((t, bool) => t + (bool ? 1 : 0), 0);
-          const getMode = () => {
-            if (master_context.PDA) {
-              return "PDA";
-            } else {
-              let map = {
-                "Non-Deterministic Finite Automata": "NFA",
-                "Deterministic Finite Automata": "DFA",
-                "Push-down Automata": "PDA",
-              };
-              return map[master_context.mode.trim()];
-            }
-          };
-          return {
-            sessionID: master_context.session,
-            startTime: master_context.date,
-            exportTime: getMinsIntoSession(master_context.date, new Date()),
-            downloadPacket: JSON.stringify(
-              packet_to_misha_the_microsoft_engineer
-            ),
-            mode: getMode(),
-            initialState: packet_to_misha_the_microsoft_engineer.start_state,
-            numStates: Object.keys(
-              packet_to_misha_the_microsoft_engineer.states
-            ).length,
-            numAccepting: getNumAccepting(
-              packet_to_misha_the_microsoft_engineer.states
-            ),
-            numTransitions:
-              packet_to_misha_the_microsoft_engineer.transition_function.length,
-            testID: testID,
-            exportID: input_val,
-          };
-        };
         const exportation_nodes = node_style_dependency(input_val);
         const exportSubmission = exportation_nodes(
           JSON.stringify(packet_to_misha_the_microsoft_engineer)
