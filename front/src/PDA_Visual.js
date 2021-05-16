@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState, useContext } from "react";
 //graphing library
 import vis from "vis-network";
 //react-bootstrap component imports
-import { Button, ButtonGroup, Col, Row, Modal,Badge} from "react-bootstrap";
+import { Button, ButtonGroup, Col, Row, Modal, Badge } from "react-bootstrap";
 //css (bootstrap)
 import "./App.css";
 import "./Visual.css";
@@ -10,15 +10,15 @@ import "bootstrap/dist/css/bootstrap.min.css";
 //context import
 import { AutomataContext } from "./AutomataContext.js";
 //image imports
-import accept_bar from "./accept.svg";
-import add_bar from "./add-bar.svg";
-import points_bar from "./points.svg";
-import reject_bar from "./reject.svg";
-import transition_bar from "./transition.svg";
-import blank_svg_bar from "./blank.svg";
-import passive_bar from "./delete.svg";
-import remove_bar from "./remove.svg";
-import add_perfect from "./plus.svg";
+import accept_bar from "./res/img/accept.svg";
+import add_bar from "./res/img/add-bar.svg";
+import points_bar from "./res/img/points.svg";
+import reject_bar from "./res/img/reject.svg";
+import transition_bar from "./res/img/transition.svg";
+import blank_svg_bar from "./res/img/blank.svg";
+import passive_bar from "./res/img/delete.svg";
+import remove_bar from "./res/img/remove.svg";
+import add_perfect from "./res/img/plus.svg";
 
 //Network, Hex's (js)
 import { NetworkOptions } from "./res/NetworkOptions";
@@ -35,21 +35,24 @@ let edgesDS = new vis.DataSet([]);
 let in_initial_mode = false;
 let in_accepting_mode_ = false;
 let delete_lock = false;
- let inputVal = "";
+let inputVal = "";
 let edgeDeletion = false;
 
 let graph = { nodes: nodesDS, edges: edgesDS };
 
 function PDA_Visual() {
-  const [show, setShow] = useState({display: false, user_in: " _"});
-  const [warning, setWarningDisplay] = useState({on:false, message: "Incorrect input"});
-  const [modalEntry,setModalEntries] = useState([["","",""]])
+  const [show, setShow] = useState({ display: false, user_in: " _" });
+  const [warning, setWarningDisplay] = useState({
+    on: false,
+    message: "Incorrect input",
+  });
+  const [modalEntry, setModalEntries] = useState([["", "", ""]]);
   const master_context = useContext(AutomataContext);
   master_context.graphObj = graph;
   master_context.edgesDS = edgesDS;
   master_context.nodesDS = nodesDS;
-//  let delete_lock = false;
-//  let in_accepting_mode_ = false;
+  //  let delete_lock = false;
+  //  let in_accepting_mode_ = false;
   let img_index = 0;
   let img_array = [
     blank_svg_bar,
@@ -68,18 +71,27 @@ function PDA_Visual() {
     img_status.current.src = passive_bar;
     const HTMLCol_to_array = (html_collection) =>
       Array.prototype.slice.call(html_collection);
-      master_context.PDA = true
-    let nav_header_height = document.querySelector("#nav-header") == null ? 0 : document.querySelector("#nav-header").offsetHeight;
-    let bar_layout_height = document.querySelector("#bar_layout") == null ? 0 : document.querySelector("#bar_layout").offsetHeight;
-   
+    master_context.PDA = true;
+    let nav_header_height =
+      document.querySelector("#nav-header") == null
+        ? 0
+        : document.querySelector("#nav-header").offsetHeight;
+    let bar_layout_height =
+      document.querySelector("#bar_layout") == null
+        ? 0
+        : document.querySelector("#bar_layout").offsetHeight;
+
     network = new vis.Network(
       wrapper.current,
       graph,
-      NetworkOptions((height - nav_header_height - bar_layout_height ).toString(), window.innerWidth.toString())
+      NetworkOptions(
+        (height - nav_header_height - bar_layout_height).toString(),
+        window.innerWidth.toString()
+      )
     );
     master_context.network = network;
     //context-click for graph
-    network.on("showPopup", (params) => { });
+    network.on("showPopup", (params) => {});
 
     //graph event listeners here:
 
@@ -87,7 +99,7 @@ function PDA_Visual() {
   hoverNode listener
   Desc: Takes node added in addNode
   */
-    network.on("hoverNode", (params) => { });
+    network.on("hoverNode", (params) => {});
     /* 
     controlNodeDragEnd
     Desc: Catches end of add transition event, and updates edges with newly added edges.
@@ -115,7 +127,7 @@ function PDA_Visual() {
         edgesDS = master_context.edgesDS;
         master_context.hasImported = false;
         graph = master_context.graphObj;
-        node_id_global += nodesDS.get().length -1
+        node_id_global += nodesDS.get().length - 1;
       }
       document.getElementById("group-holder").style.borderColor = Hex.Canvas;
       document.getElementById("non-header-div").style.background = Hex.Canvas;
@@ -142,13 +154,13 @@ function PDA_Visual() {
       };
       let _ =
         noNodesClicked(params) &&
-          noEdgesClicked(params) &&
-          x != null &&
-          y != null
+        noEdgesClicked(params) &&
+        x != null &&
+        y != null
           ? populateNodeAt(x, y)
           : () => {
-            return;
-          };
+              return;
+            };
       return addedNode != node_id_global ? true : false;
     };
 
@@ -160,7 +172,6 @@ function PDA_Visual() {
 
     const deleteNodeWithCtrl = (params) => {
       if (params.event.srcEvent.ctrlKey || params.event.srcEvent.metaKey) {
-
         network.deleteSelected();
         return true;
       }
@@ -188,17 +199,13 @@ function PDA_Visual() {
         if (keyCode === "KeyD") {
           try {
             img_status.current.src = remove_bar;
-          }
-          catch (e) {
-          }
+          } catch (e) {}
           delete_lock = true;
           return;
-        }
-        else if (keyCode == "KeyT") {
+        } else if (keyCode == "KeyT") {
           toEditEdgeMode();
           return;
-        }
-        else {
+        } else {
           delete_lock = false;
           if (img_status != null && img_status.current != null) {
             img_status.current.src = passive_bar;
@@ -213,14 +220,12 @@ function PDA_Visual() {
       if (edgeDeletion) {
         edgeDeletion = false;
         return;
-      }
-      else if (delete_lock && network.getSelectedNodes().length != 0) {
+      } else if (delete_lock && network.getSelectedNodes().length != 0) {
         network.deleteSelected();
-        deselectAllModes()
+        deselectAllModes();
         return;
-      }
-      else if (delete_lock && params.edges) {
-        graph.edges.remove(params.edges[0])
+      } else if (delete_lock && params.edges) {
+        graph.edges.remove(params.edges[0]);
         deselectAllModes();
         return;
       }
@@ -231,19 +236,22 @@ function PDA_Visual() {
 
     network.on("select", (params) => {
       // SET INITIAL MODE PRESS
-      if (delete_lock && params.edges.length > 0 && (params.nodes.length == 0 || params.nodes == [])) {
+      if (
+        delete_lock &&
+        params.edges.length > 0 &&
+        (params.nodes.length == 0 || params.nodes == [])
+      ) {
         edgeDeletion = true;
         graph.edges.remove(params.edges[0]);
         deselectAllModes();
-      }
-      else if (
+      } else if (
         params != null &&
         in_initial_mode &&
         (params.nodes > 0 || params.nodes[0] != null)
       ) {
-       let node_id_clicked = params.nodes[0];
+        let node_id_clicked = params.nodes[0];
         let found_node;
- 
+
         //find node given
         graph.nodes.get().forEach((node) => {
           if (node.id == node_id_clicked) {
@@ -300,32 +308,47 @@ function PDA_Visual() {
         nodesDS.update([{ id: node_id_clicked, borderWidth: final_border }]);
         in_accepting_mode_ = false;
         img_status.current.src = passive_bar;
-      } else if (params.edges.length == 1 && params.nodes == 0 && edgeDeletion == false) {
+      } else if (
+        params.edges.length == 1 &&
+        params.nodes == 0 &&
+        edgeDeletion == false
+      ) {
         let edge_id = params.edges[0];
         const openModal = (edgeDisplayInfo) => {
           if (edgeDisplayInfo == null) {
             setShow({ display: true, user_in: "!" });
             return;
           }
-          let from = edgeDisplayInfo.from, to = edgeDisplayInfo.to;
-          let currentEdgeText = edgeDisplayInfo.edgeLabel == null ? "" : edgeDisplayInfo.edgeLabel;
-          inputVal = currentEdgeText
-          setShow({ display: true, from: "δ(" + from.trim() + ", ", edgeLabel: currentEdgeText, to: ") =" + to, edgeId: edge_id });
-          let edges = nodesOfEdgeId(params.edges[0])
-          let newArr = [["","",""]]
+          let from = edgeDisplayInfo.from,
+            to = edgeDisplayInfo.to;
+          let currentEdgeText =
+            edgeDisplayInfo.edgeLabel == null ? "" : edgeDisplayInfo.edgeLabel;
+          inputVal = currentEdgeText;
+          setShow({
+            display: true,
+            from: "δ(" + from.trim() + ", ",
+            edgeLabel: currentEdgeText,
+            to: ") =" + to,
+            edgeId: edge_id,
+          });
+          let edges = nodesOfEdgeId(params.edges[0]);
+          let newArr = [["", "", ""]];
           if (edges.edgeLabel) {
-            newArr = []
-            edges.edgeLabel.replace(/ /g,'').split("|").forEach((triple) => {
-              let read = triple[0]
-              let pop = triple[2]
-              let push = triple[5]
-              let subArr = [read, pop, push]
-              newArr.push(subArr)
-            })
+            newArr = [];
+            edges.edgeLabel
+              .replace(/ /g, "")
+              .split("|")
+              .forEach((triple) => {
+                let read = triple[0];
+                let pop = triple[2];
+                let push = triple[5];
+                let subArr = [read, pop, push];
+                newArr.push(subArr);
+              });
           }
-            setModalEntries([...newArr]);
-        }
-          openModal(nodesOfEdgeId(params.edges[0]))
+          setModalEntries([...newArr]);
+        };
+        openModal(nodesOfEdgeId(params.edges[0]));
       }
     });
 
@@ -335,7 +358,7 @@ function PDA_Visual() {
       network.off("controlNodeDragEnd");
       network.off("hoverNode");
       network.off("showPopup");
-      master_context.PDA = false
+      master_context.PDA = false;
       network.destroy();
       window.removeEventListener("keydown", (e) => {
         const deleteNodeMode = (keyCode) => {
@@ -343,12 +366,10 @@ function PDA_Visual() {
             img_status.current.src = remove_bar;
             delete_lock = true;
             return;
-          }
-          else if (keyCode == "KeyT") {
+          } else if (keyCode == "KeyT") {
             toEditEdgeMode();
             return;
-          }
-          else {
+          } else {
             delete_lock = false;
             if (img_status != null && img_status.current != null) {
               img_status.current.src = passive_bar;
@@ -358,29 +379,29 @@ function PDA_Visual() {
         };
         deleteNodeMode(e.code);
       });
-  
+
       window.removeEventListener("keydown", handleShiftClick);
     };
-  },[]);
-
-
+  }, []);
 
   const deselectAllModes = () => {
     in_accepting_mode_ = false;
     in_initial_mode = false;
     delete_lock = false;
     if (img_status != null && img_status.current != null) {
-      img_status.current.src = passive_bar
+      img_status.current.src = passive_bar;
     }
   };
   const nodesOfEdgeId = (edgeID) => {
-    let fromLabel = "", toLabel = "", edgeText = "";
+    let fromLabel = "",
+      toLabel = "",
+      edgeText = "";
     let nodeFromId, nodeToId;
 
-     graph.edges.forEach((edge) => {
+    graph.edges.forEach((edge) => {
       if (edge.id == edgeID) {
-        nodeFromId = edge.from
-        nodeToId = edge.to
+        nodeFromId = edge.from;
+        nodeToId = edge.to;
         edgeText = edge.label;
       }
     });
@@ -392,79 +413,81 @@ function PDA_Visual() {
         toLabel = node.label;
       }
     });
-    return {edgeLabel: edgeText , from: fromLabel, to:toLabel }
-  }
+    return { edgeLabel: edgeText, from: fromLabel, to: toLabel };
+  };
   const ChangeEdgeText = (userInput, edgeID) => {
-    
     String.prototype.replaceAt = function (index, replacement) {
-      return this.substr(0, index) + replacement + this.substr(index + replacement.length);
-    }
+      return (
+        this.substr(0, index) +
+        replacement +
+        this.substr(index + replacement.length)
+      );
+    };
     let warn = false;
-    let finalStr = []
-    let finalLabel = ""
-    let warnString = ""
+    let finalStr = [];
+    let finalLabel = "";
+    let warnString = "";
     modalEntry.forEach((arr) => {
-      arr = arr.map(str => {
+      arr = arr.map((str) => {
         if (!str) {
-          return ""
+          return "";
+        } else {
+          return str;
         }
-        else {
-          return str
-        }
-      }) 
-      let testEmptyEntry = arr.filter(str=>  str.length == 0 )
-      if ((arr.includes("") && testEmptyEntry.length != 3)) {
-        warn = true
-        warnString = "Unfilled out rule, delete text in inputbox or fill out"
-        return
-      }
-      else if (arr.filter(str => str ?  str.length > 1 : false).length > 0) {
-        warn = true
-        warnString = "Only one character per input box"
+      });
+      let testEmptyEntry = arr.filter((str) => str.length == 0);
+      if (arr.includes("") && testEmptyEntry.length != 3) {
+        warn = true;
+        warnString = "Unfilled out rule, delete text in inputbox or fill out";
+        return;
+      } else if (
+        arr.filter((str) => (str ? str.length > 1 : false)).length > 0
+      ) {
+        warn = true;
+        warnString = "Only one character per input box";
       }
 
-      if (testEmptyEntry.length== 3) {
-        return
+      if (testEmptyEntry.length == 3) {
+        return;
       }
-      arr = arr.map((str) => str.replace("!", "ϵ").replace(" ", "ϵ"))
-      let newStr = arr[0] + "," + arr[1] + "->" + arr[2]
+      arr = arr.map((str) => str.replace("!", "ϵ").replace(" ", "ϵ"));
+      let newStr = arr[0] + "," + arr[1] + "->" + arr[2];
       finalStr.push(newStr);
     });
     if (warn) {
-      setWarningDisplay({ on: true , message:warnString});
-    }
-    else {
+      setWarningDisplay({ on: true, message: warnString });
+    } else {
       graph.edges.forEach((edge) => {
         if (edge.id == edgeID) {
           edge.label = finalStr.join("|");
-          edgesDS.update([{id:edge.id, label: finalStr.join(" | ")}])
+          edgesDS.update([{ id: edge.id, label: finalStr.join(" | ") }]);
         }
       });
-      setShow({ display: false })
-      setWarningDisplay({on:false, message:""})
-      deselectAllModes()
+      setShow({ display: false });
+      setWarningDisplay({ on: false, message: "" });
+      deselectAllModes();
     }
-  }
-    //     });
-    //     if (userInput === "") {
-    //       warn = true;
-    //     }
-    //     if (warn) return;
-    //     userInput = userInput.replace("!", "ϵ").replace(" ", "ϵ");
-    //     edgesDS.update([{ id: edge.id, label: userInput }]);
-    //   }
-    // });
-    // if (warn) {
-    //   setWarningDisplay(true);
-    // }
-    // else {
-    //   setShow({ display: false })
-    //   setWarningDisplay(false);
-    //   deselectAllModes();
-    // }
+  };
+  //     });
+  //     if (userInput === "") {
+  //       warn = true;
+  //     }
+  //     if (warn) return;
+  //     userInput = userInput.replace("!", "ϵ").replace(" ", "ϵ");
+  //     edgesDS.update([{ id: edge.id, label: userInput }]);
+  //   }
+  // });
+  // if (warn) {
+  //   setWarningDisplay(true);
+  // }
+  // else {
+  //   setShow({ display: false })
+  //   setWarningDisplay(false);
+  //   deselectAllModes();
+  // }
 
-//  const saveEdgeEdit = (edgeId) => {
- //   ChangeEditText()
+  //  const saveEdgeEdit = (edgeId) => {
+  //   ChangeEditText()
   //}
 
   const findEdgeByNodes = (from, to) => {
@@ -487,10 +510,7 @@ function PDA_Visual() {
       if (network == null) return;
       network.enableEditMode();
       network.addEdgeMode();
-    }
-    catch (e) {
-
-    }
+    } catch (e) {}
   }
   //network.enableEditMode() and then network.addNodeMode()
   function toAddNodeMode(props) {
@@ -562,7 +582,7 @@ function PDA_Visual() {
     network.moveNode(
       node_id_global,
       (Math.random() - 0.6) * 400,
-      (Math.random() - 0.6) * 40>0
+      (Math.random() - 0.6) * 40 > 0
     );
   }
 
@@ -577,43 +597,61 @@ function PDA_Visual() {
     if (network == null) return;
     network.deleteSelected();
   }
-//  const graphComp = ({children}) => (
-    // <div
-    //   style={{ height: `${height}px` }}
-    //   id="graph-display"
-    //   className="Visual"
-    //   ref={wrapper}
-    // >{children}</div>
+  //  const graphComp = ({children}) => (
+  // <div
+  //   style={{ height: `${height}px` }}
+  //   id="graph-display"
+  //   className="Visual"
+  //   ref={wrapper}
+  // >{children}</div>
 
   //const memoGraph = React.memo(graphComp);
 
   const closeModal = () => {
     //setShow(false);
-
-  }
-  let newArr =[ ]
+  };
+  let newArr = [];
   function StackModalEntry(props) {
     return (
-        <Row>
-        <Col md={{offset: 1}}>
-          <input type="text" onChange={(event) => { modalEntry[props.index][0] = event.target.value }} defaultValue={modalEntry[props.index][0]}size="1" />
+      <Row>
+        <Col md={{ offset: 1 }}>
+          <input
+            type="text"
+            onChange={(event) => {
+              modalEntry[props.index][0] = event.target.value;
+            }}
+            defaultValue={modalEntry[props.index][0]}
+            size="1"
+          />
           <b>{","} </b>
-        <input type="text" size="1" onChange={(event) => { modalEntry[props.index][1]= event.target.value }} defaultValue={modalEntry[props.index][1]} />
-        <input type="text"disabled defaultValue="  🠆" size="1"/>
-          <input type="text" onChange={(event) => { modalEntry[props.index][2] = event.target.value }} defaultValue={modalEntry[props.index][2]} size="1" />
-</Col>
-
-        </Row> 
-    )
-}
+          <input
+            type="text"
+            size="1"
+            onChange={(event) => {
+              modalEntry[props.index][1] = event.target.value;
+            }}
+            defaultValue={modalEntry[props.index][1]}
+          />
+          <input type="text" disabled defaultValue="  🠆" size="1" />
+          <input
+            type="text"
+            onChange={(event) => {
+              modalEntry[props.index][2] = event.target.value;
+            }}
+            defaultValue={modalEntry[props.index][2]}
+            size="1"
+          />
+        </Col>
+      </Row>
+    );
+  }
   const image_click_handler = (event) => {
     let new_array = modalEntry;
-    new_array.push(["","",""]);
+    new_array.push(["", "", ""]);
     setModalEntries([...new_array]);
- 
-}
+  };
 
-//          setShow({ display: true, from: "δ(" + from, edgeLabel: edgeLabel, toInvariant: ") = ",  to: to});
+  //          setShow({ display: true, from: "δ(" + from, edgeLabel: edgeLabel, toInvariant: ") = ",  to: to});
   return (
     <div id="non-header-div">
       <Modal
@@ -744,6 +782,5 @@ function PDA_Visual() {
     </div>
   );
 }
-
 
 export default PDA_Visual;

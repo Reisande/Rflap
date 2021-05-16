@@ -5,7 +5,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { Navbar, Nav, NavDropdown, Col, Button } from "react-bootstrap";
 import { AutomataContext } from "./AutomataContext.js";
 /*LOGO svg import*/
-import rflapsvg from "./rflapsvg.svg";
+import rflapsvg from "./res/img/rflapsvg.svg";
 /* Machine Enum used in App.js
 const CURRENT_MACHINE = {
   DFA: 0,
@@ -15,7 +15,6 @@ const CURRENT_MACHINE = {
 };
 */
 function HeaderMenu(props) {
-  
   const master_context = useContext(AutomataContext);
 
   const runbutton = useRef();
@@ -33,25 +32,22 @@ function HeaderMenu(props) {
   useEffect(() => {
     document.querySelector("a.dropdown-toggle.nav-link").style.color =
       "#e25b4b";
-    
 
-function trimSvgWhitespace() {
+    function trimSvgWhitespace() {
+      // get all SVG objects in the DOM
+      var svgs = document.getElementById("rflapsvg-logo");
 
-  // get all SVG objects in the DOM
-  var svgs = document.getElementById("rflapsvg-logo");
+      // go through each one and add a viewbox that ensures all children are visible
+      for (var i = 0, l = svgs.length; i < l; i++) {
+        var svg = svgs[i],
+          box = svg.getBBox(), // <- get the visual boundary required to view all children
+          viewBox = [box.y, box.x, box.width, box.height].join(" ");
 
-  // go through each one and add a viewbox that ensures all children are visible
-  for (var i=0, l=svgs.length; i<l; i++) {
-
-    var svg = svgs[i],
-        box = svg.getBBox(), // <- get the visual boundary required to view all children
-        viewBox = [box.y, box.x, box.width, box.height].join(" ");
-
-    // set viewable area based on value above
-    svg.setAttribute("viewBox", viewBox);
-  }
-}
-//trimSvgWhitespace();
+        // set viewable area based on value above
+        svg.setAttribute("viewBox", viewBox);
+      }
+    }
+    //trimSvgWhitespace();
     master_context.mode = machine_select;
 
     /* 
@@ -62,23 +58,22 @@ function trimSvgWhitespace() {
       master_context.mode == "Context-free Grammar" ||
       master_context.mode == "Turing Machine" ||
       master_context.mode == "Regular Expressions"
-    )
-    {
-      
+    ) {
       runbutton.current.style.visibility = "hidden";
-    } 
-    else {
+    } else {
       runbutton.current.style.visibility = "visible";
     }
   });
 
-    /*
+  /*
 
   STATE VARIABLE: machine_select (string)
   machine_select:<title of state machine> => Sets header's title to the state machine
 
   */
-  const [machine_select, set_machine_title] = useState("Deterministic Finite Automata");
+  const [machine_select, set_machine_title] = useState(
+    "Deterministic Finite Automata"
+  );
 
   /*
     nav_menu_dropdown_click(e, machine : useRef object)
@@ -90,7 +85,7 @@ function trimSvgWhitespace() {
   function nav_menu_dropdown_click(e, machine) {
     let name = machine["current"].text;
     if (master_context.sidebarOpen) {
-      runbutton.current.click()
+      runbutton.current.click();
     }
     set_machine_title(name);
     master_context.mode = name;
@@ -105,12 +100,12 @@ function trimSvgWhitespace() {
         </Col>
       </Col> */}
       <Col md={1}></Col>
-      <Col md={1} >
-        <Navbar.Brand href="http://www.github.com/Reisande/Rflap"id="logo_text">
-         <embed id="rflapsvg-logo" src= {rflapsvg}
-          width="140"
-          height="50"
-          />
+      <Col md={1}>
+        <Navbar.Brand
+          href="http://www.github.com/Reisande/Rflap"
+          id="logo_text"
+        >
+          <embed id="rflapsvg-logo" src={rflapsvg} width="140" height="50" />
           {/* <b>
             {" "}
             <font size="5" color="#2f9399">
@@ -137,7 +132,7 @@ function trimSvgWhitespace() {
           >
             <NavDropdown.Item
               id="DFA"
-              onClick={event => nav_menu_dropdown_click(event, DFA)}
+              onClick={(event) => nav_menu_dropdown_click(event, DFA)}
               ref={DFA}
               href=""
             >
@@ -145,16 +140,16 @@ function trimSvgWhitespace() {
             </NavDropdown.Item>
             <NavDropdown.Item
               id="REG"
-              onClick={event => nav_menu_dropdown_click(event, REG)}
+              onClick={(event) => nav_menu_dropdown_click(event, REG)}
               ref={REG}
               href=""
             >
               Regular Expressions{""}
             </NavDropdown.Item>
- 
+
             <NavDropdown.Item
               id="NFA"
-              onClick={event => nav_menu_dropdown_click(event, NFA)}
+              onClick={(event) => nav_menu_dropdown_click(event, NFA)}
               ref={NFA}
               href=""
             >
@@ -163,7 +158,7 @@ function trimSvgWhitespace() {
             </NavDropdown.Item>
             <NavDropdown.Item
               id="CFG"
-              onClick={event => nav_menu_dropdown_click(event, CFG)}
+              onClick={(event) => nav_menu_dropdown_click(event, CFG)}
               ref={CFG}
               href=""
             >
@@ -171,13 +166,12 @@ function trimSvgWhitespace() {
             </NavDropdown.Item>
             <NavDropdown.Item
               id="PDA"
-              onClick={event => nav_menu_dropdown_click(event, PDA)}
+              onClick={(event) => nav_menu_dropdown_click(event, PDA)}
               ref={PDA}
               href=""
             >
               Push-down Automata
             </NavDropdown.Item>
-            
           </NavDropdown>
           <Col></Col>
           <Nav>
@@ -193,7 +187,6 @@ function trimSvgWhitespace() {
             <Col></Col>
           </Nav>
         </Nav>
-        
       </Navbar.Collapse>
     </Navbar>
   );

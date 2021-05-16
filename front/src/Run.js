@@ -12,12 +12,12 @@ import {
 import "bootstrap/dist/css/bootstrap.min.css";
 import Popup from "reactjs-popup";
 import "./Run.css";
-import error_image from "./error.svg";
-import success_image from "./success.svg";
+import error_image from "./res/img/error.svg";
+import success_image from "./res/img/success.svg";
 import { AutomataContext } from "./AutomataContext.js";
 import RowInput from "./RowInput.js";
-import idle_svg from "./button.svg";
-import add_perfect from "./plus.svg";
+import idle_svg from "./res/img/button.svg";
+import add_perfect from "./res/img/plus.svg";
 import { v4 as uuidv4 } from "uuid";
 import vis from "vis-network";
 

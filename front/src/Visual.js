@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState, useContext } from "react";
 /*graphing library*/
 import vis from "vis-network";
 /*react bootstrap components*/
-import { Button, ButtonGroup, Col, Row, Modal,Badge} from "react-bootstrap";
+import { Button, ButtonGroup, Col, Row, Modal, Badge } from "react-bootstrap";
 /*import css and react bootstrap css */
 import "./App.css";
 import "./Visual.css";
@@ -10,14 +10,14 @@ import "bootstrap/dist/css/bootstrap.min.css";
 /*grab app-wide context*/
 import { AutomataContext } from "./AutomataContext.js";
 /* resource images */
-import accept_bar from "./accept.svg";
-import add_bar from "./add-bar.svg";
-import points_bar from "./points.svg";
-import reject_bar from "./reject.svg";
-import transition_bar from "./transition.svg";
-import blank_svg_bar from "./blank.svg";
-import passive_bar from "./delete.svg";
-import remove_bar from "./remove.svg";
+import accept_bar from "./res/img/accept.svg";
+import add_bar from "./res/img/add-bar.svg";
+import points_bar from "./res/img/points.svg";
+import reject_bar from "./res/img/reject.svg";
+import transition_bar from "./res/img/transition.svg";
+import blank_svg_bar from "./res/img/blank.svg";
+import passive_bar from "./res/img/delete.svg";
+import remove_bar from "./res/img/remove.svg";
 
 /*Network options object and Hex's in js*/
 import { Hex } from "./res/HexColors.js";
@@ -25,7 +25,7 @@ import { NetworkOptions } from "./res/NetworkOptions";
 //Component-wide state variable to track total number of Ids on client side,
 //seperate from nodesDS (vis.DataSet() object) because of leaky abstractions
 let node_id_global = 0;
-let height = window.innerHeight - 85 
+let height = window.innerHeight - 85;
 let img_bar_status_did_mount = false;
 
 /*Creating vs.DataSet objects (arrays of object {id;labels;from;to;arrows;}*/
@@ -53,19 +53,19 @@ let edgesDS = new vis.DataSet([]);
 let in_initial_mode = false;
 let in_accepting_mode_ = false;
 let delete_lock = false;
- let inputVal = "";
+let inputVal = "";
 let edgeDeletion = false;
 
 let graph = { nodes: nodesDS, edges: edgesDS };
 function Visual() {
-  const [show, setShow] = useState({display: false, user_in: " _"});
+  const [show, setShow] = useState({ display: false, user_in: " _" });
   const [warning, setWarningDisplay] = useState(false);
   const master_context = useContext(AutomataContext);
   master_context.graphObj = graph;
   master_context.edgesDS = edgesDS;
   master_context.nodesDS = nodesDS;
-//  let delete_lock = false;
-//  let in_accepting_mode_ = false;
+  //  let delete_lock = false;
+  //  let in_accepting_mode_ = false;
   let img_index = 0;
   let img_array = [
     blank_svg_bar,
@@ -84,17 +84,26 @@ function Visual() {
     img_status.current.src = passive_bar;
     const HTMLCol_to_array = (html_collection) =>
       Array.prototype.slice.call(html_collection);
-    let nav_header_height = document.querySelector("#nav-header") == null ? 0 : document.querySelector("#nav-header").offsetHeight;
-    let bar_layout_height = document.querySelector("#bar_layout") == null ? 0 : document.querySelector("#bar_layout").offsetHeight;
-   
+    let nav_header_height =
+      document.querySelector("#nav-header") == null
+        ? 0
+        : document.querySelector("#nav-header").offsetHeight;
+    let bar_layout_height =
+      document.querySelector("#bar_layout") == null
+        ? 0
+        : document.querySelector("#bar_layout").offsetHeight;
+
     network = new vis.Network(
       wrapper.current,
       graph,
-      NetworkOptions((height - nav_header_height - bar_layout_height ).toString(), window.innerWidth.toString())
+      NetworkOptions(
+        (height - nav_header_height - bar_layout_height).toString(),
+        window.innerWidth.toString()
+      )
     );
     master_context.network = network;
     //context-click for graph
-    network.on("showPopup", (params) => { });
+    network.on("showPopup", (params) => {});
 
     //graph event listeners here:
 
@@ -102,7 +111,7 @@ function Visual() {
   hoverNode listener
   Desc: Takes node added in addNode
   */
-    network.on("hoverNode", (params) => { });
+    network.on("hoverNode", (params) => {});
     /* 
     controlNodeDragEnd
     Desc: Catches end of add transition event, and updates edges with newly added edges.
@@ -130,7 +139,7 @@ function Visual() {
         edgesDS = master_context.edgesDS;
         master_context.hasImported = false;
         graph = master_context.graphObj;
-        node_id_global += nodesDS.get().length -1
+        node_id_global += nodesDS.get().length - 1;
       }
       document.getElementById("group-holder").style.borderColor = Hex.Canvas;
       document.getElementById("non-header-div").style.background = Hex.Canvas;
@@ -157,13 +166,13 @@ function Visual() {
       };
       let _ =
         noNodesClicked(params) &&
-          noEdgesClicked(params) &&
-          x != null &&
-          y != null
+        noEdgesClicked(params) &&
+        x != null &&
+        y != null
           ? populateNodeAt(x, y)
           : () => {
-            return;
-          };
+              return;
+            };
       return addedNode != node_id_global ? true : false;
     };
 
@@ -175,7 +184,6 @@ function Visual() {
 
     const deleteNodeWithCtrl = (params) => {
       if (params.event.srcEvent.ctrlKey || params.event.srcEvent.metaKey) {
-
         network.deleteSelected();
         return true;
       }
@@ -203,17 +211,13 @@ function Visual() {
         if (keyCode === "KeyD") {
           try {
             img_status.current.src = remove_bar;
-          }
-          catch (e) {
-          }
+          } catch (e) {}
           delete_lock = true;
           return;
-        }
-        else if (keyCode == "KeyT") {
+        } else if (keyCode == "KeyT") {
           toEditEdgeMode();
           return;
-        }
-        else {
+        } else {
           delete_lock = false;
           if (img_status != null && img_status.current != null) {
             img_status.current.src = passive_bar;
@@ -228,14 +232,12 @@ function Visual() {
       if (edgeDeletion) {
         edgeDeletion = false;
         return;
-      }
-      else if (delete_lock && network.getSelectedNodes().length != 0) {
+      } else if (delete_lock && network.getSelectedNodes().length != 0) {
         network.deleteSelected();
-        deselectAllModes()
+        deselectAllModes();
         return;
-      }
-      else if (delete_lock && params.edges) {
-        graph.edges.remove(params.edges[0])
+      } else if (delete_lock && params.edges) {
+        graph.edges.remove(params.edges[0]);
         deselectAllModes();
         return;
       }
@@ -246,19 +248,22 @@ function Visual() {
 
     network.on("select", (params) => {
       // SET INITIAL MODE PRESS
-      if (delete_lock && params.edges.length > 0 && (params.nodes.length == 0 || params.nodes == [])) {
+      if (
+        delete_lock &&
+        params.edges.length > 0 &&
+        (params.nodes.length == 0 || params.nodes == [])
+      ) {
         edgeDeletion = true;
         graph.edges.remove(params.edges[0]);
         deselectAllModes();
-      }
-      else if (
+      } else if (
         params != null &&
         in_initial_mode &&
         (params.nodes > 0 || params.nodes[0] != null)
       ) {
-       let node_id_clicked = params.nodes[0];
+        let node_id_clicked = params.nodes[0];
         let found_node;
- 
+
         //find node given
         graph.nodes.get().forEach((node) => {
           if (node.id == node_id_clicked) {
@@ -315,19 +320,31 @@ function Visual() {
         nodesDS.update([{ id: node_id_clicked, borderWidth: final_border }]);
         in_accepting_mode_ = false;
         img_status.current.src = passive_bar;
-      } else if (params.edges.length == 1 && params.nodes == 0 && edgeDeletion == false) {
+      } else if (
+        params.edges.length == 1 &&
+        params.nodes == 0 &&
+        edgeDeletion == false
+      ) {
         let edge_id = params.edges[0];
         const openModal = (edgeDisplayInfo) => {
           if (edgeDisplayInfo == null) {
             setShow({ display: true, user_in: "!" });
             return;
           }
-          let from = edgeDisplayInfo.from, to = edgeDisplayInfo.to;
-          let currentEdgeText = edgeDisplayInfo.edgeLabel == null ? "" : edgeDisplayInfo.edgeLabel;
-          inputVal = currentEdgeText
-          setShow({ display: true, from: "δ(" + from.trim() + ", ", edgeLabel: currentEdgeText, to: ") =" + to, edgeId: edge_id });
+          let from = edgeDisplayInfo.from,
+            to = edgeDisplayInfo.to;
+          let currentEdgeText =
+            edgeDisplayInfo.edgeLabel == null ? "" : edgeDisplayInfo.edgeLabel;
+          inputVal = currentEdgeText;
+          setShow({
+            display: true,
+            from: "δ(" + from.trim() + ", ",
+            edgeLabel: currentEdgeText,
+            to: ") =" + to,
+            edgeId: edge_id,
+          });
         };
-          openModal(nodesOfEdgeId(params.edges[0]))
+        openModal(nodesOfEdgeId(params.edges[0]));
       }
     });
 
@@ -344,12 +361,10 @@ function Visual() {
             img_status.current.src = remove_bar;
             delete_lock = true;
             return;
-          }
-          else if (keyCode == "KeyT") {
+          } else if (keyCode == "KeyT") {
             toEditEdgeMode();
             return;
-          }
-          else {
+          } else {
             delete_lock = false;
             if (img_status != null && img_status.current != null) {
               img_status.current.src = passive_bar;
@@ -359,29 +374,29 @@ function Visual() {
         };
         deleteNodeMode(e.code);
       });
-  
+
       window.removeEventListener("keydown", handleShiftClick);
     };
-  },[]);
-
-
+  }, []);
 
   const deselectAllModes = () => {
     in_accepting_mode_ = false;
     in_initial_mode = false;
     delete_lock = false;
     if (img_status != null && img_status.current != null) {
-      img_status.current.src = passive_bar
+      img_status.current.src = passive_bar;
     }
   };
   const nodesOfEdgeId = (edgeID) => {
-    let fromLabel = "", toLabel = "", edgeText = "";
+    let fromLabel = "",
+      toLabel = "",
+      edgeText = "";
     let nodeFromId, nodeToId;
 
-     graph.edges.forEach((edge) => {
+    graph.edges.forEach((edge) => {
       if (edge.id == edgeID) {
-        nodeFromId = edge.from
-        nodeToId = edge.to
+        nodeFromId = edge.from;
+        nodeToId = edge.to;
         edgeText = edge.label;
       }
     });
@@ -393,18 +408,22 @@ function Visual() {
         toLabel = node.label;
       }
     });
-    return {edgeLabel: edgeText , from: fromLabel, to:toLabel }
-  }
+    return { edgeLabel: edgeText, from: fromLabel, to: toLabel };
+  };
   const ChangeEdgeText = (userInput, edgeID) => {
-    String.prototype.replaceAt = function(index, replacement) {
-      return this.substr(0, index) + replacement + this.substr(index + replacement.length);
-    }
+    String.prototype.replaceAt = function (index, replacement) {
+      return (
+        this.substr(0, index) +
+        replacement +
+        this.substr(index + replacement.length)
+      );
+    };
     let warn = false;
     graph.edges.forEach((edge) => {
       if (edge.id == edgeID) {
         edge.label = userInput;
         userInput.split(",").forEach((chr) => {
-          if (chr.length > 1){
+          if (chr.length > 1) {
             warn = true;
           }
         });
@@ -418,15 +437,14 @@ function Visual() {
     });
     if (warn) {
       setWarningDisplay(true);
-    }
-    else {
-      setShow({ display: false })
+    } else {
+      setShow({ display: false });
       setWarningDisplay(false);
       deselectAllModes();
     }
   };
-//  const saveEdgeEdit = (edgeId) => {
- //   ChangeEditText()
+  //  const saveEdgeEdit = (edgeId) => {
+  //   ChangeEditText()
   //}
 
   const findEdgeByNodes = (from, to) => {
@@ -449,10 +467,7 @@ function Visual() {
       if (network == null) return;
       network.enableEditMode();
       network.addEdgeMode();
-    }
-    catch (e) {
-
-    }
+    } catch (e) {}
   }
   //network.enableEditMode() and then network.addNodeMode()
   function toAddNodeMode(props) {
@@ -524,7 +539,7 @@ function Visual() {
     network.moveNode(
       node_id_global,
       (Math.random() - 0.6) * 400,
-      (Math.random() - 0.6) * 40>0
+      (Math.random() - 0.6) * 40 > 0
     );
   }
 
@@ -540,41 +555,63 @@ function Visual() {
     network.deleteSelected();
   }
 
-//  const graphComp = ({children}) => (
-    // <div
-    //   style={{ height: `${height}px` }}
-    //   id="graph-display"
-    //   className="Visual"
-    //   ref={wrapper}
-    // >{children}</div>
+  //  const graphComp = ({children}) => (
+  // <div
+  //   style={{ height: `${height}px` }}
+  //   id="graph-display"
+  //   className="Visual"
+  //   ref={wrapper}
+  // >{children}</div>
 
   //const memoGraph = React.memo(graphComp);
 
   const closeModal = () => {
     //setShow(false);
+  };
 
-  }
-
-//          setShow({ display: true, from: "δ(" + from, edgeLabel: edgeLabel, toInvariant: ") = ",  to: to});
+  //          setShow({ display: true, from: "δ(" + from, edgeLabel: edgeLabel, toInvariant: ") = ",  to: to});
   return (
     <div id="non-header-div">
-      <Modal size="sm"backdrop="static" show={show.display} onHide={() => { setShow({display:false, user_in: "_"}) }}> 
-        <Modal.Header >
+      <Modal
+        size="sm"
+        backdrop="static"
+        show={show.display}
+        onHide={() => {
+          setShow({ display: false, user_in: "_" });
+        }}
+      >
+        <Modal.Header>
           <Modal.Title>Edit Transition</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <Row>         <Col md={{ offset: 2 }}> 
-        <input type="text" defaultValue= {show.from} size="3" disabled/>
-            <input type="text" size="4" onChange={(event) => { inputVal = event.target.value }} defaultValue={ show.edgeLabel }/>
-        <input type="text" defaultValue= {show.to} size="3" disabled/>
-        </Col>
-</Row>
-          </Modal.Body>
+          <Row>
+            {" "}
+            <Col md={{ offset: 2 }}>
+              <input type="text" defaultValue={show.from} size="3" disabled />
+              <input
+                type="text"
+                size="4"
+                onChange={(event) => {
+                  inputVal = event.target.value;
+                }}
+                defaultValue={show.edgeLabel}
+              />
+              <input type="text" defaultValue={show.to} size="3" disabled />
+            </Col>
+          </Row>
+        </Modal.Body>
         <Modal.Footer>
-          {warning ?
-            <Badge size="sm" variant="danger">Must be single characters comma seperated.</Badge> :
-            <React.Fragment />}
-          <Button variant="primary" onClick={() => ChangeEdgeText(inputVal,show.edgeId)}>
+          {warning ? (
+            <Badge size="sm" variant="danger">
+              Must be single characters comma seperated.
+            </Badge>
+          ) : (
+            <React.Fragment />
+          )}
+          <Button
+            variant="primary"
+            onClick={() => ChangeEdgeText(inputVal, show.edgeId)}
+          >
             Save Changes
           </Button>
         </Modal.Footer>
