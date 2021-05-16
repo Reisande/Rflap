@@ -1,16 +1,11 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "Rflap",
+  "name": "Rflap",
   "icons": [
     {
-      "src": "logo_2.png",
-      "sizes": "32x32 24x24 16x16",
-      "type": "image/png"
-    },
-    {
-      "src": "logo512.png",
+      "src": "1.png",
       "type": "image/png",
-      "sizes": "512x512"
+      "sizes": "2625 × 1628"
     }
   ],
   "start_url": ".",
