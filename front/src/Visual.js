@@ -26,7 +26,6 @@ import { NetworkOptions } from "./res/NetworkOptions";
 //seperate from nodesDS (vis.DataSet() object) because of leaky abstractions
 let node_id_global = 0;
 let height = window.innerHeight - 85;
-let img_bar_status_did_mount = false;
 
 /*Creating vs.DataSet objects (arrays of object {id;labels;from;to;arrows;}*/
 
@@ -82,8 +81,6 @@ function Visual() {
 
   useEffect(() => {
     img_status.current.src = passive_bar;
-    const HTMLCol_to_array = (html_collection) =>
-      Array.prototype.slice.call(html_collection);
     let nav_header_height =
       document.querySelector("#nav-header") == null
         ? 0
@@ -103,7 +100,7 @@ function Visual() {
     );
     master_context.network = network;
     //context-click for graph
-    network.on("showPopup", (params) => {});
+    //network.on("showPopup", (params) => {});
 
     //graph event listeners here:
 
@@ -111,7 +108,7 @@ function Visual() {
   hoverNode listener
   Desc: Takes node added in addNode
   */
-    network.on("hoverNode", (params) => {});
+    //network.on("hoverNode", () => {});
     /* 
     controlNodeDragEnd
     Desc: Catches end of add transition event, and updates edges with newly added edges.
@@ -275,9 +272,6 @@ function Visual() {
         let final_state;
         let circle_config = "circle";
         let triangle_config = "triangle";
-        let border_config_a = 3;
-        let border_config_b = 0;
-        let init_state = "#00bfff";
 
         if (found_node.shape == circle_config || found_node.shape == null) {
           final_state = triangle_config;
@@ -508,6 +502,7 @@ function Visual() {
         return;
       }
     });
+
     //standardize end input to string lengths of size 5:
     return (returnLabel += nominalAppend).length === 4
       ? (returnLabel += " ")
@@ -561,37 +556,7 @@ function Visual() {
         </Modal.Footer>
       </Modal>
       <div class="div-inline-group-below-header" id="bar_layout">
-        {/* <div id="trash_button" class="div-inline-group-below-header">
-          <input
-            id="trash_button_input"
-            onClick={deleteNodeOrEdge}
-            type="image"
-            src={remove_bar}
-            width="33"
-            height="33"
-            name="remove_bar"
-          />
-        </div> */}
-        {/* <div id="add_button_visual" class="div-inline-group-below-header">
-          <input
-            id="add_button_image"
-            onClick={populateNode}
-            type="image"
-            src={add_bar}
-            width="33"
-            height="33"
-            name="add_button"
-          />
-        </div> */}
-
         <ButtonGroup id="group-holder" className="mr-2">
-          {/* <Button class="visual-button" variant="info" onClick={()=>toEditEdgeMode()}>
-            {" "}
-            <font color="white">Add Transitions</font>
-          </Button> */}
-
-          {/*Depreciated method of adding nodes to the canvas */}
-          {/* <Button class ="visual-button" variant="secondary" onClick={toAddNodeMode}><font color='yellow'> Add Node</font> </Button> */}
           <Button class="visual-button" variant="info" onClick={setInitial}>
             {" "}
             <font color="white">Mark Initial</font>
@@ -611,7 +576,6 @@ function Visual() {
         ></img>
       </div>
 
-      {/* <memoGraph ref={wrapper}> {"hi"}</memoGraph> */}
       <div
         style={{ height: `${height.toString()}px` }}
         id="graph-display"
