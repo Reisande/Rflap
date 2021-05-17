@@ -26,7 +26,6 @@ import { Hex } from "./res/HexColors";
 /*height and width make dimensions of graph fill screen*/
 let node_id_global = 0;
 let height = window.innerHeight - 85;
-let img_bar_status_did_mount = false;
 
 /*Beginning of node and edge information*/
 
@@ -69,8 +68,6 @@ function PDA_Visual() {
 
   useEffect(() => {
     img_status.current.src = passive_bar;
-    const HTMLCol_to_array = (html_collection) =>
-      Array.prototype.slice.call(html_collection);
     master_context.PDA = true;
     let nav_header_height =
       document.querySelector("#nav-header") == null
@@ -91,7 +88,7 @@ function PDA_Visual() {
     );
     master_context.network = network;
     //context-click for graph
-    network.on("showPopup", (params) => {});
+    network.on("showPopup", (_) => {});
 
     //graph event listeners here:
 
@@ -99,7 +96,7 @@ function PDA_Visual() {
   hoverNode listener
   Desc: Takes node added in addNode
   */
-    network.on("hoverNode", (params) => {});
+    network.on("hoverNode", (_) => {});
     /* 
     controlNodeDragEnd
     Desc: Catches end of add transition event, and updates edges with newly added edges.
@@ -178,7 +175,7 @@ function PDA_Visual() {
       return false;
     };
 
-    network.on("release", (p) => {
+    network.on("release", (_) => {
       img_status.current.src = passive_bar;
     });
 
@@ -263,9 +260,6 @@ function PDA_Visual() {
         let final_state;
         let circle_config = "circle";
         let triangle_config = "triangle";
-        let border_config_a = 3;
-        let border_config_b = 0;
-        let init_state = "#00bfff";
 
         if (found_node.shape == circle_config || found_node.shape == null) {
           final_state = triangle_config;
@@ -415,7 +409,8 @@ function PDA_Visual() {
     });
     return { edgeLabel: edgeText, from: fromLabel, to: toLabel };
   };
-  const ChangeEdgeText = (userInput, edgeID) => {
+  /* User input, edge Id as params */
+  const ChangeEdgeText = (_, edgeID) => {
     String.prototype.replaceAt = function (index, replacement) {
       return (
         this.substr(0, index) +
@@ -425,7 +420,6 @@ function PDA_Visual() {
     };
     let warn = false;
     let finalStr = [];
-    let finalLabel = "";
     let warnString = "";
     modalEntry.forEach((arr) => {
       arr = arr.map((str) => {
@@ -468,31 +462,10 @@ function PDA_Visual() {
       deselectAllModes();
     }
   };
-  //     });
-  //     if (userInput === "") {
-  //       warn = true;
-  //     }
-  //     if (warn) return;
-  //     userInput = userInput.replace("!", "ϵ").replace(" ", "ϵ");
-  //     edgesDS.update([{ id: edge.id, label: userInput }]);
-  //   }
-  // });
-  // if (warn) {
-  //   setWarningDisplay(true);
-  // }
-  // else {
-  //   setShow({ display: false })
-  //   setWarningDisplay(false);
-  //   deselectAllModes();
-  // }
-
-  //  const saveEdgeEdit = (edgeId) => {
-  //   ChangeEditText()
-  //}
 
   const findEdgeByNodes = (from, to) => {
     let return_id;
-    graph.edges.forEach((edge, index) => {
+    graph.edges.forEach((edge, _) => {
       if (to == edge.to && edge.from == from) {
         return_id = edge.id;
       }
@@ -503,7 +476,7 @@ function PDA_Visual() {
   /* Functions for all graph transformation buttons right below the header */
 
   //network.enableEditMode and then network.addEdgeMode
-  function toEditEdgeMode(props) {
+  function toEditEdgeMode() {
     deselectAllModes();
     try {
       img_status.current.src = transition_bar;
@@ -512,16 +485,8 @@ function PDA_Visual() {
       network.addEdgeMode();
     } catch (e) {}
   }
-  //network.enableEditMode() and then network.addNodeMode()
-  function toAddNodeMode(props) {
-    deselectAllModes();
-    img_status.current.src = add_bar;
-    if (network == null) return;
-    network.enableEditMode();
-    network.addNodeMode();
-  }
   //
-  function setInitial(props) {
+  function setInitial() {
     deselectAllModes();
     img_status.current.src = points_bar;
 
@@ -529,7 +494,7 @@ function PDA_Visual() {
     // the initial node (transforms shape).
     in_initial_mode = true;
   }
-  function setAccepting(props) {
+  function setAccepting() {
     deselectAllModes();
     img_status.current.src = accept_bar;
 
@@ -564,53 +529,6 @@ function PDA_Visual() {
       : returnLabel;
   };
 
-  /* 
-  populateNode() => props:null
-    Desc: adds Node when the plus button is clicked.
-    Adds nodes and ensures that id and displayname does not overlap with other nodes.
-*/
-  function populateNode(props) {
-    //    !img_bar_status_did_mount
-    //    ? (master_context.did_mount = mount_styling())
-    //  : (master_context.did_mount = master_context.did_mount);
-    img_bar_status_did_mount = true;
-    //Node_id_global just to ensure ids are different each time
-    // used purely for the api library vis.network and not for node selection
-    // on the frontend-- label is used instead .
-    node_id_global += 1;
-    nodesDS.add([{ id: node_id_global, label: newNodeLabel() }]);
-    network.moveNode(
-      node_id_global,
-      (Math.random() - 0.6) * 400,
-      (Math.random() - 0.6) * 40 > 0
-    );
-  }
-
-  /* deleteNodesOrEdge(props) => props:null
-
-  Desc: Deletes selected nodes when the trash icon is clicked
-
-*/
-
-  function deleteNodeOrEdge(props) {
-    deselectAllModes();
-    if (network == null) return;
-    network.deleteSelected();
-  }
-  //  const graphComp = ({children}) => (
-  // <div
-  //   style={{ height: `${height}px` }}
-  //   id="graph-display"
-  //   className="Visual"
-  //   ref={wrapper}
-  // >{children}</div>
-
-  //const memoGraph = React.memo(graphComp);
-
-  const closeModal = () => {
-    //setShow(false);
-  };
-  let newArr = [];
   function StackModalEntry(props) {
     return (
       <Row>
@@ -632,7 +550,7 @@ function PDA_Visual() {
             }}
             defaultValue={modalEntry[props.index][1]}
           />
-          <input type="text" disabled defaultValue="  🠆" size="1" />
+          <input type="text" disabled defaultValue="=>" size="1" />
           <input
             type="text"
             onChange={(event) => {
@@ -645,13 +563,12 @@ function PDA_Visual() {
       </Row>
     );
   }
-  const image_click_handler = (event) => {
+  const image_click_handler = (_) => {
     let new_array = modalEntry;
     new_array.push(["", "", ""]);
     setModalEntries([...new_array]);
   };
 
-  //          setShow({ display: true, from: "δ(" + from, edgeLabel: edgeLabel, toInvariant: ") = ",  to: to});
   return (
     <div id="non-header-div">
       <Modal
@@ -696,14 +613,6 @@ function PDA_Visual() {
           ) : (
             <></>
           )}
-          {/* <Row>
-            <Col md={{ offset: 2 }}> 
-
-        <input type="text" defaultValue= {show.from} size="3" disabled/>
-            <input type="text" size="4" onChange={(event) => { inputVal = event.target.value }} defaultValue={ show.edgeLabel }/>
-        <input type="text" defaultValue= {show.to} size="3" disabled/>
-        </Col>
-</Row> */}
         </Modal.Body>
         <Modal.Footer>
           {warning.on ? (
@@ -723,37 +632,7 @@ function PDA_Visual() {
         </Modal.Footer>
       </Modal>
       <div class="div-inline-group-below-header" id="bar_layout">
-        {/* <div id="trash_button" class="div-inline-group-below-header">
-          <input
-            id="trash_button_input"
-            onClick={deleteNodeOrEdge}
-            type="image"
-            src={remove_bar}
-            width="33"
-            height="33"
-            name="remove_bar"
-          />
-        </div> */}
-        {/* <div id="add_button_visual" class="div-inline-group-below-header">
-          <input
-            id="add_button_image"
-            onClick={populateNode}
-            type="image"
-            src={add_bar}
-            width="33"
-            height="33"
-            name="add_button"
-          />
-        </div> */}
-
         <ButtonGroup id="group-holder" className="mr-2">
-          {/* <Button class="visual-button" variant="info" onClick={()=>toEditEdgeMode()}>
-            {" "}
-            <font color="white">Add Transitions</font>
-          </Button> */}
-
-          {/*Depreciated method of adding nodes to the canvas */}
-          {/* <Button class ="visual-button" variant="secondary" onClick={toAddNodeMode}><font color='yellow'> Add Node</font> </Button> */}
           <Button class="visual-button" variant="info" onClick={setInitial}>
             {" "}
             <font color="white">Mark Initial</font>
@@ -772,7 +651,6 @@ function PDA_Visual() {
         ></img>
       </div>
 
-      {/* <memoGraph ref={wrapper}> {"hi"}</memoGraph> */}
       <div
         style={{ height: `${height.toString()}px` }}
         id="graph-display"
