@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, useContext } from "react";
+import React, { useEffect, useRef, useContext } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Form, Col } from "react-bootstrap";
 import right_arrow_production from "./res/img/long-right-arrow.svg";
@@ -14,18 +14,21 @@ function Rule(props) {
   const terminal = useRef(null);
   const master_context = useContext(AutomataContext);
   let mount_text = "  ";
-  props.index == 0 ? (mount_text = "S") : (mount_text = mount_text);
+  if (props !== undefined && props.index !== undefined && props.index === 0) {
+    mount_text = "S";
+  }
   useEffect(() => {
-    let a;
     const set_S = () => {
       master_context.grammar_obj[0].NON_TERM = mount_text;
       non_terminal.current.readOnly = true;
     };
-    props.index == 0 ? set_S() : (a = 1);
-  }, []);
+
+    if (props !== undefined && props.index !== undefined && props.index === 0) {
+      set_S();
+    }
+  });
 
   const update_grammar_table = (e, E_formtype_value) => {
-    let preprocess = e.target.value;
     let text_input = e.target.value.replace(/\s/g, "");
     switch (E_formtype_value) {
       case E_formtype.NON_TERM:
@@ -50,7 +53,7 @@ function Rule(props) {
           <Form.Control
             ref={non_terminal}
             onChange={(e) => update_grammar_table(e, E_formtype.NON_TERM)}
-            defaultValue={props.index == 0 ? "S" : props.non_term}
+            defaultValue={props.index === 0 ? "S" : props.non_term}
             as="input"
             id="rule_non-terminal"
           />
@@ -61,6 +64,7 @@ function Rule(props) {
             src={right_arrow_production}
             height="34"
             width="34"
+            alt={"->"}
           ></img>
         </Col>
         <Col md={{ span: 6 }}>
