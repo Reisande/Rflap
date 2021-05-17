@@ -361,12 +361,12 @@ function Visual() {
             img_status.current.src = remove_bar;
             delete_lock = true;
             return;
-          } else if (keyCode == "KeyT") {
+          } else if (keyCode === "KeyT") {
             toEditEdgeMode();
             return;
           } else {
             delete_lock = false;
-            if (img_status != null && img_status.current != null) {
+            if (img_status !== null && img_status.current !== null) {
               img_status.current.src = passive_bar;
             }
             return;
@@ -394,33 +394,33 @@ function Visual() {
     let nodeFromId, nodeToId;
 
     graph.edges.forEach((edge) => {
-      if (edge.id == edgeID) {
+      if (edge.id === edgeID) {
         nodeFromId = edge.from;
         nodeToId = edge.to;
         edgeText = edge.label;
       }
     });
     graph.nodes.forEach((node) => {
-      if (node.id == nodeFromId) {
+      if (node.id === nodeFromId) {
         fromLabel = node.label;
       }
-      if (node.id == nodeToId) {
+      if (node.id === nodeToId) {
         toLabel = node.label;
       }
     });
     return { edgeLabel: edgeText, from: fromLabel, to: toLabel };
   };
   const ChangeEdgeText = (userInput, edgeID) => {
-    String.prototype.replaceAt = function (index, replacement) {
-      return (
-        this.substr(0, index) +
-        replacement +
-        this.substr(index + replacement.length)
-      );
-    };
+    // String.prototype.replaceAt = function (index, replacement) {
+    //   return (
+    //     this.substr(0, index) +
+    //     replacement +
+    //     this.substr(index + replacement.length)
+    //   );
+    // };
     let warn = false;
     graph.edges.forEach((edge) => {
-      if (edge.id == edgeID) {
+      if (edge.id === edgeID) {
         edge.label = userInput;
         userInput.split(",").forEach((chr) => {
           if (chr.length > 1) {
@@ -449,8 +449,8 @@ function Visual() {
 
   const findEdgeByNodes = (from, to) => {
     let return_id;
-    graph.edges.forEach((edge, index) => {
-      if (to == edge.to && edge.from == from) {
+    graph.edges.forEach((edge, _) => {
+      if (to === edge.to && edge.from === from) {
         return_id = edge.id;
       }
     });
@@ -469,14 +469,7 @@ function Visual() {
       network.addEdgeMode();
     } catch (e) {}
   }
-  //network.enableEditMode() and then network.addNodeMode()
-  function toAddNodeMode(props) {
-    deselectAllModes();
-    img_status.current.src = add_bar;
-    if (network == null) return;
-    network.enableEditMode();
-    network.addNodeMode();
-  }
+
   //
   function setInitial(props) {
     deselectAllModes();
@@ -509,67 +502,18 @@ function Visual() {
       })
       .sort((a, b) => a - b);
     nodesDS.get().forEach((obj, index) => {
-      if (nodesPresent[index] != index && !foundEmptyIndex) {
+      if (nodesPresent[index] !== index && !foundEmptyIndex) {
         nominalAppend = index.toString();
         foundEmptyIndex = true;
         return;
       }
     });
     //standardize end input to string lengths of size 5:
-    return (returnLabel += nominalAppend).length == 4
+    return (returnLabel += nominalAppend).length === 4
       ? (returnLabel += " ")
       : returnLabel;
   };
 
-  /* 
-  populateNode() => props:null
-    Desc: adds Node when the plus button is clicked.
-    Adds nodes and ensures that id and displayname does not overlap with other nodes.
-*/
-  function populateNode(props) {
-    //    !img_bar_status_did_mount
-    //    ? (master_context.did_mount = mount_styling())
-    //  : (master_context.did_mount = master_context.did_mount);
-    img_bar_status_did_mount = true;
-    //Node_id_global just to ensure ids are different each time
-    // used purely for the api library vis.network and not for node selection
-    // on the frontend-- label is used instead .
-    node_id_global += 1;
-    nodesDS.add([{ id: node_id_global, label: newNodeLabel() }]);
-    network.moveNode(
-      node_id_global,
-      (Math.random() - 0.6) * 400,
-      (Math.random() - 0.6) * 40 > 0
-    );
-  }
-
-  /* deleteNodesOrEdge(props) => props:null
-
-  Desc: Deletes selected nodes when the trash icon is clicked
-
-*/
-
-  function deleteNodeOrEdge(props) {
-    deselectAllModes();
-    if (network == null) return;
-    network.deleteSelected();
-  }
-
-  //  const graphComp = ({children}) => (
-  // <div
-  //   style={{ height: `${height}px` }}
-  //   id="graph-display"
-  //   className="Visual"
-  //   ref={wrapper}
-  // >{children}</div>
-
-  //const memoGraph = React.memo(graphComp);
-
-  const closeModal = () => {
-    //setShow(false);
-  };
-
-  //          setShow({ display: true, from: "δ(" + from, edgeLabel: edgeLabel, toInvariant: ") = ",  to: to});
   return (
     <div id="non-header-div">
       <Modal
@@ -663,6 +607,7 @@ function Visual() {
           src={img_array[img_index]}
           height="34"
           width="34"
+          alt={"status"}
         ></img>
       </div>
 

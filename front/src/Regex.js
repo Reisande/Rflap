@@ -1,5 +1,4 @@
 import React, { useEffect, useState, useRef, useContext } from "react";
-import { Hex } from "./res/HexColors.js";
 import RowInput from "./RowInput.js";
 import {
   Card,
@@ -24,7 +23,6 @@ import Popup from "reactjs-popup";
 import { AutomataContext } from "./AutomataContext.js";
 
 let inputValForExport;
-let userTranslatedRegex;
 let readImportTxt;
 const image_collection = [error_image, idle_svg, success_image];
 function moveCursorToEnd(el) {
@@ -81,7 +79,6 @@ function Regex() {
           .replace("/", ""),
       });
     }
-    userTranslatedRegex = reg;
     return reg;
   };
 

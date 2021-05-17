@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useRef, useContext } from "react";
 import "./HeaderMenu.css";
 import "bootstrap/dist/css/bootstrap.min.css";
-import { Navbar, Nav, NavDropdown, Col, Button } from "react-bootstrap";
+import { Navbar, Nav, NavDropdown, Col } from "react-bootstrap";
 import { AutomataContext } from "./AutomataContext.js";
 /*LOGO svg import*/
 import rflapsvg from "./res/img/rflapsvg.svg";
@@ -33,20 +33,6 @@ function HeaderMenu(props) {
     document.querySelector("a.dropdown-toggle.nav-link").style.color =
       "#e25b4b";
 
-    function trimSvgWhitespace() {
-      // get all SVG objects in the DOM
-      var svgs = document.getElementById("rflapsvg-logo");
-
-      // go through each one and add a viewbox that ensures all children are visible
-      for (var i = 0, l = svgs.length; i < l; i++) {
-        var svg = svgs[i],
-          box = svg.getBBox(), // <- get the visual boundary required to view all children
-          viewBox = [box.y, box.x, box.width, box.height].join(" ");
-
-        // set viewable area based on value above
-        svg.setAttribute("viewBox", viewBox);
-      }
-    }
     //trimSvgWhitespace();
     master_context.mode = machine_select;
 
@@ -55,9 +41,9 @@ function HeaderMenu(props) {
     Run button if in CFG || TM mode as no sidebar component is needed for either.
     */
     if (
-      master_context.mode == "Context-free Grammar" ||
-      master_context.mode == "Turing Machine" ||
-      master_context.mode == "Regular Expressions"
+      master_context.mode === "Context-free Grammar" ||
+      master_context.mode === "Turing Machine" ||
+      master_context.mode === "Regular Expressions"
     ) {
       runbutton.current.style.visibility = "hidden";
     } else {

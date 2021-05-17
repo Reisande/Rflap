@@ -17,7 +17,8 @@
     "react-tooltip": "^4.2.9",
     "reactjs-popup": "^1.5.0",
     "uuid": "^8.0.0",
-    "vis-network": "^7.3.3"
+    "vis-network": "^7.3.3",
+    "zustand": "^3.5.1"
   },
   "scripts": {
     "start": "react-scripts start",

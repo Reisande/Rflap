@@ -4,8 +4,6 @@ const rflapBlue = "#2f9399";
 const rflapGray = "#b1cad1";
 //node edges, texts, insides
 const rflapRed = "#E25B4B";
-//nodeBorderColors
-const rflapLBlack = "#64778D";
 //space above header
 const rflapIce = "#ecfdff";
 //node border color
@@ -23,12 +21,9 @@ export const Hex = {
   NodeBorder: rflapBlack,
   Canvas: rflapGray,
   EdgeColor: rflapRed,
-  EdgeInnerText: rflapMintWhite, 
-  EdgeInnerTextStroke: rflapNavy, 
-  Rcolor : rflapBlue,
-
-
+  EdgeInnerText: rflapMintWhite,
+  EdgeInnerTextStroke: rflapNavy,
+  Rcolor: rflapBlue,
 };
-
 
 export default Hex;
